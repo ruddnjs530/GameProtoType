@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum PlayerState { Idle, Run, Jump, StopAttack, MoveAttack}
+public enum PlayerState { Idle, Run, Jump, StopAttack, MoveAttack, DiveRoll}
 
 public class Player : MonoBehaviour
 {
@@ -49,6 +49,7 @@ public class Player : MonoBehaviour
 
                 else if (Input.GetKey(KeyCode.Space)) playerState = PlayerState.Jump;
                 else if (Input.GetMouseButton(0)) playerState = PlayerState.StopAttack;
+                else if (Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
                 break;
 
             case PlayerState.Run:
@@ -60,6 +61,7 @@ public class Player : MonoBehaviour
                 }
                 else if (Input.GetKey(KeyCode.Space)) playerState = PlayerState.Jump;
                 else if (Input.GetMouseButton(0)) playerState = PlayerState.MoveAttack;
+                else if (Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
                 break;
 
             case PlayerState.Jump:
@@ -72,6 +74,7 @@ public class Player : MonoBehaviour
                 else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D))
                     playerState = PlayerState.Run;
                 else if (Input.GetMouseButton(0)) playerState = PlayerState.MoveAttack;
+                else if (Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
                 break;
 
             case PlayerState.StopAttack:
@@ -79,6 +82,7 @@ public class Player : MonoBehaviour
                 if (Input.GetMouseButtonUp(0)) playerState = PlayerState.Idle;
                 else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D)) playerState = PlayerState.Run;
                 else if (Input.GetKey(KeyCode.Space)) playerState = PlayerState.Jump;
+                else if (Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
                 break;
 
             case PlayerState.MoveAttack:
@@ -86,6 +90,7 @@ public class Player : MonoBehaviour
                 Attack();
                 Jump();
                 if (Input.GetMouseButtonUp(0)) playerState = PlayerState.Run;
+                else if (Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
                 else if (dir.magnitude < 0.1f)
                 {
                     playerState = PlayerState.StopAttack;
@@ -96,6 +101,10 @@ public class Player : MonoBehaviour
                     playerState = PlayerState.Idle;
                     anim.SetBool("Running", false);
                 }
+                break;
+
+            case PlayerState.DiveRoll:
+                DiveRoll();
                 break;
         }
 
@@ -154,6 +163,22 @@ public class Player : MonoBehaviour
         {
             anim.SetBool("Shooting", false);
             anim.SetLayerWeight(1, 0);
+            playerState = PlayerState.Idle;
+        }
+    }
+
+    void DiveRoll()
+    {
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            Debug.Log("hi");
+            anim.SetBool("DiveRoll", true);
+            dir = transform.forward * vInput + transform.right * hzInput;
+            cc.Move(dir.normalized * 7 * Time.deltaTime);
+        }
+        else
+        {
+            anim.SetBool("DiveRoll", false);
             playerState = PlayerState.Idle;
         }
     }

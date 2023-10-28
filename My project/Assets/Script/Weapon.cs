@@ -6,7 +6,6 @@ public class Weapon : MonoBehaviour
 {
     [SerializeField] float fireRate;
     float fireRateTimer;
-    [SerializeField] bool autoShoot;
 
 
     [SerializeField] GameObject bullet;
@@ -44,8 +43,7 @@ public class Weapon : MonoBehaviour
     {
         fireRateTimer += Time.deltaTime;
         if (fireRateTimer < fireRate) return false;
-        if (autoShoot && Input.GetMouseButtonDown(0)) return true;
-        if (!autoShoot && Input.GetMouseButton(0)) return true;
+        if (Input.GetMouseButton(0)) return true;
         return false;
     }
 
