@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum PlayerState { Idle, Run, Jump, Attack}
+public enum PlayerState { Idle, Run, Jump, StopAttack, MoveAttack}
 
 public class Player : MonoBehaviour
 {
@@ -27,8 +27,6 @@ public class Player : MonoBehaviour
 
     Animator anim;
 
-    float temp;
-
     PlayerState playerState = PlayerState.Idle;
 
     // Start is called before the first frame update
@@ -37,7 +35,6 @@ public class Player : MonoBehaviour
         cc = GetComponent<CharacterController>();
         anim = GetComponent<Animator>();
 
-        //playerState = PlayerState.Idle;
         anim.SetLayerWeight(1, 0);
     }
 
@@ -51,7 +48,7 @@ public class Player : MonoBehaviour
                     playerState = PlayerState.Run;
 
                 else if (Input.GetKey(KeyCode.Space)) playerState = PlayerState.Jump;
-                else if (Input.GetMouseButton(0)) playerState = PlayerState.Attack;
+                else if (Input.GetMouseButton(0)) playerState = PlayerState.StopAttack;
                 break;
 
             case PlayerState.Run:
@@ -62,7 +59,7 @@ public class Player : MonoBehaviour
                     anim.SetBool("Running", false);
                 }
                 else if (Input.GetKey(KeyCode.Space)) playerState = PlayerState.Jump;
-                else if (Input.GetMouseButton(0)) playerState = PlayerState.Attack;
+                else if (Input.GetMouseButton(0)) playerState = PlayerState.MoveAttack;
                 break;
 
             case PlayerState.Jump:
@@ -74,14 +71,31 @@ public class Player : MonoBehaviour
                 }
                 else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D))
                     playerState = PlayerState.Run;
-                else if (Input.GetMouseButton(0)) playerState = PlayerState.Attack;
+                else if (Input.GetMouseButton(0)) playerState = PlayerState.MoveAttack;
                 break;
 
-            case PlayerState.Attack:
+            case PlayerState.StopAttack:
                 Attack();
                 if (Input.GetMouseButtonUp(0)) playerState = PlayerState.Idle;
                 else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D)) playerState = PlayerState.Run;
                 else if (Input.GetKey(KeyCode.Space)) playerState = PlayerState.Jump;
+                break;
+
+            case PlayerState.MoveAttack:
+                Move();
+                Attack();
+                Jump();
+                if (Input.GetMouseButtonUp(0)) playerState = PlayerState.Run;
+                else if (dir.magnitude < 0.1f)
+                {
+                    playerState = PlayerState.StopAttack;
+                    anim.SetBool("Running", false);
+                }
+                else if (Input.GetMouseButtonUp(0) && dir.magnitude < 0.1f)
+                {
+                    playerState = PlayerState.Idle;
+                    anim.SetBool("Running", false);
+                }
                 break;
         }
 
@@ -111,7 +125,7 @@ public class Player : MonoBehaviour
     //    return false;
     //}
 
-    void Gravity() // velocity 를 dir로 해보기. 교수님이 왜 이건 따로 했냐고 물어볼듯
+    void Gravity()
     {
         if (!cc.isGrounded) velocity.y += gravity * Time.deltaTime;
         if (velocity.y < 0) velocity.y = -2;
@@ -135,7 +149,6 @@ public class Player : MonoBehaviour
         {
             anim.SetLayerWeight(1, 1);
             anim.SetBool("Shooting", true);
-            temp = 1;
         }
         else 
         {
