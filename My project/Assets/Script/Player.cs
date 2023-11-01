@@ -69,7 +69,7 @@ public class Player : MonoBehaviour
                 if (cc.isGrounded)
                 {
                     playerState = PlayerState.Idle;
-                    anim.SetBool("Jump", false);
+                    //anim.SetBool("Jump", false);
                 }
                 else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D))
                     playerState = PlayerState.Run;
@@ -145,7 +145,8 @@ public class Player : MonoBehaviour
     {
         if (cc.isGrounded && Input.GetButton("Jump"))
         {
-            anim.SetBool("Jump", true);
+            //anim.SetBool("Jump", true);
+            anim.SetTrigger("Jump");
             velocity.y = jumpSpeed;
         }
            
@@ -169,18 +170,11 @@ public class Player : MonoBehaviour
 
     void DiveRoll()
     {
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            Debug.Log("hi");
-            anim.SetBool("DiveRoll", true);
-            dir = transform.forward * vInput + transform.right * hzInput;
-            cc.Move(dir.normalized * 7 * Time.deltaTime);
-        }
-        else
-        {
-            anim.SetBool("DiveRoll", false);
-            playerState = PlayerState.Idle;
-        }
+        anim.SetTrigger("DiveRoll");
+        //dir = transform.forward * vInput + transform.right * hzInput;
+        //cc.Move(dir.normalized * 7 * Time.deltaTime);
+        playerState = PlayerState.Idle;
+
     }
 }
 
