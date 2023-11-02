@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum PlayerState { Idle, Run, Jump, StopAttack, MoveAttack, DiveRoll}
 
@@ -29,13 +30,19 @@ public class Player : MonoBehaviour
 
     PlayerState playerState = PlayerState.Idle;
 
+    float maxHP = 100f;
+    float currentHP = 100f;
+    [SerializeField] Slider hpBar;
+
+    [SerializeField] Inventory theInventory;
+
     // Start is called before the first frame update
     void Start()
     {
         cc = GetComponent<CharacterController>();
         anim = GetComponent<Animator>();
 
-        anim.SetLayerWeight(1, 0);
+       anim.SetLayerWeight(1, 0);
     }
 
     // Update is called once per frame
@@ -111,6 +118,8 @@ public class Player : MonoBehaviour
         Gravity();
         anim.SetFloat("horizontal", hzInput); // 이걸로 애니메이션 float값 받아서 하는듯
         anim.SetFloat("vertical", vInput);
+
+        hpBar.value = currentHP / maxHP;
     }
 
     void Move()
@@ -124,15 +133,6 @@ public class Player : MonoBehaviour
         anim.SetFloat("horizontal", hzInput);
         anim.SetFloat("vertical", vInput);
     }
-
-    //bool IsGrounded()
-    //{
-    //    playerPos = new Vector3(transform.position.x, transform.position.y - groundYOffset, transform.position.z);
-    //    // checksphere는 구를 만드는 함수. playerPos를 기준으로 반지름(radius) - 0.05만큼 뺀 크기의 구를 만들고 속성을
-    //    // layerMask인 groundMask로 받아오는 느낌
-    //    if (Physics.CheckSphere(playerPos, cc.radius - 0.05f, groundMask)) return true;
-    //    return false;
-    //}
 
     void Gravity()
     {
@@ -168,6 +168,22 @@ public class Player : MonoBehaviour
         }
     }
 
+
+    public void TakeDamage(float damage)
+    {
+        currentHP -= damage;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Item")
+        {
+            theInventory.AcquireItem(other.gameObject.transform.GetComponent<ItemManager>().item, 1);
+            Destroy(other.gameObject);  
+        }
+    }
+
+
     void DiveRoll()
     {
         anim.SetTrigger("DiveRoll");
@@ -176,6 +192,18 @@ public class Player : MonoBehaviour
         playerState = PlayerState.Idle;
 
     }
+
+    //bool IsGrounded()
+    //{
+    //    playerPos = new Vector3(transform.position.x, transform.position.y - groundYOffset, transform.position.z);
+    //    // checksphere는 구를 만드는 함수. playerPos를 기준으로 반지름(radius) - 0.05만큼 뺀 크기의 구를 만들고 속성을
+    //    // layerMask인 groundMask로 받아오는 느낌
+    //    if (Physics.CheckSphere(playerPos, cc.radius - 0.05f, groundMask)) return true;
+    //    return false;
+    //}
 }
+
+
+
 
 

@@ -4,15 +4,10 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    [SerializeField] float destroyTime;
+    float destroyTime =10f;
     float timer;
 
     int bulletDamage = 10;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
@@ -21,11 +16,11 @@ public class Bullet : MonoBehaviour
         if (timer >= destroyTime) Destroy(this.gameObject);
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        if (collision.gameObject.tag =="Enemy")
+        if (other.gameObject.tag =="Enemy")
         {
-            collision.gameObject.GetComponent<Enemy>().TakeDamage(bulletDamage);
+            other.gameObject.GetComponent<Enemy>().TakeDamage(bulletDamage);
         }
         Destroy(this.gameObject);
     }

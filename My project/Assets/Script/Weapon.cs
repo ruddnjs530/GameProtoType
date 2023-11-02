@@ -7,7 +7,6 @@ public class Weapon : MonoBehaviour
     [SerializeField] float fireRate;
     float fireRateTimer;
 
-
     [SerializeField] GameObject bullet;
     [SerializeField] Transform barrelPos;
     [SerializeField] float bulletVelocity;

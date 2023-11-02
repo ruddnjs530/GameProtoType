@@ -16,12 +16,12 @@ public class DamageText : MonoBehaviour
     {
         upSpeed = 2.0f;
         alphaSpeed = 2.0f;
-        destroyTime = 2.0f;
+        destroyTime = 1.0f;
 
         text = GetComponent<TextMeshPro>();
         text.text = damage.ToString();
         alpha = text.color;
-        Invoke("DestoryText", destroyTime);
+        Invoke("DestroyText", destroyTime);
     }
 
     // Update is called once per frame

@@ -12,44 +12,50 @@ public class Enemy : MonoBehaviour
     protected Vector3 destination;
     protected float walkSpeed = 3f;
     protected float chaseSpeed = 6f;
-    protected float hp = 5;
+    protected float hp = 100;
 
     protected EnemyState enemyState;
     protected float currentTime = 0f;
 
     protected bool canAttack = false;
+    private float attackDelay = 2f;
 
     protected bool seePlayer = false;
     [SerializeField] protected GameObject textObject;
 
     protected float viewAngle = 130f; 
     protected float viewDistance = 20f; 
-    [SerializeField] protected LayerMask targetMask;  // 타겟 마스크(플레이어)
+    [SerializeField] protected LayerMask targetMask;
+
+    private float attackDistance = 5f;
+    private float attackDamage = 3f;
+
     // Start is called before the first frame update
-    void Start()
+    protected void Start()
     {
         agent = GetComponent<NavMeshAgent>();
 
         seePlayer = false;
         canAttack = false;
-        //target = GameObject.Find("Player").transform;
         enemyState = EnemyState.Idle;
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
+        View();
+        CanAttack();
+
         switch (enemyState)
         {
             case EnemyState.Idle:
                 LookAround();
                 currentTime += Time.deltaTime;
 
-                if (currentTime >= 3f && !seePlayer && !canAttack)
+                if (currentTime >= 3f && !seePlayer)
                     enemyState = EnemyState.SimpleMove;
-                else if (seePlayer && !canAttack)
+                else if (seePlayer)
                     enemyState = EnemyState.Chase;
-                else if (canAttack) enemyState = EnemyState.Attack;
                 else if (hp <= 0) enemyState = EnemyState.Die;
                 break;
 
@@ -66,6 +72,7 @@ public class Enemy : MonoBehaviour
                 Chase();
 
                 if (hp <= 0) enemyState = EnemyState.Die;
+                else if (canAttack) enemyState = EnemyState.Attack;
                 else if (!seePlayer) enemyState = EnemyState.Idle;
                 break;
 
@@ -79,20 +86,17 @@ public class Enemy : MonoBehaviour
                 Die();
                 break;
         }
-        View();
-        //LookAround();
-
     }
 
-    public void TakeDamage(int damage)
+    public virtual void TakeDamage(int damage)
     {
-        GameObject text = Instantiate(textObject);
+        hp -= damage;
+        GameObject text = Instantiate(textObject, transform);
         text.GetComponent<DamageText>().damage = damage;
     }
 
     protected void LookAround()
     {
-        Debug.Log("look around");
         int randomAngle = Random.Range(-1, 1);
         transform.Rotate(Vector3.up * Time.deltaTime * 5f * randomAngle);
     }
@@ -103,49 +107,61 @@ public class Enemy : MonoBehaviour
         destination.Set(Random.Range(-0.2f, 0.2f), 0f, Random.Range(0.5f, 1f));
     }
 
-    private void SimpleMove() // destination으로 이동.
+    protected void SimpleMove() // destination으로 이동.
     {
-        Debug.Log("simple move");
         agent.SetDestination(transform.position + destination * 5f);
         agent.speed = walkSpeed;
     }
 
-    protected void Chase()
+    protected virtual void Chase()
     {
-        Debug.Log("chase");
         destination = agentTarget.position;
         agent.SetDestination(destination);
         agent.speed = chaseSpeed;
     }
 
-    private void Attack()
+    protected virtual void Attack()
     {
-        // 적의 공격 함수
-        //Debug.Log("공격");
+        attackDelay -= Time.deltaTime;
+        if (attackDelay < 0) attackDelay = 0;
+        if (attackDelay == 0)
+        {
+            agentTarget.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
+            attackDelay = 2f;
+        }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void CanAttack()
     {
-        if (other.transform.tag == "Player") canAttack = true;
+        Collider[] target = Physics.OverlapSphere(transform.position, attackDistance, targetMask);
+        for (int i = 0; i < target.Length; i++)
+        {
+            Transform targetTf = target[i].transform;
+            if (targetTf.tag == "Player")
+            {
+                canAttack = true;
+                transform.LookAt(targetTf);
+                agentTarget = targetTf;
+            }
+            else
+            {
+                canAttack = false;
+            }
+        }
     }
 
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.transform.tag == "Player") canAttack = false;
-    }
-
-    private void Die()
+    protected virtual void Die()
     {
         Destroy(gameObject);
     }
 
-    private Vector3 BoundaryAngle(float angle) // 경계가 되는 델타 좌표를 구함
+    protected Vector3 BoundaryAngle(float angle) // 경계가 되는 델타 좌표를 구함
     {
         angle += transform.eulerAngles.y;
         return new Vector3(Mathf.Sin(angle * Mathf.Deg2Rad), 0f, Mathf.Cos(angle * Mathf.Deg2Rad));
     }
 
-    private void View()
+    protected void View()
     {
         Vector3 _leftBoundary = BoundaryAngle(-viewAngle * 0.5f);  // z 축 기준으로 시야 각도의 절반 각도만큼 왼쪽으로 회전한 방향 (시야각의 왼쪽 경계선)
         Vector3 _rightBoundary = BoundaryAngle(viewAngle * 0.5f);  // z 축 기준으로 시야 각도의 절반 각도만큼 오른쪽으로 회전한 방향 (시야각의 오른쪽 경계선)
@@ -154,7 +170,6 @@ public class Enemy : MonoBehaviour
         Debug.DrawRay(transform.position + transform.up, _rightBoundary, Color.red);
 
         Collider[] target = Physics.OverlapSphere(transform.position, viewDistance, targetMask);
-
 
         for (int i = 0; i < target.Length; i++)
         {
@@ -171,17 +186,15 @@ public class Enemy : MonoBehaviour
                     {
                         if (hit.transform.tag == "Player")
                         {
-                            Debug.Log("hi");
                             seePlayer = true;
                             agentTarget = hit.transform;
-                            Debug.Log(agentTarget.name);
                             Debug.DrawRay(transform.position + transform.up, direction, Color.blue);
 
                             enemyState = EnemyState.Chase;
                         }
+                        else seePlayer = false;
                     }
                 }
-                else seePlayer = false;
             }
         }
     }
