@@ -2765,7 +2765,7 @@ GameObject:
   - component: {fileID: 1513135049}
   - component: {fileID: 1513135048}
   - component: {fileID: 1513135050}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3868,7 +3868,7 @@ GameObject:
   - component: {fileID: 2117188027}
   - component: {fileID: 2117188031}
   - component: {fileID: 2117188032}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: NomalEnemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
