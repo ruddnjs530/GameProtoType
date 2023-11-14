@@ -48,6 +48,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!GameManager.canPlayerMove) return;
         switch (playerState)
         {
             case PlayerState.Idle:

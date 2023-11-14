@@ -11,6 +11,18 @@ public class Inventory : MonoBehaviour
 
     Slot[] slots;
 
+    public Slot[] GetSlots() { return slots; }
+
+    [SerializeField] private Item[] items;
+    public void LoadToInven(int arrayNum, string itemName, int itemNum)
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i].itemName == itemName) 
+                slots[arrayNum].AddItem(items[i], itemNum);
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,8 +41,16 @@ public class Inventory : MonoBehaviour
         {
             inventoryActivated = !inventoryActivated;
 
-            if (inventoryActivated) inventoryBase.SetActive(true);
-            else inventoryBase.SetActive(false);
+            if (inventoryActivated)
+            {
+                inventoryBase.SetActive(true);
+                GameManager.isOpenInventory = true;
+            }
+            else
+            {
+                inventoryBase.SetActive(false);
+                GameManager.isOpenInventory = false;
+            }
         }
     }
 
