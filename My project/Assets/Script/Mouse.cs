@@ -24,6 +24,7 @@ public class Mouse : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!GameManager.Instance.canPlayerMove) return;
         xAxis += Input.GetAxisRaw("Mouse X") * mouseSense;
         yAxis -= Input.GetAxisRaw("Mouse Y") * mouseSense;
         yAxis = Mathf.Clamp(yAxis, -80, 80);

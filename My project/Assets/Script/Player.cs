@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public enum PlayerState { Idle, Run, Jump, StopAttack, MoveAttack, DiveRoll}
 
 public class Player : MonoBehaviour
@@ -42,13 +43,13 @@ public class Player : MonoBehaviour
         cc = GetComponent<CharacterController>();
         anim = GetComponent<Animator>();
 
-       anim.SetLayerWeight(1, 0);
+        anim.SetLayerWeight(1, 0);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!GameManager.canPlayerMove) return;
+        if (!GameManager.Instance.canPlayerMove) return;
         switch (playerState)
         {
             case PlayerState.Idle:
@@ -169,7 +170,6 @@ public class Player : MonoBehaviour
         }
     }
 
-
     public void TakeDamage(float damage)
     {
         currentHP -= damage;
@@ -184,6 +184,21 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void IncreaseHP(float hp)
+    {
+        if (currentHP >= maxHP) return;
+        if (currentHP <= maxHP)
+            currentHP += hp;
+    }
+
+    public void GivingHPAndGetMoney(float hp, int money)
+    {
+        currentHP -= hp;
+        GameManager.Instance.money += money;
+    }
+
+    public float GetHP() { return currentHP; }
+    public void SetHP(float hp) { currentHP = hp; }
 
     void DiveRoll()
     {

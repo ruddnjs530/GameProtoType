@@ -6,8 +6,10 @@ using System.IO;
 [System.Serializable]
 public class SaveData
 {
-    public Vector3 playerPos;   // 플레이어 위치
-    public Quaternion playerRot;   // 플레이어 회전값 (유튜브에서는 Vector3 변수를 사용하고 transform.eulerAngles를 받았음)
+    public Vector3 playerPos;
+    public Vector3 playerRot;
+    public int money;
+    public float hp;
     public List<int> inventoryArrayNumber = new List<int>();
     public List<string> inventoryItemName = new List<string>();
     public List<int> inventoryItemNumber = new List<int>();
@@ -17,12 +19,6 @@ public class SaveAndLoad : MonoBehaviour
     private SaveData saveData = new SaveData();
     private Player player;
     private Inventory inventory;
-    // Application.dataPath + "/SaveFile.json";
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     public void SaveData()
     {
@@ -30,7 +26,9 @@ public class SaveAndLoad : MonoBehaviour
         inventory = FindObjectOfType<Inventory>();
 
         saveData.playerPos = player.transform.position;
-        saveData.playerRot = player.transform.rotation;
+        saveData.playerRot = player.transform.rotation.eulerAngles;
+        saveData.hp = player.GetHP();
+        saveData.money = GameManager.Instance.money;
 
         Slot[] slots = inventory.GetSlots();
         for (int i = 0; i < slots.Length; i++)
@@ -62,7 +60,10 @@ public class SaveAndLoad : MonoBehaviour
             inventory = FindObjectOfType<Inventory>();
 
             player.transform.position = saveData.playerPos;
-            player.transform.rotation = saveData.playerRot;
+            player.transform.eulerAngles = saveData.playerRot;
+            player.SetHP(saveData.hp);
+            GameManager.Instance.money = saveData.money;
+            GameManager.Instance.UpdateMoney();
 
             for (int i = 0; i < saveData.inventoryItemName.Count; i++)
             {

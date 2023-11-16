@@ -14,14 +14,6 @@ public class Inventory : MonoBehaviour
     public Slot[] GetSlots() { return slots; }
 
     [SerializeField] private Item[] items;
-    public void LoadToInven(int arrayNum, string itemName, int itemNum)
-    {
-        for (int i = 0; i < items.Length; i++)
-        {
-            if (items[i].itemName == itemName) 
-                slots[arrayNum].AddItem(items[i], itemNum);
-        }
-    }
 
     // Start is called before the first frame update
     void Start()
@@ -44,12 +36,12 @@ public class Inventory : MonoBehaviour
             if (inventoryActivated)
             {
                 inventoryBase.SetActive(true);
-                GameManager.isOpenInventory = true;
+                GameManager.Instance.isOpenInventory = true;
             }
             else
             {
                 inventoryBase.SetActive(false);
-                GameManager.isOpenInventory = false;
+                GameManager.Instance.isOpenInventory = false;
             }
         }
     }
@@ -65,6 +57,7 @@ public class Inventory : MonoBehaviour
                     if (slots[i].item.itemName == itemIn.itemName)
                     {
                         slots[i].SetSlotCount(count);
+                        return;
                     }
                 } 
             }
@@ -77,6 +70,14 @@ public class Inventory : MonoBehaviour
                 slots[i].AddItem(itemIn, count);
                 return;
             }
+        }
+    }
+    public void LoadToInven(int arrayNum, string itemName, int itemNum)
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i].itemName == itemName)
+                slots[arrayNum].AddItem(items[i], itemNum);
         }
     }
 }

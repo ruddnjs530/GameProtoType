@@ -1,18 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    //public bool nearItemBox = false;
-
     private static GameManager instance = null;
 
-    public static bool canPlayerMove = true;
-    public static bool isOpenInventory = false;
+    public bool canPlayerMove = true;
+    public bool isOpenInventory = false;
 
-    public static bool isMenuOpen = false;  // 메뉴가 눌러지면 true
+    public bool isMenuOpen = false;
 
+    public int money = 0;
+    [SerializeField] TextMeshProUGUI moneyUI;
     private void Awake()
     {
         if (instance == null)
@@ -40,6 +41,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;;
+        moneyUI.text = "$     " + money.ToString();
     }
 
     // Update is called once per frame
@@ -56,4 +58,20 @@ public class GameManager : MonoBehaviour
             canPlayerMove = true;
         }
     }
+    public void IncreaseMoney(int price)
+    {
+        money += price;
+        moneyUI.text = "$     " + money.ToString();
+    }
+
+    public void DecreaseMoney(int price)
+    {
+        money -= price;
+        moneyUI.text = "$     " + money.ToString();
+    }
+
+    public void UpdateMoney()
+    {
+        moneyUI.text = "$     " + money.ToString();
+    }    
 }

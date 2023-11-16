@@ -5,8 +5,4 @@ using UnityEngine;
 //public enum EnemyState { Move, Attack, Die }
 public class Enemy1 : Enemy
 {
-    protected override void Attack()
-    {
-        Debug.Log("АјАн");
-    }
 }

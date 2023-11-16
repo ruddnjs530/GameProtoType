@@ -6,12 +6,13 @@ using UnityEngine.EventSystems;
 public class Menu : MonoBehaviour
 {
     [SerializeField] GameObject menuUI;
+    [SerializeField] SaveAndLoad saveAndLoad;
     // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (!GameManager.isMenuOpen)
+            if (!GameManager.Instance.isMenuOpen)
             {
                 OpenMenu();
             }
@@ -24,38 +25,30 @@ public class Menu : MonoBehaviour
 
     void OpenMenu()
     {
-        GameManager.isMenuOpen = true;
+        GameManager.Instance.isMenuOpen = true;
         menuUI.SetActive(true);
         Time.timeScale = 0f;
     }
 
     void ClosMenu()
     {
-        GameManager.isMenuOpen = false;
+        GameManager.Instance.isMenuOpen = false;
         menuUI.SetActive(false);
         Time.timeScale = 1f;
     }
 
     public void ClickSave()
     {
-        //if(EventSystem.current.IsPointerOverGameObject())
-        //{
-
-        //}
-        Debug.Log("ji");
+        saveAndLoad.SaveData();
     }
 
     public void ClickLoad()
     {
-        if (EventSystem.current.IsPointerOverGameObject())
-        {
-            Debug.Log("hi");
-        }
+        //saveAndLoad.LoadData();
     }
 
-    public void ClickReturn()
+    public void ClickExit()
     {
-        GameManager.isMenuOpen = false;
-        Time.timeScale = 1f;
+        Application.Quit();
     }
 }
