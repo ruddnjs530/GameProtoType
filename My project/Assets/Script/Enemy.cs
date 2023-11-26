@@ -89,12 +89,21 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamageAndInstantiateText(int damage)
     {
         hp -= damage;
-        //int rand = Random.Range(-1, 2);
-        GameObject text = Instantiate(textObject, transform);
+        GameObject text = Instantiate(textObject, MakeRandomPosition(), Quaternion.identity);
         text.GetComponent<DamageText>().damage = damage;
+    }
+
+    Vector3 MakeRandomPosition()
+    {
+        Vector3 textPosition;
+        float rand = Random.Range(-0.5f, 0.5f);
+        textPosition.x = transform.position.x + rand;
+        textPosition.y = transform.position.y + 1;
+        textPosition.z = transform.position.z + rand;
+        return textPosition;
     }
 
     private void LookAround()
@@ -176,10 +185,10 @@ public class Enemy : MonoBehaviour
             if (target[i].gameObject.tag != "Player") return false;
 
             Transform targetTf = target[i].transform;
-            Vector3 direction = (targetTf.position - transform.position).normalized;
-            float angle = Vector3.Angle(direction, transform.forward);
+            Vector3 direction = (targetTf.position - transform.position).normalized; // 플레이어의 방향
+            float betweenEnemyAndPlayerAngle = Vector3.Angle(direction, transform.forward); // 플레이어와 enemy.forward로 사잇값을 구함
 
-            if (angle < viewAngle * 0.5f)
+            if (betweenEnemyAndPlayerAngle < viewAngle * 0.5f) // 사잇값이 시야 * 0.5보다 작다면 시야 안에 있는 것임
             {
                 RaycastHit hit;
                 if (Physics.Raycast(transform.position + transform.up, direction, out hit, viewDistance))   // 사이에 장애물이 있는지 확인

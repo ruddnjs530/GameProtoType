@@ -20,7 +20,7 @@ public class Bullet : MonoBehaviour
     {
         if (other.gameObject.tag =="Enemy")
         {
-            other.gameObject.GetComponent<Enemy>().TakeDamage(bulletDamage);
+            other.gameObject.GetComponent<Enemy>().TakeDamageAndInstantiateText(bulletDamage);
         }
         Destroy(this.gameObject);
     }
