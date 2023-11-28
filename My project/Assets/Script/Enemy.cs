@@ -7,26 +7,26 @@ public enum EnemyState { Idle, SimpleMove, Chase, Attack, Die }
 
 public class Enemy : MonoBehaviour
 { 
-    NavMeshAgent agent;
-    Transform agentTarget;
-    Vector3 destination;
-    float walkSpeed = 3f;
-    float chaseSpeed = 6f;
-    float hp = 100;
+    protected NavMeshAgent agent;
+    protected Transform agentTarget;
+    protected Vector3 destination;
+    protected float walkSpeed = 3f;
+    protected float chaseSpeed = 6f;
+    protected float hp = 100;
 
     EnemyState enemyState;
     float currentTime = 0f;
 
-    bool canAttack = false;
-    float attackDelay = 2f;
+    protected bool canAttack = false;
+    protected float attackDelay = 2f;
 
     [SerializeField] GameObject textObject;
 
     float viewAngle = 130f; 
     float viewDistance = 20f; 
-    [SerializeField] LayerMask targetMask;
+    [SerializeField] protected LayerMask targetMask;
 
-    float attackDamage = 3f;
+    protected float attackDamage = 3f;
 
     int enemyPrice = 20;
 
@@ -40,21 +40,22 @@ public class Enemy : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         switch (enemyState)
         {
             case EnemyState.Idle:
+                Debug.Log("idle");
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if(IsPlayerInTheView()) enemyState = EnemyState.Chase;
                 else if (currentTime >= 3f) enemyState = EnemyState.SimpleMove;
                 
                 LookAround();
                 currentTime += Time.deltaTime;
-                //Debug.Log("idle");
                 break;
 
             case EnemyState.SimpleMove:
+                Debug.Log("simple");
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if (IsPlayerInTheView()) enemyState = EnemyState.Chase;
                 else enemyState = EnemyState.Idle;
@@ -62,25 +63,21 @@ public class Enemy : MonoBehaviour
                 ReSetDestination();
                 SimpleMove();
                 currentTime = 0;
-
-                //Debug.Log("simple");
                 break;
 
             case EnemyState.Chase:
                 Chase();
-
+                Debug.Log("chase");
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if (canAttack) enemyState = EnemyState.Attack;
                 else if (!IsPlayerInTheView()) enemyState = EnemyState.Idle;
-                //Debug.Log("chase");
                 break;
 
             case EnemyState.Attack:
                 Attack();
-
+                Debug.Log("attack");
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if (!canAttack) enemyState = EnemyState.Idle;
-                //Debug.Log("attack");
                 break;
 
             case EnemyState.Die:
@@ -124,34 +121,29 @@ public class Enemy : MonoBehaviour
         agent.speed = walkSpeed;
     }
 
-    private void Chase()
+    protected virtual void Chase()
     {
-        destination = agentTarget.position;
-        agent.SetDestination(destination);
-        agent.speed = chaseSpeed;
+        //if (agent == null) return;
+        //destination = agentTarget.position;
+        //agent.SetDestination(destination);
+        //agent.speed = chaseSpeed;
     }
 
-    private void Attack()
+    protected virtual void Attack()
     {
-        attackDelay -= Time.deltaTime;
-        if (attackDelay < 0) attackDelay = 0;
-        if (attackDelay == 0)
-        {
-            agentTarget.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
-            attackDelay = 2f;
-        }
+        //attackDelay -= Time.deltaTime;
+        //if (attackDelay < 0) attackDelay = 0;
+        //if (attackDelay == 0)
+        //{
+        //    agentTarget.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
+        //    attackDelay = 2f;
+        //}
     }
 
     private void Die()
     {
         GameManager.Instance.IncreaseMoney(enemyPrice);
         Destroy(gameObject);
-    }
-
-    private Vector3 BoundaryAngle(float angle) // 경계가 되는 델타 좌표를 구함
-    {
-        angle += transform.eulerAngles.y;
-        return new Vector3(Mathf.Sin(angle * Mathf.Deg2Rad), 0f, Mathf.Cos(angle * Mathf.Deg2Rad));
     }
 
     private void OnTriggerEnter(Collider other)
@@ -175,30 +167,29 @@ public class Enemy : MonoBehaviour
 
     private bool IsPlayerInTheView()
     {
-        //Vector3 _leftBoundary = BoundaryAngle(-viewAngle * 0.5f);  // z 축 기준으로 시야 각도의 절반 각도만큼 왼쪽으로 회전한 방향 (시야각의 왼쪽 경계선)
-        //Vector3 _rightBoundary = BoundaryAngle(viewAngle * 0.5f);  // z 축 기준으로 시야 각도의 절반 각도만큼 오른쪽으로 회전한 방향 (시야각의 오른쪽 경계선)
-
         Collider[] target = Physics.OverlapSphere(transform.position, viewDistance, targetMask);
 
         for (int i = 0; i < target.Length; i++)
         {
-            if (target[i].gameObject.tag != "Player") return false;
-
+            //if (target[i].gameObject.tag != "Player") return false;
             Transform targetTf = target[i].transform;
-            Vector3 direction = (targetTf.position - transform.position).normalized; // 플레이어의 방향
-            float betweenEnemyAndPlayerAngle = Vector3.Angle(direction, transform.forward); // 플레이어와 enemy.forward로 사잇값을 구함
-
-            if (betweenEnemyAndPlayerAngle < viewAngle * 0.5f) // 사잇값이 시야 * 0.5보다 작다면 시야 안에 있는 것임
+            if (targetTf.name == "Player00")
             {
-                RaycastHit hit;
-                if (Physics.Raycast(transform.position + transform.up, direction, out hit, viewDistance))   // 사이에 장애물이 있는지 확인
+                Vector3 direction = (targetTf.position - transform.position).normalized; // 플레이어의 방향
+                float betweenEnemyAndPlayerAngle = Vector3.Angle(direction, transform.forward); // 플레이어와 enemy.forward로 사잇값을 구함
+
+                if (betweenEnemyAndPlayerAngle < viewAngle * 0.5f) // 사잇값이 시야 * 0.5보다 작다면 시야 안에 있는 것임
                 {
-                    if (hit.transform.tag == "Player")
+                    RaycastHit hit;
+                    if (Physics.Raycast(transform.position + transform.up, direction, out hit, viewDistance))   // 사이에 장애물이 있는지 확인
                     {
-                        agentTarget = hit.transform;
-                        return true;
+                        if (hit.transform.tag == "Player")
+                        {
+                            agentTarget = hit.transform;
+                            return true;
+                        }
+                        else return false;
                     }
-                    else return false;
                 }
             }
         }
