@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class NomalEnemy : Enemy
 {
-    private float attackDistance = 5f;
+    //private float attackDistance = 5f;
     //private float attackDamage = 3f;
 
     //public Transform targetTransform;
@@ -37,18 +37,22 @@ public class NomalEnemy : Enemy
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.transform.tag == "Player")
+        if (other.gameObject.tag == "Player")
         {
             canAttack = true;
+            agentTarget = other.transform;
+            Debug.Log("자식 enter");
             //target = other.transform.gameObject;
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.transform.tag == "Player")
+        if (other.gameObject.tag == "Player")
         {
             canAttack = false;
+            agentTarget = null;
+            Debug.Log("자식 exit");
             //target = null;
         }
     }

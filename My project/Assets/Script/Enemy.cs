@@ -30,6 +30,8 @@ public class Enemy : MonoBehaviour
 
     int enemyPrice = 20;
 
+    public bool isDie = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -45,7 +47,7 @@ public class Enemy : MonoBehaviour
         switch (enemyState)
         {
             case EnemyState.Idle:
-                Debug.Log("idle");
+                //Debug.Log("idle");
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if(IsPlayerInTheView()) enemyState = EnemyState.Chase;
                 else if (currentTime >= 3f) enemyState = EnemyState.SimpleMove;
@@ -55,7 +57,7 @@ public class Enemy : MonoBehaviour
                 break;
 
             case EnemyState.SimpleMove:
-                Debug.Log("simple");
+                //Debug.Log("simple");
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if (IsPlayerInTheView()) enemyState = EnemyState.Chase;
                 else enemyState = EnemyState.Idle;
@@ -67,15 +69,16 @@ public class Enemy : MonoBehaviour
 
             case EnemyState.Chase:
                 Chase();
-                Debug.Log("chase");
+                //Debug.Log("chase");
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if (canAttack) enemyState = EnemyState.Attack;
                 else if (!IsPlayerInTheView()) enemyState = EnemyState.Idle;
+                currentTime = 0;
                 break;
 
             case EnemyState.Attack:
                 Attack();
-                Debug.Log("attack");
+                //Debug.Log("attack");
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if (!canAttack) enemyState = EnemyState.Idle;
                 break;
@@ -84,6 +87,7 @@ public class Enemy : MonoBehaviour
                 Die();
                 break;
         }
+        //if (agentTarget != null) Debug.Log("Å¸°ÙÀÖÀ½");
     }
 
     public void TakeDamageAndInstantiateText(int damage)
@@ -143,27 +147,28 @@ public class Enemy : MonoBehaviour
     private void Die()
     {
         GameManager.Instance.IncreaseMoney(enemyPrice);
+        isDie = true;
         Destroy(gameObject);
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.tag == "Player")
-        {
-            canAttack = true;
-            agentTarget = other.transform;
-            transform.LookAt(agentTarget);
-        }
-    }
+    //private void OnTriggerEnter(Collider other)
+    //{
+    //    if (other.gameObject.tag == "Player")
+    //    {
+    //        canAttack = true;
+    //        agentTarget = other.transform;
+    //        transform.LookAt(agentTarget);
+    //    }
+    //}
 
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.gameObject.tag == "Player")
-        {
-            canAttack = false;
-            agentTarget = null;
-        }
-    }
+    //private void OnTriggerExit(Collider other)
+    //{
+    //    if (other.gameObject.tag == "Player")
+    //    {
+    //        canAttack = false;
+    //        agentTarget = null;
+    //    }
+    //}
 
     private bool IsPlayerInTheView()
     {
