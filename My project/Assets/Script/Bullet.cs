@@ -23,7 +23,6 @@ public class Bullet : MonoBehaviour
             //other.gameObject.GetComponent<Enemy>().TakeDamageAndInstantiateText(bulletDamage);
             other.gameObject.GetComponent<Enemy1>().TakeDamageAndInstantiateText(bulletDamage);
         }
-        Debug.Log("hi");
         Destroy(this.gameObject);
     }
 }

@@ -48,6 +48,11 @@ public class TurretObject : MonoBehaviour
         if (other.gameObject.tag == "Enemy") AddObjToList(other.gameObject);
     }
 
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.tag == "Enemy") RemoveObjFromList(other.gameObject);
+    }
+
     void AddObjToList(GameObject obj)
     {
         if (!surroundingsObj.Contains(obj))
