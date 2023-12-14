@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class FlyingObject : MonoBehaviour
+public class DroneObject : MonoBehaviour
 {
     NavMeshAgent agent;
     [SerializeField] Transform agentTarget;

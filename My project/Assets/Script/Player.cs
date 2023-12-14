@@ -44,6 +44,8 @@ public class Player : MonoBehaviour
         anim = GetComponent<Animator>();
 
         anim.SetLayerWeight(1, 0);
+
+        DontDestroyOnLoad(gameObject);
     }
 
     // Update is called once per frame
