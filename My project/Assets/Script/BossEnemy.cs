@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum BossState { Move, Die, Attack}
+public enum BossState { Idle, Move, Die, Attack}
 public class BossEnemy : MonoBehaviour
 {
     BossState bossState;
@@ -19,10 +19,13 @@ public class BossEnemy : MonoBehaviour
 
     float timer;
 
+    public GameObject textObject;
+    float hp = 100;
+
     // Start is called before the first frame update
     void Start()
     {
-        bossState = BossState.Move;
+        bossState = BossState.Idle;
         laserLine = GetComponent<LineRenderer>();
 
         timer = 0.0f;
@@ -33,6 +36,8 @@ public class BossEnemy : MonoBehaviour
     {
         switch (bossState)
         {
+            case BossState.Idle:
+                break;
             case BossState.Move:
                 if (canAttack)
                     bossState = BossState.Attack;
@@ -53,7 +58,6 @@ public class BossEnemy : MonoBehaviour
                 break;
         }
     }
-
 
     IEnumerator Attack()
     {
@@ -95,6 +99,25 @@ public class BossEnemy : MonoBehaviour
             target = null;
         }
     }
+
+    public void TakeDamageAndInstantiateText(int damage)
+    {
+        hp -= damage;
+        Debug.Log("hi");
+        //GameObject text = Instantiate(textObject, MakeRandomPosition(), Quaternion.identity);
+        //text.GetComponent<DamageText>().damage = damage;
+        //Debug.Log("damage text");
+    }
+
+    //Vector3 MakeRandomPosition()
+    //{
+    //    Vector3 textPosition;
+    //    float rand = Random.Range(-0.5f, 0.5f);
+    //    textPosition.x = transform.position.x + rand;
+    //    textPosition.y = transform.position.y + 1;
+    //    textPosition.z = transform.position.z + rand;
+    //    return textPosition;
+    //}
 
     private void Move()
     {
