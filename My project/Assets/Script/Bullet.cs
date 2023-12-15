@@ -18,9 +18,9 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag =="Damage")
+        Debug.Log(other.gameObject);
+        if (other.gameObject.tag =="Enemy")
         {
-            Debug.Log("hi");
             //other.gameObject.GetComponent<Enemy>().TakeDamageAndInstantiateText(bulletDamage);
             //other.gameObject.GetComponent<Enemy1>().TakeDamageAndInstantiateText(bulletDamage);
             other.gameObject.GetComponent<BossEnemy>().TakeDamageAndInstantiateText(bulletDamage);

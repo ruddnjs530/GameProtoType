@@ -103,21 +103,19 @@ public class BossEnemy : MonoBehaviour
     public void TakeDamageAndInstantiateText(int damage)
     {
         hp -= damage;
-        Debug.Log("hi");
-        //GameObject text = Instantiate(textObject, MakeRandomPosition(), Quaternion.identity);
-        //text.GetComponent<DamageText>().damage = damage;
-        //Debug.Log("damage text");
+        GameObject text = Instantiate(textObject, MakeRandomPosition(), Quaternion.identity);
+        text.GetComponent<DamageText>().damage = damage;
     }
 
-    //Vector3 MakeRandomPosition()
-    //{
-    //    Vector3 textPosition;
-    //    float rand = Random.Range(-0.5f, 0.5f);
-    //    textPosition.x = transform.position.x + rand;
-    //    textPosition.y = transform.position.y + 1;
-    //    textPosition.z = transform.position.z + rand;
-    //    return textPosition;
-    //}
+    Vector3 MakeRandomPosition()
+    {
+        Vector3 textPosition;
+        float rand = Random.Range(-0.5f, 0.5f);
+        textPosition.x = transform.position.x + rand;
+        textPosition.y = transform.position.y + 1;
+        textPosition.z = transform.position.z + rand;
+        return textPosition;
+    }
 
     private void Move()
     {
