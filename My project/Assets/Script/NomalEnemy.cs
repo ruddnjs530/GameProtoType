@@ -4,25 +4,20 @@ using UnityEngine;
 
 public class NomalEnemy : Enemy
 {
-    //private float attackDistance = 5f;
-    //private float attackDamage = 3f;
-
-    //public Transform targetTransform;
-
     protected override void Update()
     {
         base.Update();
     }
 
-
     protected override void Chase()
     {
         Debug.Log("자식 chase");
-        if (agent == null) return;
+        if (agentTarget == null) return;
         destination = agentTarget.position;
         agent.SetDestination(destination);
         agent.speed = chaseSpeed;
     }
+
     protected override void Attack()
     {
         Debug.Log("자식 attack");
@@ -35,14 +30,13 @@ public class NomalEnemy : Enemy
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other) // 지금 콜라이더를 오브젝트 앞으로 이동 시켜서 뒤에서 왔을 때는 보지 못하게 함.
     {
-        if (other.gameObject.tag == "Player")
+        if (other.gameObject.tag == "Player") // 원래는 여기서 canAttack도 true, false로 해줬는데 콜라이더를 나눠서 enemyCanAttack 스크립트에서 관리하게 함.
         {
-            canAttack = true;
             agentTarget = other.transform;
+            isSeePlayer = true;
             Debug.Log("자식 enter");
-            //target = other.transform.gameObject;
         }
     }
 
@@ -50,10 +44,9 @@ public class NomalEnemy : Enemy
     {
         if (other.gameObject.tag == "Player")
         {
-            canAttack = false;
+            isSeePlayer = false;
             agentTarget = null;
             Debug.Log("자식 exit");
-            //target = null;
         }
     }
 }

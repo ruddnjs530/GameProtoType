@@ -25,7 +25,7 @@ public class BossEnemy : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        bossState = BossState.Idle;
+        bossState = BossState.Move;
         laserLine = GetComponent<LineRenderer>();
 
         timer = 0.0f;
@@ -40,7 +40,10 @@ public class BossEnemy : MonoBehaviour
                 break;
             case BossState.Move:
                 if (canAttack)
+                {
                     bossState = BossState.Attack;
+                    return;
+                }
                 Move();
                 break;
 
@@ -52,8 +55,8 @@ public class BossEnemy : MonoBehaviour
                 timer += Time.deltaTime;
                 if (timer > fireRate)
                 {
-                    timer = 0;
                     StartCoroutine(Attack());
+                    timer = 0.0f;
                 }
                 break;
         }
@@ -61,7 +64,6 @@ public class BossEnemy : MonoBehaviour
 
     IEnumerator Attack()
     {
-        timer += Time.deltaTime;
         laserLine.enabled = true;
         laserLine.SetPosition(0, shotPos.position);
         RaycastHit hit;
@@ -70,7 +72,6 @@ public class BossEnemy : MonoBehaviour
         if (Physics.Raycast(startPosition, transform.forward, out hit, laserRange))
         {
             laserLine.SetPosition(1, hit.point);
-            Debug.Log("hit something");
             if (hit.transform.tag == "Player")
                 hit.transform.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
         }    

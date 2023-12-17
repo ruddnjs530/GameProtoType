@@ -4,25 +4,26 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    //float destroyTime =10f;
-    //float timer;
+    float destroyTime = 10f;
+    float timer;
 
     int bulletDamage = 10;
 
     // Update is called once per frame
     void Update()
     {
-        //timer += Time.deltaTime;
-        //if (timer >= destroyTime) Destroy(this.gameObject);
+        timer += Time.deltaTime;
+        if (timer >= destroyTime) Destroy(this.gameObject);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log(other.gameObject);
-        if (other.gameObject.tag =="Enemy")
+        if (other.gameObject.tag =="Enemy") // 둘다 enemy 태그로 했을 때 enemy인지 bossEnemy인지 찾아서 적용시키면 더 좋겠지만 생각나는게 없기도 하고 일단 이걸로 함. 12.16
         {
-            //other.gameObject.GetComponent<Enemy>().TakeDamageAndInstantiateText(bulletDamage);
-            //other.gameObject.GetComponent<Enemy1>().TakeDamageAndInstantiateText(bulletDamage);
+            other.gameObject.GetComponent<Enemy>().TakeDamageAndInstantiateText(bulletDamage);
+        }
+        if (other.gameObject.tag == "BossEnemy")
+        {
             other.gameObject.GetComponent<BossEnemy>().TakeDamageAndInstantiateText(bulletDamage);
         }
         Destroy(this.gameObject);
