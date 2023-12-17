@@ -11,8 +11,9 @@ public class NomalEnemy : Enemy
 
     protected override void Chase()
     {
-        Debug.Log("자식 chase");
+        //Debug.Log("자식 chase");
         if (agentTarget == null) return;
+        Debug.Log(agentTarget);
         destination = agentTarget.position;
         agent.SetDestination(destination);
         agent.speed = chaseSpeed;
