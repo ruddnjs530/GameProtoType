@@ -22,9 +22,9 @@ public class Enemy : MonoBehaviour
 
     [SerializeField] GameObject textObject;
 
-    float viewAngle = 130f;
-    float viewDistance = 20f;
-    [SerializeField] protected LayerMask targetMask;
+    //float viewAngle = 130f;
+    //float viewDistance = 20f;
+    //[SerializeField] protected LayerMask targetMask;
 
     protected float attackDamage = 3f;
 
@@ -52,7 +52,7 @@ public class Enemy : MonoBehaviour
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if(isSeePlayer) enemyState = EnemyState.Chase;
                 else if (currentTime >= 3f) enemyState = EnemyState.SimpleMove;
-                //.Log("idle");
+                Debug.Log("idle");
                 LookAround();
                 currentTime += Time.deltaTime;
                 break;
@@ -64,13 +64,13 @@ public class Enemy : MonoBehaviour
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if (isSeePlayer) enemyState = EnemyState.Chase;
                 else enemyState = EnemyState.Idle;
-                //Debug.Log("simple");
+                Debug.Log("simple");
 
                 break;
 
             case EnemyState.Chase:
                 Chase();
-                //Debug.Log("chase");
+                Debug.Log("chase");
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if (canAttack) enemyState = EnemyState.Attack;
                 else if (!isSeePlayer) enemyState = EnemyState.Idle;
@@ -79,7 +79,7 @@ public class Enemy : MonoBehaviour
 
             case EnemyState.Attack:
                 Attack();
-                //Debug.Log("attack");
+                Debug.Log("attack");
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if (!canAttack) enemyState = EnemyState.Idle;
                 break;
@@ -127,10 +127,10 @@ public class Enemy : MonoBehaviour
 
     protected virtual void Chase()
     {
-        //if (agent == null) return;
-        //destination = agentTarget.position;
-        //agent.SetDestination(destination);
-        //agent.speed = chaseSpeed;
+        if (agentTarget == null) return;
+        destination = agentTarget.position;
+        agent.SetDestination(destination);
+        agent.speed = chaseSpeed;
     }
 
     protected virtual void Attack()

@@ -9,16 +9,16 @@ public class NomalEnemy : Enemy
         base.Update();
     }
 
-    protected override void Chase()
-    {
-        if (agentTarget == null) return;
-        //Debug.Log(agentTarget);
-        destination = agentTarget.position;
-        agent.SetDestination(destination);
-        agent.speed = chaseSpeed;
-        //Debug.Log("자식 chase");
-        //Debug.Log(chaseSpeed);
-    }
+    //protected override void Chase()
+    //{
+    //    if (agentTarget == null) return;
+    //    //Debug.Log(agentTarget);
+    //    destination = agentTarget.position;
+    //    agent.SetDestination(destination);
+    //    agent.speed = chaseSpeed;
+    //    //Debug.Log("자식 chase");
+    //    //Debug.Log(chaseSpeed);
+    //}
 
     protected override void Attack()
     {

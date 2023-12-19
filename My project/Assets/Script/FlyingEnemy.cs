@@ -5,52 +5,48 @@ using UnityEngine.AI;
 
 public class FlyingEnemy : Enemy
 {
-    protected NavMeshAgent agent2;
-    protected Transform agentTarget2;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        agent2 = GetComponent<NavMeshAgent>();
-    }
-
-    // Update is called once per frame
     protected override void Update()
     {
-        //base.Update();
-        Move();
-    }
-    protected override void Chase()
-    {
-        Debug.Log("자식 chase");
-        if (agent2 == null) return;
-        destination = this.agentTarget2.position;
-        agent2.SetDestination(destination);
+        base.Update();
     }
 
-    private void Move()
+    //protected override void Chase()
+    //{
+    //    if (agentTarget == null) return;
+    //    destination = agentTarget.position;
+    //    agent.SetDestination(destination);
+    //    agent.speed = chaseSpeed;
+    //}
+
+    protected override void Attack()
     {
-        if (agentTarget2 == null) return;
-        Debug.Log("자식 이동");
-        destination = this.agentTarget2.position;
-        agent2.SetDestination(destination);
+        //Debug.Log("자식 attack");
+        attackDelay -= Time.deltaTime;
+        if (attackDelay < 0) attackDelay = 0;
+        if (attackDelay == 0)
+        {
+            agentTarget.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
+            attackDelay = 2f;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Player")
         {
-            Debug.Log("들어옴");
-            agentTarget2 = other.transform;
+            agentTarget = other.transform;
+            isSeePlayer = true;
+            Debug.Log("자식 in");
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log("나감");
         if (other.gameObject.tag == "Player")
         {
-            agentTarget2 = null;
+            isSeePlayer = false;
+            agentTarget = null;
+            Debug.Log("자식 out");
         }
     }
 }
