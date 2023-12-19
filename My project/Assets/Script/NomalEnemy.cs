@@ -11,17 +11,18 @@ public class NomalEnemy : Enemy
 
     protected override void Chase()
     {
-        //Debug.Log("자식 chase");
         if (agentTarget == null) return;
-        Debug.Log(agentTarget);
+        //Debug.Log(agentTarget);
         destination = agentTarget.position;
         agent.SetDestination(destination);
         agent.speed = chaseSpeed;
+        //Debug.Log("자식 chase");
+        //Debug.Log(chaseSpeed);
     }
 
     protected override void Attack()
     {
-        Debug.Log("자식 attack");
+        //Debug.Log("자식 attack");
         attackDelay -= Time.deltaTime;
         if (attackDelay < 0) attackDelay = 0;
         if (attackDelay == 0)
@@ -37,7 +38,7 @@ public class NomalEnemy : Enemy
         {
             agentTarget = other.transform;
             isSeePlayer = true;
-            Debug.Log("자식 enter");
+            //Debug.Log("자식 enter");
         }
     }
 
@@ -47,7 +48,7 @@ public class NomalEnemy : Enemy
         {
             isSeePlayer = false;
             agentTarget = null;
-            Debug.Log("자식 exit");
+            //Debug.Log("자식 exit");
         }
     }
 }
