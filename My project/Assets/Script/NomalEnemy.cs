@@ -5,6 +5,7 @@ using UnityEngine;
 public class NomalEnemy : Enemy
 {
     int nomalPrice = 20;
+    float attackDamage = 3f;
     protected override void Update()
     {
         base.Update();

@@ -1,33 +1,38 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class FlyingEnemy : Enemy
 {
     int flyingPrice = 15;
+
+    [SerializeField] Transform shotPos;
+    [SerializeField] GameObject bulletPrefab; // 총알 프리팹
+    float bulletSpeed = 10f; // 총알 발사 속도
+
+    float fireRate = 1.0f;
+    float timer = 0.0f;
+
+    protected override void Start()
+    {
+        base.Start();
+    }
+
     protected override void Update()
     {
         base.Update();
     }
 
-    //protected override void Chase()
-    //{
-    //    if (agentTarget == null) return;
-    //    destination = agentTarget.position;
-    //    agent.SetDestination(destination);
-    //    agent.speed = chaseSpeed;
-    //}
-
     protected override void Attack()
     {
-        //Debug.Log("자식 attack");
-        attackDelay -= Time.deltaTime;
-        if (attackDelay < 0) attackDelay = 0;
-        if (attackDelay == 0)
+        timer += Time.deltaTime;
+        if (timer > fireRate)
         {
-            agentTarget.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
-            attackDelay = 2f;
+            Quaternion bulletRotation = Quaternion.Euler(0f, 0f, -45f);
+            GameObject currentBullet = Instantiate(bulletPrefab, shotPos.position, bulletRotation);
+            Rigidbody rb = currentBullet.GetComponent<Rigidbody>();
+            rb.AddForce(shotPos.forward * bulletSpeed, ForceMode.Impulse);
+            timer = 0.0f;
         }
     }
 
@@ -37,7 +42,16 @@ public class FlyingEnemy : Enemy
         {
             agentTarget = other.transform;
             isSeePlayer = true;
+            canAttack = true;
             Debug.Log("자식 in");
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.tag == "Player")
+        {
+            canAttack = true;
         }
     }
 
@@ -47,6 +61,7 @@ public class FlyingEnemy : Enemy
         {
             isSeePlayer = false;
             agentTarget = null;
+            canAttack = false;
             Debug.Log("자식 out");
         }
     }

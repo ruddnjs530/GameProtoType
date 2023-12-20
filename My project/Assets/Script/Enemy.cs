@@ -17,7 +17,7 @@ public class Enemy : MonoBehaviour
     EnemyState enemyState;
     float currentTime = 0f;
 
-    public bool canAttack = false;
+    public bool canAttack = true;
     protected float attackDelay = 2f;
 
     [SerializeField] GameObject textObject;
@@ -26,20 +26,16 @@ public class Enemy : MonoBehaviour
     //float viewDistance = 20f;
     //[SerializeField] protected LayerMask targetMask;
 
-    protected float attackDamage = 3f;
-
-    int enemyPrice = 20;
-
     public bool isDie = false;
 
     protected bool isSeePlayer = false;
 
     // Start is called before the first frame update
-    void Start()
+    protected virtual void Start()
     {
         agent = GetComponent<NavMeshAgent>();
 
-        canAttack = false;
+        //canAttack = false;
         enemyState = EnemyState.Idle;
     }
 
@@ -146,7 +142,6 @@ public class Enemy : MonoBehaviour
     protected virtual void Die()
     {
         isDie = true;
-        //GameManager.Instance.IncreaseMoney(enemyPrice);
         Destroy(gameObject);
     }
 

@@ -73,6 +73,8 @@ MonoBehaviour:
   canAttack: 0
   textObject: {fileID: 7786672510691239665, guid: 24c2159eacc3caa4eafc8b88ddadeb13, type: 3}
   isDie: 0
+  shotPos: {fileID: 0}
+  bulletPrefab: {fileID: 0}
 --- !u!135 &2539150649967471607
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -202,6 +204,8 @@ MonoBehaviour:
   canAttack: 0
   textObject: {fileID: 0}
   isDie: 0
+  shotPos: {fileID: 0}
+  bulletPrefab: {fileID: 0}
 --- !u!136 &7685557294324019923
 CapsuleCollider:
   m_ObjectHideFlags: 0
