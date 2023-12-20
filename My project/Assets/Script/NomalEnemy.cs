@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class NomalEnemy : Enemy
 {
+    int nomalPrice = 20;
     protected override void Update()
     {
         base.Update();
@@ -50,5 +51,11 @@ public class NomalEnemy : Enemy
             agentTarget = null;
             //Debug.Log("ÀÚ½Ä exit");
         }
+    }
+
+    protected override void Die()
+    {
+        GameManager.Instance.IncreaseMoney(nomalPrice);
+        Destroy(gameObject);
     }
 }

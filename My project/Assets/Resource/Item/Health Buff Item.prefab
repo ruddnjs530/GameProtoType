@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 338030529883020960}
   m_Layer: 0
   m_Name: Health Buff Item
-  m_TagString: Item
+  m_TagString: HealthBuff
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -98,7 +98,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd8fa24d3d6155444853bd30d08dc62c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  item: {fileID: 11400000, guid: e5b0e07a54b531c46a41934c3d39de81, type: 2}
+  healthBuff: {fileID: 11400000, guid: e5b0e07a54b531c46a41934c3d39de81, type: 2}
+  damageBuff: {fileID: 11400000, guid: a09a036a483eef94ab9964818b3e5bc2, type: 2}
 --- !u!135 &13219467795272173
 SphereCollider:
   m_ObjectHideFlags: 0

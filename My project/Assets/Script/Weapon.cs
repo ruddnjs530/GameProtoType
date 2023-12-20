@@ -43,6 +43,7 @@ public class Weapon : MonoBehaviour
         fireRateTimer += Time.deltaTime;
         if (!GameManager.Instance.canPlayerMove) return false;
         if (fireRateTimer < fireRate) return false;
+        if (Input.GetKey(KeyCode.LeftShift)) return false;
         if (Input.GetMouseButton(0)) return true;
         return false;
     }

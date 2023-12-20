@@ -59,8 +59,8 @@ public class Player : MonoBehaviour
                     playerState = PlayerState.Run;
 
                 else if (Input.GetKey(KeyCode.Space)) playerState = PlayerState.Jump;
-                else if (Input.GetMouseButton(0)) playerState = PlayerState.StopAttack;
-                else if (Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
+                else if (Input.GetMouseButton(0) && !Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.StopAttack;
+                else if (Input.GetKeyDown(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
                 break;
 
             case PlayerState.Run:
@@ -71,8 +71,8 @@ public class Player : MonoBehaviour
                     anim.SetBool("Running", false);
                 }
                 else if (Input.GetKey(KeyCode.Space)) playerState = PlayerState.Jump;
-                else if (Input.GetMouseButton(0)) playerState = PlayerState.MoveAttack;
-                else if (Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
+                else if (Input.GetMouseButton(0) && !Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.MoveAttack;
+                else if (Input.GetKeyDown(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
                 break;
 
             case PlayerState.Jump:
@@ -85,7 +85,7 @@ public class Player : MonoBehaviour
                 else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D))
                     playerState = PlayerState.Run;
                 else if (Input.GetMouseButton(0)) playerState = PlayerState.MoveAttack;
-                else if (Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
+                else if (Input.GetKeyDown(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
                 break;
 
             case PlayerState.StopAttack:
@@ -93,7 +93,7 @@ public class Player : MonoBehaviour
                 if (Input.GetMouseButtonUp(0)) playerState = PlayerState.Idle;
                 else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D)) playerState = PlayerState.Run;
                 else if (Input.GetKey(KeyCode.Space)) playerState = PlayerState.Jump;
-                else if (Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
+                else if (Input.GetKeyDown(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
                 break;
 
             case PlayerState.MoveAttack:
@@ -101,7 +101,7 @@ public class Player : MonoBehaviour
                 Attack();
                 Jump();
                 if (Input.GetMouseButtonUp(0)) playerState = PlayerState.Run;
-                else if (Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
+                else if (Input.GetKeyDown(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
                 else if (dir.magnitude < 0.1f)
                 {
                     playerState = PlayerState.StopAttack;
@@ -116,6 +116,10 @@ public class Player : MonoBehaviour
 
             case PlayerState.DiveRoll:
                 DiveRoll();
+                if (Input.GetKeyUp(KeyCode.LeftShift))
+                {
+                    playerState = PlayerState.Idle;
+                }
                 break;
         }
 
@@ -179,10 +183,15 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Item")
+        if (other.gameObject.tag == "HealthBuff")
         {
-            theInventory.AcquireItem(other.gameObject.transform.GetComponent<ItemManager>().item, 1);
+            theInventory.AcquireItem(other.gameObject.transform.GetComponent<ItemManager>().healthBuff, 1);
             Destroy(other.gameObject);  
+        }
+        if (other.gameObject.tag == "DamageBuff")
+        {
+            theInventory.AcquireItem(other.gameObject.transform.GetComponent<ItemManager>().damageBuff, 1);
+            Destroy(other.gameObject);
         }
     }
 
@@ -204,11 +213,12 @@ public class Player : MonoBehaviour
 
     void DiveRoll()
     {
-        anim.SetTrigger("DiveRoll");
-        //dir = transform.forward * vInput + transform.right * hzInput;
-        //cc.Move(dir.normalized * 7 * Time.deltaTime);
-        playerState = PlayerState.Idle;
+        anim.SetBool("DiveRoll", true);
+        hzInput = Input.GetAxis("Horizontal");
+        vInput = Input.GetAxis("Vertical");
 
+        dir = transform.forward * vInput + transform.right * hzInput;
+        cc.Move(dir.normalized * moveSpeed * 2 * Time.deltaTime);
     }
 
     //bool IsGrounded()

@@ -18,7 +18,7 @@ public class FlyginEnemyRandomMove : Enemy
     }
 
     // Update is called once per frame
-    void Update()
+    protected override void Update()
     {
         timeSinceLastMove += Time.deltaTime;
         if (timeSinceLastMove >= timeBetweenMoves)

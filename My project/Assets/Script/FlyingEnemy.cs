@@ -5,6 +5,7 @@ using UnityEngine.AI;
 
 public class FlyingEnemy : Enemy
 {
+    int flyingPrice = 15;
     protected override void Update()
     {
         base.Update();
@@ -48,5 +49,11 @@ public class FlyingEnemy : Enemy
             agentTarget = null;
             Debug.Log("ÀÚ½Ä out");
         }
+    }
+
+    protected override void Die()
+    {
+        GameManager.Instance.IncreaseMoney(flyingPrice);
+        Destroy(gameObject);
     }
 }

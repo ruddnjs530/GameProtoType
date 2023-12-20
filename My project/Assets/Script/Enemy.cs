@@ -49,12 +49,11 @@ public class Enemy : MonoBehaviour
         switch (enemyState)
         {
             case EnemyState.Idle:
-                if (hp <= 0) enemyState = EnemyState.Die;
-                else if(isSeePlayer) enemyState = EnemyState.Chase;
-                else if (currentTime >= 3f) enemyState = EnemyState.SimpleMove;
-                Debug.Log("idle");
                 LookAround();
                 currentTime += Time.deltaTime;
+                if (hp <= 0) enemyState = EnemyState.Die;
+                else if(isSeePlayer) enemyState = EnemyState.Chase;
+                else if (currentTime >= 1f) enemyState = EnemyState.SimpleMove;
                 break;
 
             case EnemyState.SimpleMove:
@@ -64,13 +63,13 @@ public class Enemy : MonoBehaviour
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if (isSeePlayer) enemyState = EnemyState.Chase;
                 else enemyState = EnemyState.Idle;
-                Debug.Log("simple");
+                //Debug.Log("simple");
 
                 break;
 
             case EnemyState.Chase:
                 Chase();
-                Debug.Log("chase");
+                //Debug.Log("chase");
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if (canAttack) enemyState = EnemyState.Attack;
                 else if (!isSeePlayer) enemyState = EnemyState.Idle;
@@ -79,7 +78,7 @@ public class Enemy : MonoBehaviour
 
             case EnemyState.Attack:
                 Attack();
-                Debug.Log("attack");
+                //Debug.Log("attack");
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if (!canAttack) enemyState = EnemyState.Idle;
                 break;
@@ -115,13 +114,13 @@ public class Enemy : MonoBehaviour
 
     private void ReSetDestination() // 목표 재설정.
     {
-        agent.ResetPath();
-        destination.Set(Random.Range(-0.2f, 0.2f), 0f, Random.Range(0.5f, 1f));
+        //agent.ResetPath();
+        destination.Set(Random.Range(-0.5f, 0.5f), 0f, Random.Range(0.5f, 1f));
     }
 
     private void SimpleMove() // destination으로 이동.
     {
-        agent.SetDestination(transform.position + destination * 5f);
+        agent.SetDestination(transform.position + destination * 7f);
         agent.speed = walkSpeed;
     }
 
@@ -144,10 +143,10 @@ public class Enemy : MonoBehaviour
         //}
     }
 
-    private void Die()
+    protected virtual void Die()
     {
-        GameManager.Instance.IncreaseMoney(enemyPrice);
         isDie = true;
+        //GameManager.Instance.IncreaseMoney(enemyPrice);
         Destroy(gameObject);
     }
 

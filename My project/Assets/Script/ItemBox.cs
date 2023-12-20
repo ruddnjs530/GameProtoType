@@ -20,9 +20,9 @@ public class ItemBox : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (isPlayerEnter && Input.GetKeyDown(KeyCode.E) && GameManager.Instance.money > itemPrice)
+        if (isPlayerEnter && Input.GetKeyDown(KeyCode.E) && GameManager.Instance.money >= itemPrice)
         {
-            Instantiate(items[0], transform.position, Quaternion.identity);
+            Instantiate(items[Random.Range(0,items.Length)], transform.position, Quaternion.identity);
             GameManager.Instance.DecreaseMoney(itemPrice);
             Destroy(gameObject);
         }
