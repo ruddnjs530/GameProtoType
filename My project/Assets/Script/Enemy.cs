@@ -90,19 +90,19 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public void TakeDamageAndInstantiateText(int damage)
+    public void TakeDamageAndInstantiateText(int damage, float yPos = 1)
     {
         hp -= damage;
-        GameObject text = Instantiate(textObject, MakeRandomPosition(), Quaternion.identity);
+        GameObject text = Instantiate(textObject, MakeRandomPosition(yPos), Quaternion.identity);
         text.GetComponent<DamageText>().damage = damage;
     }
 
-    Vector3 MakeRandomPosition()
+    Vector3 MakeRandomPosition(float yPos)
     {
         Vector3 textPosition;
         float rand = Random.Range(-0.5f, 0.5f);
         textPosition.x = transform.position.x + rand;
-        textPosition.y = transform.position.y + 1;
+        textPosition.y = transform.position.y + yPos;
         textPosition.z = transform.position.z + rand;
         return textPosition;
     }
