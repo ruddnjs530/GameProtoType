@@ -28,13 +28,6 @@ public class FlyginEnemyRandomMove : FlyingEnemy
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * moveSpeed);
 
         LookAt(GameObject.Find("Player").transform);
-
-        //if (canAttack)
-        //{
-        //    Debug.Log("hi");
-        //    LookAt(GameObject.Find("Player").transform);
-        //}
-
     }
 
     void SetRandomTargetPosition()

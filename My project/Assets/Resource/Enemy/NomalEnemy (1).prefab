@@ -144,7 +144,6 @@ GameObject:
   - component: {fileID: 9005051553809654423}
   - component: {fileID: 6783932945314100012}
   - component: {fileID: 1672820663361418796}
-  - component: {fileID: 3476282361365881883}
   m_Layer: 11
   m_Name: NomalEnemy (1)
   m_TagString: Enemy
@@ -286,23 +285,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canAttack: 0
   textObject: {fileID: 7786672510691239665, guid: 24c2159eacc3caa4eafc8b88ddadeb13, type: 3}
-  isDie: 0
---- !u!114 &3476282361365881883
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2434690432876805877}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9acd6dd0e85763458151836e0c53956, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  textObject: {fileID: 7786672510691239665, guid: 24c2159eacc3caa4eafc8b88ddadeb13, type: 3}
-  targetMask:
-    serializedVersion: 2
-    m_Bits: 128
   isDie: 0
 --- !u!1 &7552311543381627897
 GameObject:

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum BossState { Idle, Move, Die, Attack}
+public enum BossState { Idle, Die, Attack}
 public class BossEnemy : MonoBehaviour
 {
     BossState bossState;
@@ -25,10 +25,11 @@ public class BossEnemy : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        bossState = BossState.Move;
+        bossState = BossState.Idle;
         laserLine = GetComponent<LineRenderer>();
 
         timer = 0.0f;
+        laserLine.enabled = false;
     }
 
     // Update is called once per frame
@@ -37,14 +38,12 @@ public class BossEnemy : MonoBehaviour
         switch (bossState)
         {
             case BossState.Idle:
-                break;
-            case BossState.Move:
                 if (canAttack)
                 {
                     bossState = BossState.Attack;
                     return;
                 }
-                Move();
+                if (hp <= 0) bossState = BossState.Die;
                 break;
 
             case BossState.Die:
@@ -58,6 +57,7 @@ public class BossEnemy : MonoBehaviour
                     StartCoroutine(Attack());
                     timer = 0.0f;
                 }
+                if (hp <= 0) bossState = BossState.Die;
                 break;
         }
     }
@@ -116,10 +116,5 @@ public class BossEnemy : MonoBehaviour
         textPosition.y = transform.position.y + 1;
         textPosition.z = transform.position.z + rand;
         return textPosition;
-    }
-
-    private void Move()
-    {
-        
     }
 }

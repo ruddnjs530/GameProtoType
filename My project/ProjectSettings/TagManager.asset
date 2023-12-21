@@ -9,6 +9,7 @@ TagManager:
   - DamageBuff
   - HealthBuff
   - Item
+  - BossEnemy
   layers:
   - Default
   - TransparentFX
@@ -22,7 +23,7 @@ TagManager:
   - Enemy
   - etc
   - Damage
-  - 
+  - EnemyBullet
   - 
   - 
   - 

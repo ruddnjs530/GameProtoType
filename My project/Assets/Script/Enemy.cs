@@ -130,13 +130,6 @@ public class Enemy : MonoBehaviour
 
     protected virtual void Attack()
     {
-        //attackDelay -= Time.deltaTime;
-        //if (attackDelay < 0) attackDelay = 0;
-        //if (attackDelay == 0)
-        //{
-        //    agentTarget.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
-        //    attackDelay = 2f;
-        //}
     }
 
     protected virtual void Die()
@@ -158,7 +151,10 @@ public class Enemy : MonoBehaviour
 
     public void LookAtTarget(Collider col)
     {
-        transform.LookAt(col.transform);
+        //transform.LookAt(col.transform);
+        Vector3 direction = col.transform.position - transform.position;
+        Quaternion lookRotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
     }
 
 

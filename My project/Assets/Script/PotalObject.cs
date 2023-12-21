@@ -5,9 +5,19 @@ using UnityEngine.SceneManagement;
 
 public class PotalObject : MonoBehaviour
 {
-    private void OnTriggerEnter(Collider other)
+    [SerializeField] GameObject e;
+    [SerializeField] GameObject countDown;
+
+    private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.tag == "Player")
-            SceneManager.LoadScene("FinalScene");
+        if (other.gameObject.tag == "Player" && Input.GetKey(KeyCode.E))
+        {
+            //GameManager.Instance.isEnemyWave = true;
+            e.SetActive(false);
+            countDown.SetActive(true);
+        }
+
+        if (other.gameObject.tag == "Player" && GameManager.Instance.isGameClear)
+            SceneManager.LoadScene("ClearScene");
     }
 }

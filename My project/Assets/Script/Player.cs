@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public enum PlayerState { Idle, Run, Jump, StopAttack, MoveAttack, DiveRoll}
+public enum PlayerState { Idle, Run, Jump, StopAttack, MoveAttack, DiveRoll, Die}
 
 public class Player : MonoBehaviour
 {
@@ -44,8 +44,6 @@ public class Player : MonoBehaviour
         anim = GetComponent<Animator>();
 
         anim.SetLayerWeight(1, 0);
-
-        DontDestroyOnLoad(gameObject);
     }
 
     // Update is called once per frame
@@ -61,6 +59,7 @@ public class Player : MonoBehaviour
                 else if (Input.GetKey(KeyCode.Space)) playerState = PlayerState.Jump;
                 else if (Input.GetMouseButton(0) && !Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.StopAttack;
                 else if (Input.GetKeyDown(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
+                else if (currentHP <= 0) playerState = PlayerState.Die;
                 break;
 
             case PlayerState.Run:
@@ -73,6 +72,7 @@ public class Player : MonoBehaviour
                 else if (Input.GetKey(KeyCode.Space)) playerState = PlayerState.Jump;
                 else if (Input.GetMouseButton(0) && !Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.MoveAttack;
                 else if (Input.GetKeyDown(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
+                else if (currentHP <= 0) playerState = PlayerState.Die;
                 break;
 
             case PlayerState.Jump:
@@ -86,6 +86,7 @@ public class Player : MonoBehaviour
                     playerState = PlayerState.Run;
                 else if (Input.GetMouseButton(0)) playerState = PlayerState.MoveAttack;
                 else if (Input.GetKeyDown(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
+                else if (currentHP <= 0) playerState = PlayerState.Die;
                 break;
 
             case PlayerState.StopAttack:
@@ -94,6 +95,7 @@ public class Player : MonoBehaviour
                 else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D)) playerState = PlayerState.Run;
                 else if (Input.GetKey(KeyCode.Space)) playerState = PlayerState.Jump;
                 else if (Input.GetKeyDown(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
+                else if (currentHP <= 0) playerState = PlayerState.Die;
                 break;
 
             case PlayerState.MoveAttack:
@@ -102,6 +104,7 @@ public class Player : MonoBehaviour
                 Jump();
                 if (Input.GetMouseButtonUp(0)) playerState = PlayerState.Run;
                 else if (Input.GetKeyDown(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
+                else if (currentHP <= 0) playerState = PlayerState.Die;
                 else if (dir.magnitude < 0.1f)
                 {
                     playerState = PlayerState.StopAttack;
@@ -120,6 +123,11 @@ public class Player : MonoBehaviour
                 {
                     playerState = PlayerState.Idle;
                 }
+                else if (currentHP <= 0) playerState = PlayerState.Die;
+                break;
+            case PlayerState.Die:
+                Destroy(this.gameObject, 5f);
+                GameManager.Instance.isPlayerAlive = false;
                 break;
         }
 
@@ -178,6 +186,7 @@ public class Player : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
+        if (currentHP <= 0) return;
         currentHP -= damage;
     }
 
@@ -220,15 +229,6 @@ public class Player : MonoBehaviour
         dir = transform.forward * vInput + transform.right * hzInput;
         cc.Move(dir.normalized * moveSpeed * 2 * Time.deltaTime);
     }
-
-    //bool IsGrounded()
-    //{
-    //    playerPos = new Vector3(transform.position.x, transform.position.y - groundYOffset, transform.position.z);
-    //    // checksphere는 구를 만드는 함수. playerPos를 기준으로 반지름(radius) - 0.05만큼 뺀 크기의 구를 만들고 속성을
-    //    // layerMask인 groundMask로 받아오는 느낌
-    //    if (Physics.CheckSphere(playerPos, cc.radius - 0.05f, groundMask)) return true;
-    //    return false;
-    //}
 }
 
 

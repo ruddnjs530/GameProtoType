@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,7 +14,16 @@ public class GameManager : MonoBehaviour
     public bool isMenuOpen = false;
 
     public int money = 0;
+
+    public bool isEnemyWave = false; // 포탈을 활성화 시켰을 때를 위한 웨이브 변수
+
+    public bool isPlayerAlive = true;
+
+    public bool isGameClear = false;
+
     [SerializeField] TextMeshProUGUI moneyUI;
+
+    float time = 0f;
     private void Awake()
     {
         if (instance == null)
@@ -57,6 +67,13 @@ public class GameManager : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
             canPlayerMove = true;
         }
+
+        if (!isPlayerAlive)
+        {
+            time += Time.deltaTime;
+            if (time >= 6.0f)
+                SceneManager.LoadScene("GameOverScene");
+        }    
     }
     public void IncreaseMoney(int price)
     {

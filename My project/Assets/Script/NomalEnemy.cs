@@ -24,7 +24,7 @@ public class NomalEnemy : Enemy
 
     protected override void Attack()
     {
-        //Debug.Log("ÀÚ½Ä attack");
+        if (agentTarget == null) return;
         attackDelay -= Time.deltaTime;
         if (attackDelay < 0) attackDelay = 0;
         if (attackDelay == 0)

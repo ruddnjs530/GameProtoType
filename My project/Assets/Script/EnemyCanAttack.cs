@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EnemyCanAttack : MonoBehaviour
 {
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         if (other.gameObject.tag == "Player")
         {
