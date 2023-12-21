@@ -10,9 +10,9 @@ public class PotalObject : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.tag == "Player" && Input.GetKey(KeyCode.E))
+        if (other.gameObject.tag == "Player" && !GameManager.Instance.isEnemyWave && Input.GetKey(KeyCode.E))
         {
-            //GameManager.Instance.isEnemyWave = true;
+            GameManager.Instance.isEnemyWave = true;
             e.SetActive(false);
             countDown.SetActive(true);
         }

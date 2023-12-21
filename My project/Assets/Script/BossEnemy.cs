@@ -58,6 +58,7 @@ public class BossEnemy : MonoBehaviour
                     timer = 0.0f;
                 }
                 if (hp <= 0) bossState = BossState.Die;
+                if (!canAttack) bossState = BossState.Idle;
                 break;
         }
     }
@@ -85,6 +86,7 @@ public class BossEnemy : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
+        //if (other.gameObject.tag != "Player") return;
         if (other.gameObject.tag == "Player" && !canAttack)
         {
             target = other.transform;

@@ -27,7 +27,8 @@ public class FlyginEnemyRandomMove : FlyingEnemy
         }
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * moveSpeed);
 
-        LookAt(GameObject.Find("Player").transform);
+        if (GameObject.FindWithTag("Player"))
+            LookAt(GameObject.FindWithTag("Player").transform);
     }
 
     void SetRandomTargetPosition()

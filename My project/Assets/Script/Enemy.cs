@@ -22,10 +22,6 @@ public class Enemy : MonoBehaviour
 
     [SerializeField] GameObject textObject;
 
-    //float viewAngle = 130f;
-    //float viewDistance = 20f;
-    //[SerializeField] protected LayerMask targetMask;
-
     public bool isDie = false;
 
     protected bool isSeePlayer = false;
@@ -35,7 +31,6 @@ public class Enemy : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
 
-        //canAttack = false;
         enemyState = EnemyState.Idle;
     }
 
@@ -59,13 +54,11 @@ public class Enemy : MonoBehaviour
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if (isSeePlayer) enemyState = EnemyState.Chase;
                 else enemyState = EnemyState.Idle;
-                //Debug.Log("simple");
 
                 break;
 
             case EnemyState.Chase:
                 Chase();
-                //Debug.Log("chase");
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if (canAttack) enemyState = EnemyState.Attack;
                 else if (!isSeePlayer) enemyState = EnemyState.Idle;
@@ -74,7 +67,6 @@ public class Enemy : MonoBehaviour
 
             case EnemyState.Attack:
                 Attack();
-                //Debug.Log("attack");
                 if (hp <= 0) enemyState = EnemyState.Die;
                 else if (!canAttack) enemyState = EnemyState.Idle;
                 break;
@@ -138,53 +130,11 @@ public class Enemy : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void SetAgentTarget(Collider col)
-    {
-        agentTarget = col.transform;
-    }
-
-    public bool IsAgentTargetExist()
-    {
-        if (agentTarget != null) return true;
-        return false;
-    }
-
     public void LookAtTarget(Collider col)
     {
-        //transform.LookAt(col.transform);
         Vector3 direction = col.transform.position - transform.position;
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
     }
-
-
-    //protected bool IsPlayerInTheView()
-    //{
-    //    Collider[] target = Physics.OverlapSphere(transform.position, viewDistance, targetMask);
-
-    //    for (int i = 0; i < target.Length; i++)
-    //    {
-    //        if (target[i].gameObject.tag != "Player") return false;
-
-    //        Transform targetTf = target[i].transform;
-    //        Vector3 direction = (targetTf.position - transform.position).normalized; // 플레이어의 방향
-    //        float betweenEnemyAndPlayerAngle = Vector3.Angle(direction, transform.forward); // 플레이어와 enemy.forward로 사잇값을 구함
-
-    //        if (betweenEnemyAndPlayerAngle < viewAngle * 0.5f) // 사잇값이 시야 * 0.5보다 작다면 시야 안에 있는 것
-    //        {
-    //            RaycastHit hit;
-    //            if (Physics.Raycast(transform.position + transform.up, direction, out hit, viewDistance))   // 사이에 장애물이 있는지 확인
-    //            {
-    //                if (hit.transform.tag == "Player")
-    //                {
-    //                    agentTarget = hit.transform;
-    //                    return true;
-    //                }
-    //                else return false;
-    //            }
-    //        }
-    //    }
-    //    return false;
-    //}
 }
 

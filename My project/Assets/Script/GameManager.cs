@@ -21,6 +21,8 @@ public class GameManager : MonoBehaviour
 
     public bool isGameClear = false;
 
+    public int bulletDamage = 10;
+
     [SerializeField] TextMeshProUGUI moneyUI;
 
     float time = 0f;

@@ -29,15 +29,15 @@ public class EnemySpawner : MonoBehaviour
         if (GameManager.Instance.isEnemyWave) // 적 웨이브가 활성화 되면 평소 생성되는 적보다 많은 수가 생성됨, 다른 위치에서 생성 ( 포탈 주변에서 생성 )
         {
             Debug.Log("is enemy wave");
-            enemyCount *= 3;
-            SpawnEnemy(enemyWaveSpawnPoints, 100f);
+            //enemyCount *= 2;
+            SpawnEnemy(enemyWaveSpawnPoints, 50f);
             GameManager.Instance.isEnemyWave = false;
 
             SpawnBoss();
         }
     }
 
-    void SpawnEnemy(Transform[] spawnPoints, float radius = 10f)
+    void SpawnEnemy(Transform[] spawnPoints, float radius = 40f)
     {
         for (int i = 0; i < enemyCount; i++)
         {

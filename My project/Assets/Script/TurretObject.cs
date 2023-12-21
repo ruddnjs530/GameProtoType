@@ -72,6 +72,7 @@ public class TurretObject : MonoBehaviour
 
         foreach (GameObject enemy in surroundingsObj)
         {
+            if (enemy == null) return null;
             float distance = Vector3.Distance(transform.position, enemy.transform.position);
             if (distance < nearestDistance)
             {
@@ -89,6 +90,7 @@ public class TurretObject : MonoBehaviour
 
     void Attack(GameObject target)
     {
+        if (target == null) return;
         Vector3 direction = target.transform.position - transform.position;
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
@@ -98,12 +100,11 @@ public class TurretObject : MonoBehaviour
         {
             GameObject currentBullet = Instantiate(bulletPrefab, firePos.position, firePos.rotation);
             Rigidbody rb = currentBullet.GetComponent<Rigidbody>();
-            rb.AddForce(firePos.forward * 2f, ForceMode.Impulse);                
-
+            rb.AddForce(firePos.forward * 2f, ForceMode.Impulse);
             currentRateOfFire = 0;
         }
 
-        if (target.GetComponent<Enemy1>().isDie) RemoveObjFromList(target);
+        if (target.GetComponent<Enemy>().isDie) RemoveObjFromList(target);
     }
 
     void Die()

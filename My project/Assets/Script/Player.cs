@@ -132,7 +132,7 @@ public class Player : MonoBehaviour
         }
 
         Gravity();
-        anim.SetFloat("horizontal", hzInput); // 이걸로 애니메이션 float값 받아서 하는듯
+        anim.SetFloat("horizontal", hzInput);
         anim.SetFloat("vertical", vInput);
 
         hpBar.value = currentHP / maxHP;
@@ -144,7 +144,7 @@ public class Player : MonoBehaviour
         vInput = Input.GetAxis("Vertical");
 
         dir = transform.forward * vInput + transform.right * hzInput;
-        cc.Move(dir.normalized * moveSpeed * Time.deltaTime); // nomalized 해주는 이유는 대각선으로 갈때 속도가 더 빨라지지 않게 하기 위함
+        cc.Move(dir.normalized * moveSpeed * Time.deltaTime);
         anim.SetBool("Running", true);
         anim.SetFloat("horizontal", hzInput);
         anim.SetFloat("vertical", vInput);
@@ -195,11 +195,14 @@ public class Player : MonoBehaviour
         if (other.gameObject.tag == "HealthBuff")
         {
             theInventory.AcquireItem(other.gameObject.transform.GetComponent<ItemManager>().healthBuff, 1);
+            maxHP += 20;
+            currentHP += 20;
             Destroy(other.gameObject);  
         }
         if (other.gameObject.tag == "DamageBuff")
         {
             theInventory.AcquireItem(other.gameObject.transform.GetComponent<ItemManager>().damageBuff, 1);
+            GameManager.Instance.bulletDamage += 2;
             Destroy(other.gameObject);
         }
     }

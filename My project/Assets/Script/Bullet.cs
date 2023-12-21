@@ -7,8 +7,6 @@ public class Bullet : MonoBehaviour
     float destroyTime = 5f;
     float timer;
 
-    int bulletDamage = 10;
-
     // Update is called once per frame
     void Update()
     {
@@ -22,11 +20,11 @@ public class Bullet : MonoBehaviour
         if (collision.gameObject.tag == "Enemy")
         {
             ContactPoint cp = collision.contacts[0];
-            collision.gameObject.GetComponent<Enemy>().TakeDamageAndInstantiateText(bulletDamage, cp.point.y + 2);
+            collision.gameObject.GetComponent<Enemy>().TakeDamageAndInstantiateText(GameManager.Instance.bulletDamage, cp.point.y + 2);
         }
         if (collision.gameObject.tag == "BossEnemy")
         {
-            collision.gameObject.GetComponent<BossEnemy>().TakeDamageAndInstantiateText(bulletDamage);
+            collision.gameObject.GetComponent<BossEnemy>().TakeDamageAndInstantiateText(GameManager.Instance.bulletDamage);
         }
     }
 }

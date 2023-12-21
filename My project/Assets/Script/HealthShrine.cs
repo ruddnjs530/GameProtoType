@@ -20,7 +20,8 @@ public class HealthShrine : MonoBehaviour
     void Update()
     {
         if (isPlayerEnter && Input.GetKeyDown(KeyCode.E) && GameManager.Instance.money >= shrinePrice)
-        {   
+        {
+            Debug.Log("hi");
             GameManager.Instance.DecreaseMoney(shrinePrice);
             range.SetActive(true);
             text.gameObject.SetActive(false);
