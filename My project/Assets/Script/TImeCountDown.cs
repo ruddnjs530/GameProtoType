@@ -7,7 +7,7 @@ public class TImeCountDown : MonoBehaviour
 {
     TMP_Text text;
 
-    private float countdownTime = 120f;
+    private float countdownTime = 30f;
     private bool isCountingDown = true;
 
     [SerializeField] GameObject cam;

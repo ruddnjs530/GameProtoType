@@ -103,12 +103,12 @@ public class Enemy : MonoBehaviour
     private void ReSetDestination() // 목표 재설정.
     {
         //agent.ResetPath();
-        destination.Set(Random.Range(-0.5f, 0.5f), 0f, Random.Range(0.5f, 1f));
+        destination.Set(Random.Range(-1.0f, 1.0f), 0f, Random.Range(-0.5f, 1f));
     }
 
     private void SimpleMove() // destination으로 이동.
     {
-        agent.SetDestination(transform.position + destination * 7f);
+        agent.SetDestination(transform.position + destination * 4f);
         agent.speed = walkSpeed;
     }
 
