@@ -37,16 +37,4 @@ public class Bullet : MonoBehaviour
 
         Destroy(this.gameObject, 0.2f);
     }
-
-    //private void OnCollisionStay(Collision collision)
-    //{
-    //    if (collision.gameObject.tag == "Enemy")
-    //    {
-    //        hitParticle.Play();
-    //    }
-    //    if (collision.gameObject.tag == "BossEnemy")
-    //    {
-    //        hitParticle.Play();
-    //    }
-    //}
 }
