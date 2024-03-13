@@ -64,6 +64,7 @@ public class Player : MonoBehaviour
 
             case PlayerState.Run:
                 Move();
+                transform.rotation = Quaternion.Euler(0, Mathf.Atan2(hzInput, vInput) * Mathf.Rad2Deg, 0);
                 if (dir.magnitude < 0.1f)
                 {
                     playerState = PlayerState.Idle;
@@ -119,11 +120,12 @@ public class Player : MonoBehaviour
 
             case PlayerState.DiveRoll:
                 DiveRoll();
-                if (Input.GetKeyUp(KeyCode.LeftShift))
-                {
-                    playerState = PlayerState.Idle;
-                }
-                else if (currentHP <= 0) playerState = PlayerState.Die;
+                playerState = PlayerState.Idle;
+                //if (Input.GetKeyUp(KeyCode.LeftShift))
+                //{
+                //    playerState = PlayerState.Idle;
+                //}
+                if (currentHP <= 0) playerState = PlayerState.Die;
                 break;
             case PlayerState.Die:
                 Destroy(this.gameObject, 5f);
@@ -132,22 +134,59 @@ public class Player : MonoBehaviour
         }
 
         Gravity();
-        anim.SetFloat("horizontal", hzInput);
-        anim.SetFloat("vertical", vInput);
+        //anim.SetFloat("horizontal", hzInput);
+        //anim.SetFloat("vertical", vInput);
 
         hpBar.value = currentHP / maxHP;
     }
 
     void Move()
     {
-        hzInput = Input.GetAxis("Horizontal");
-        vInput = Input.GetAxis("Vertical");
+        //hzInput = Input.GetAxis("Horizontal");
+        //vInput = Input.GetAxis("Vertical");
 
-        dir = transform.forward * vInput + transform.right * hzInput;
-        cc.Move(dir.normalized * moveSpeed * Time.deltaTime);
-        anim.SetBool("Running", true);
-        anim.SetFloat("horizontal", hzInput);
-        anim.SetFloat("vertical", vInput);
+        //transform.rotation = Quaternion.Euler(0, Mathf.Atan2(hzInput, vInput) * Mathf.Rad2Deg, 0);
+
+        //dir = new Vector3(hzInput, 0, vInput);
+        //cc.Move(dir * moveSpeed * Time.deltaTime);
+
+
+        //dir = transform.forward * vInput + transform.right * hzInput;
+        //cc.Move(dir.normalized * moveSpeed * Time.deltaTime);
+        //anim.SetBool("Running", true);
+
+        //anim.SetFloat("horizontal", hzInput);
+        //anim.SetFloat("vertical", vInput);
+
+        var h = Input.GetAxis("Horizontal");
+        var v = Input.GetAxis("Vertical");
+
+
+        dir = new Vector3(h, 0, v).normalized;
+
+        //// 이동하는 방향이 있을 때만 회전을 적용합니다.
+        //if (dir != Vector3.zero)
+        //{
+        //    Debug.Log("turn");
+        //    // 목표 회전 각도 계산 (이동 방향의 각도)
+        //    float targetAngle = Mathf.Atan2(h, v) * Mathf.Rad2Deg;
+        //    // 목표 회전 방향 설정
+        //    Quaternion targetRotation = Quaternion.Euler(0, targetAngle, 0);
+        //    // 부드러운 회전 적용
+        //    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 5 * Time.deltaTime);
+        //}
+
+
+        //tr.Rotate(Vector3.up * h * rotSpeed * Time.deltaTime);
+        h = h * 3 * Time.deltaTime;
+        Transform tr = GetComponent<Transform>();
+        tr.Rotate(Vector3.up * h);
+
+
+        cc.Move(dir * moveSpeed * Time.deltaTime);
+
+
+
     }
 
     void Gravity()
@@ -165,7 +204,7 @@ public class Player : MonoBehaviour
             anim.SetTrigger("Jump");
             velocity.y = jumpSpeed;
         }
-           
+
         cc.Move(velocity * Time.deltaTime);
     }
 
@@ -225,12 +264,14 @@ public class Player : MonoBehaviour
 
     void DiveRoll()
     {
-        anim.SetBool("DiveRoll", true);
         hzInput = Input.GetAxis("Horizontal");
         vInput = Input.GetAxis("Vertical");
 
         dir = transform.forward * vInput + transform.right * hzInput;
         cc.Move(dir.normalized * moveSpeed * 2 * Time.deltaTime);
+
+        anim.SetBool("DiveRoll", true);
+
     }
 }
 

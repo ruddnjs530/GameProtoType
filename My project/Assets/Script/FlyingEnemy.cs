@@ -62,7 +62,7 @@ public class FlyingEnemy : Enemy
             isSeePlayer = false;
             agentTarget = null;
             canAttack = false;
-            Debug.Log("자식 out");
+            //Debug.Log("자식 out");
         }
     }
 
