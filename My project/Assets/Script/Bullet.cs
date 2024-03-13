@@ -7,6 +7,13 @@ public class Bullet : MonoBehaviour
     float destroyTime = 5f;
     float timer;
 
+    ParticleSystem hitParticle;
+
+    private void Start()
+    {
+        hitParticle = GetComponentInChildren<ParticleSystem>();
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -16,15 +23,18 @@ public class Bullet : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Destroy(this.gameObject);
         if (collision.gameObject.tag == "Enemy")
         {
             ContactPoint cp = collision.contacts[0];
             collision.gameObject.GetComponent<Enemy>().TakeDamageAndInstantiateText(GameManager.Instance.bulletDamage, cp.point.y + 2);
+            hitParticle.Play();
         }
         if (collision.gameObject.tag == "BossEnemy")
         {
             collision.gameObject.GetComponent<BossEnemy>().TakeDamageAndInstantiateText(GameManager.Instance.bulletDamage);
+            hitParticle.Play();
         }
+
+        Destroy(this.gameObject, 0.2f);
     }
 }

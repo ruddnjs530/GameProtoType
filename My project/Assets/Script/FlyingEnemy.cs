@@ -43,7 +43,7 @@ public class FlyingEnemy : Enemy
             agentTarget = other.transform;
             isSeePlayer = true;
             canAttack = true;
-            Debug.Log("자식 in");
+            //Debug.Log("자식 in");
         }
     }
 
