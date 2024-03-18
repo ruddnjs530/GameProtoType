@@ -29,7 +29,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2038051379613060637}
-  m_RootOrder: 3
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7880398357943289031
 GameObject:
@@ -44,9 +44,10 @@ GameObject:
   - component: {fileID: 3758800984545888842}
   - component: {fileID: 2539150649967471607}
   - component: {fileID: 5899040835589224265}
+  - component: {fileID: 4905609368245640551}
   m_Layer: 9
   m_Name: FlyingEnemy (1)
-  m_TagString: Enemy
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -101,6 +102,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df546d5e8cbee4c47acfea98cec48114, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hp: 100
   canAttack: 0
   textObject: {fileID: 7442387520519593891, guid: 24c2159eacc3caa4eafc8b88ddadeb13, type: 3}
   isDie: 0
@@ -135,6 +137,27 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 126
   m_CollisionDetection: 0
+--- !u!95 &4905609368245640551
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7880398357943289031}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: b51ed164db424ea38696614fa639565a, type: 3}
+  m_Controller: {fileID: 9100000, guid: cb76a9889dd44316984379a119683768, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &6331316406330283517
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -142,6 +165,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5224539163856977549}
     m_Modifications:
+    - target: {fileID: 4659074433975821820, guid: b713585f24f940f4eadb10319818ef40, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.89
+      objectReference: {fileID: 0}
     - target: {fileID: 5446477390752579096, guid: b713585f24f940f4eadb10319818ef40, type: 3}
       propertyPath: m_Layer
       value: 11
@@ -202,6 +229,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5446477390807014369, guid: b713585f24f940f4eadb10319818ef40, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5446477390807014372, guid: b713585f24f940f4eadb10319818ef40, type: 3}
       propertyPath: m_Height
       value: 4
@@ -211,8 +242,16 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5446477390807014372, guid: b713585f24f940f4eadb10319818ef40, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5446477390807014372, guid: b713585f24f940f4eadb10319818ef40, type: 3}
       propertyPath: m_Center.y
       value: -0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5446477390807014372, guid: b713585f24f940f4eadb10319818ef40, type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5446477390807014373, guid: b713585f24f940f4eadb10319818ef40, type: 3}
       propertyPath: m_Name
@@ -294,6 +333,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdb357515d939b94380e58598958a8c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hp: 100
   canAttack: 1
   textObject: {fileID: 7786672510691239665, guid: 24c2159eacc3caa4eafc8b88ddadeb13, type: 3}
   isDie: 0

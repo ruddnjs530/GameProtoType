@@ -37,6 +37,12 @@ public class Player : MonoBehaviour
 
     [SerializeField] Inventory theInventory;
 
+    [SerializeField] Transform characterBody;
+    [SerializeField] Transform cameraArm;
+    public Transform aimPos;
+    [SerializeField] float aimSpeed = 20;
+    [SerializeField] LayerMask aimMask;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -80,7 +86,7 @@ public class Player : MonoBehaviour
                 if (cc.isGrounded)
                 {
                     playerState = PlayerState.Idle;
-                    //anim.SetBool("Jump", false);
+                    anim.SetBool("Jump", false);
                 }
                 else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D))
                     playerState = PlayerState.Run;
@@ -126,11 +132,12 @@ public class Player : MonoBehaviour
                 else if (currentHP <= 0) playerState = PlayerState.Die;
                 break;
             case PlayerState.Die:
-                Destroy(this.gameObject, 5f);
+                Destroy(this.gameObject, 2f);
                 GameManager.Instance.isPlayerAlive = false;
                 break;
         }
 
+        LookAround();
         Gravity();
         anim.SetFloat("horizontal", hzInput);
         anim.SetFloat("vertical", vInput);
@@ -143,8 +150,29 @@ public class Player : MonoBehaviour
         hzInput = Input.GetAxis("Horizontal");
         vInput = Input.GetAxis("Vertical");
 
-        dir = transform.forward * vInput + transform.right * hzInput;
-        cc.Move(dir.normalized * moveSpeed * Time.deltaTime);
+        dir = new Vector3(hzInput, 0, vInput);
+
+        if (dir != Vector3.zero)
+        {
+            Vector3 lookForward = new Vector3(cameraArm.forward.x, 0f, cameraArm.forward.z).normalized;
+            Vector3 lookRight = new Vector3(cameraArm.right.x, 0f, cameraArm.right.z).normalized;
+            Vector3 moveDir = lookForward * dir.z + lookRight * dir.x;
+
+            float targetAngle = Mathf.Atan2(hzInput, vInput) * Mathf.Rad2Deg;
+
+            Quaternion targetRotation = Quaternion.Euler(0, targetAngle, 0);
+
+            if (Input.GetMouseButton(0))
+            {
+                characterBody.forward = lookForward;
+                cc.Move(moveDir.normalized * moveSpeed * Time.deltaTime);
+            }
+            else
+            {
+                characterBody.forward = moveDir;
+                cc.Move(moveDir.normalized * moveSpeed * Time.deltaTime);
+            }
+        }
         anim.SetBool("Running", true);
         anim.SetFloat("horizontal", hzInput);
         anim.SetFloat("vertical", vInput);
@@ -161,7 +189,6 @@ public class Player : MonoBehaviour
     {
         if (cc.isGrounded && Input.GetButton("Jump"))
         {
-            //anim.SetBool("Jump", true);
             anim.SetTrigger("Jump");
             velocity.y = jumpSpeed;
         }
@@ -231,6 +258,30 @@ public class Player : MonoBehaviour
 
         dir = transform.forward * vInput + transform.right * hzInput;
         cc.Move(dir.normalized * moveSpeed * 2 * Time.deltaTime);
+    }
+
+    private void LookAround()
+    {
+        Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+        Vector3 camAngle = cameraArm.rotation.eulerAngles;
+
+        float x = camAngle.x - mouseDelta.y;
+        if (x < 180f)
+        {
+            x = Mathf.Clamp(x, -1f, 70f);
+        }
+        else
+        {
+            x = Mathf.Clamp(x, 335f, 361f);
+        }
+
+        cameraArm.rotation = Quaternion.Euler(camAngle.x - mouseDelta.y, camAngle.y + mouseDelta.x, camAngle.z);
+
+        Vector2 screenCenter = new Vector2(Screen.width / 2, Screen.height / 2);
+        Ray ray = Camera.main.ScreenPointToRay(screenCenter);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, aimMask))
+            aimPos.position = Vector3.Lerp(aimPos.position, hit.point, aimSpeed * Time.deltaTime);
     }
 }
 

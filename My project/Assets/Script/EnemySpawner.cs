@@ -20,7 +20,7 @@ public class EnemySpawner : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        SpawnEnemy(enemySpawnPoints);
+        //SpawnEnemy(enemySpawnPoints);
     }
 
     // Update is called once per frame
@@ -30,7 +30,7 @@ public class EnemySpawner : MonoBehaviour
         {
             Debug.Log("is enemy wave");
             //enemyCount *= 2;
-            SpawnEnemy(enemyWaveSpawnPoints, 50f);
+           // SpawnEnemy(enemyWaveSpawnPoints, 50f);
             GameManager.Instance.isEnemyWave = false;
 
             SpawnBoss();

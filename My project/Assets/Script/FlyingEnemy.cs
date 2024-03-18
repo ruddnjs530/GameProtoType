@@ -25,6 +25,7 @@ public class FlyingEnemy : Enemy
 
     protected override void Attack()
     {
+        base.Attack();
         timer += Time.deltaTime;
         if (timer > fireRate)
         {

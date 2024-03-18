@@ -12,7 +12,7 @@ public class Enemy : MonoBehaviour
     protected Vector3 destination;
     protected float walkSpeed = 3f;
     protected float chaseSpeed = 6f;
-    protected float hp = 100;
+    public float hp = 100;
 
     EnemyState enemyState;
     float currentTime = 0f;
@@ -26,11 +26,13 @@ public class Enemy : MonoBehaviour
 
     protected bool isSeePlayer = false;
 
+    Animator anim;
+
     // Start is called before the first frame update
     protected virtual void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-
+        anim = GetComponent<Animator>();
         enemyState = EnemyState.Idle;
     }
 
@@ -60,15 +62,35 @@ public class Enemy : MonoBehaviour
             case EnemyState.Chase:
                 Chase();
                 if (hp <= 0) enemyState = EnemyState.Die;
-                else if (canAttack) enemyState = EnemyState.Attack;
-                else if (!isSeePlayer) enemyState = EnemyState.Idle;
+                else if (canAttack)
+                {
+                    anim.SetBool("Chase", false);
+                    enemyState = EnemyState.Attack;
+                    break;
+                }
+                else if (!isSeePlayer)
+                {
+                    anim.SetBool("Chase", false);
+                    enemyState = EnemyState.Idle;
+                    break;
+                }
                 currentTime = 0;
                 break;
 
             case EnemyState.Attack:
                 Attack();
-                if (hp <= 0) enemyState = EnemyState.Die;
-                else if (!canAttack) enemyState = EnemyState.Idle;
+                if (hp <= 0)
+                {
+                    anim.SetBool("Attack", false);
+                    enemyState = EnemyState.Die;
+                    break;
+                }
+                else if (!canAttack)
+                {
+                    anim.SetBool("Attack", false);
+                    enemyState = EnemyState.Idle;
+                    break;
+                }
                 break;
 
             case EnemyState.Die:
@@ -82,6 +104,7 @@ public class Enemy : MonoBehaviour
         hp -= damage;
         GameObject text = Instantiate(textObject, MakeRandomPosition(yPos), Quaternion.identity);
         text.GetComponent<DamageText>().damage = damage;
+        anim.SetTrigger("GetHit");
     }
 
     Vector3 MakeRandomPosition(float yPos)
@@ -118,14 +141,17 @@ public class Enemy : MonoBehaviour
         destination = agentTarget.position;
         agent.SetDestination(destination);
         agent.speed = chaseSpeed;
+        anim.SetBool("Chase", true);
     }
 
     protected virtual void Attack()
     {
+        anim.SetBool("Attack", true);
     }
 
     protected virtual void Die()
     {
+        anim.SetBool("Die", true);
         isDie = true;
         Destroy(gameObject);
     }
