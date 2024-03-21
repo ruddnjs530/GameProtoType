@@ -158,10 +158,6 @@ public class Player : MonoBehaviour
             Vector3 lookRight = new Vector3(cameraArm.right.x, 0f, cameraArm.right.z).normalized;
             Vector3 moveDir = lookForward * dir.z + lookRight * dir.x;
 
-            float targetAngle = Mathf.Atan2(hzInput, vInput) * Mathf.Rad2Deg;
-
-            Quaternion targetRotation = Quaternion.Euler(0, targetAngle, 0);
-
             if (Input.GetMouseButton(0))
             {
                 characterBody.forward = lookForward;
