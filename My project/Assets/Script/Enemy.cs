@@ -28,6 +28,15 @@ public class Enemy : MonoBehaviour
 
     Animator anim;
 
+    //private Vector3 enemyPos;
+    //private float destinationFromDrone;
+
+    //public Enemy(Vector3 pos, float dist)
+    //{
+    //    enemyPos = pos;
+    //    destinationFromDrone = dist;
+    //}
+
     // Start is called before the first frame update
     protected virtual void Start()
     {
