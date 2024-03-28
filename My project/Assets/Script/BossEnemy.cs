@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum BossState { Idle, Die, Attack}
+public enum BossState { Idle, Die, Attack1, Attack2, Move}
 public class BossEnemy : MonoBehaviour
 {
     BossState bossState;
@@ -40,8 +40,17 @@ public class BossEnemy : MonoBehaviour
             case BossState.Idle:
                 if (canAttack)
                 {
-                    bossState = BossState.Attack;
-                    return;
+                    if (hp >30)
+                    {
+                        bossState = BossState.Attack1;
+                        break;
+                    }
+                    else
+                    {
+                        bossState = BossState.Attack2;
+                        break;
+                    }
+
                 }
                 if (hp <= 0) bossState = BossState.Die;
                 break;
@@ -50,13 +59,18 @@ public class BossEnemy : MonoBehaviour
                 Destroy(this.gameObject);
                 break;
 
-            case BossState.Attack:
+            case BossState.Attack1:
                 timer += Time.deltaTime;
                 if (timer > fireRate)
                 {
                     StartCoroutine(Attack());
                     timer = 0.0f;
                 }
+                if (hp <= 0) bossState = BossState.Die;
+                if (!canAttack) bossState = BossState.Idle;
+                break;
+
+            case BossState.Attack2:
                 if (hp <= 0) bossState = BossState.Die;
                 if (!canAttack) bossState = BossState.Idle;
                 break;
