@@ -196,6 +196,9 @@ public class Player : MonoBehaviour
     {      
         if (Input.GetMouseButton(0))
         {
+            Vector3 lookForward = new Vector3(cameraArm.forward.x, 0f, cameraArm.forward.z).normalized;
+            characterBody.forward = lookForward;
+
             anim.SetLayerWeight(1, 1);
             anim.SetBool("Shooting", true);
         }
