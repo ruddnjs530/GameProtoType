@@ -40,11 +40,11 @@ public class TurretObject : MonoBehaviour
                     break;
                 }
                 else if (priorityQueue.Count != 0)
-                    Debug.Log("hi");
                     turretState = TurretState.Attack;
                 break;
+
             case TurretState.Attack:
-                GameObject target = priorityQueuePeek();
+                GameObject target = priorityQueueMinObject();
                 if (target == null || target.GetComponent<Enemy>().hp < 0)
                 {
                     priorityQueueDequeue(); // 피가 0이하이면 surroundingObj에서 target을 삭제
@@ -54,7 +54,7 @@ public class TurretObject : MonoBehaviour
                         turretState = TurretState.Idle;
                         break;
                     }
-                    target = priorityQueuePeek();
+                    target = priorityQueueMinObject();
                 }
 
                 Attack(target);
@@ -64,7 +64,7 @@ public class TurretObject : MonoBehaviour
                 break;
         }
 
-        Debug.Log(priorityQueuePeek());
+        Debug.Log(priorityQueueMinObject());
     }
 
     private void OnTriggerStay(Collider other)
@@ -104,25 +104,61 @@ public class TurretObject : MonoBehaviour
         if (!priorityQueue.Contains(obj))
         {
             priorityQueue.Add(obj);
-            Debug.Log("add enemy");
         }
 
-        int nowIndex = priorityQueue.Count - 1;
+        int currentIndex = priorityQueue.Count - 1;
 
-        while (nowIndex > 0) // 여기서 빠져나가는 구문이 없어서 무한 while루프에 빠짐
+        while (currentIndex > 0)
         {
-            int parentNode = (nowIndex - 1) / 2;
-            if (DistanceWithEnemy(priorityQueue[parentNode]) < DistanceWithEnemy(priorityQueue[nowIndex])) break;
-            // 부모 노드와 자식노드를 비교해서 부모가 더 작으면 while문 빠져나감. 거리가 더 가까울 수록 우선순위
+            int parentNode = (currentIndex - 1) / 2;
 
-            Swap(priorityQueue[parentNode], priorityQueue[nowIndex]);
+            while (priorityQueue[parentNode] == null)
+            {
+                if (currentIndex == priorityQueue.Count - 1 && currentIndex / 2 != 0)
+                {
+                    Swap(priorityQueue[parentNode], priorityQueue[currentIndex]);
+                    currentIndex = parentNode;
+                    priorityQueue.RemoveAt(priorityQueue.Count - 1);
+                }
 
-            nowIndex = parentNode;
+                int leftChild = parentNode * 2 + 1;
+                int rightChild = parentNode * 2 + 2;
+
+                if (leftChild != currentIndex)
+                {
+                    if (DistanceWithEnemy(priorityQueue[leftChild]) < DistanceWithEnemy(priorityQueue[currentIndex]))
+                        Swap(priorityQueue[parentNode], priorityQueue[leftChild]);
+                    else
+                    {
+                        Swap(priorityQueue[parentNode], priorityQueue[currentIndex]);
+                        currentIndex = parentNode;
+                    }
+                }
+                else
+                {
+                    if (DistanceWithEnemy(priorityQueue[rightChild]) < DistanceWithEnemy(priorityQueue[currentIndex]))
+                        Swap(priorityQueue[parentNode], priorityQueue[rightChild]);
+                    else
+                    {
+                        Swap(priorityQueue[parentNode], priorityQueue[currentIndex]);
+                        currentIndex = parentNode;
+                    }
+                }
+
+                parentNode = (currentIndex - 1) / 2;
+            }
+
+            if (DistanceWithEnemy(priorityQueue[parentNode]) < DistanceWithEnemy(priorityQueue[currentIndex])) break;
+            
+
+            Swap(priorityQueue[parentNode], priorityQueue[currentIndex]);
+
+            currentIndex = parentNode;
         }
 
     }
 
-    void priorityQueueDequeue() // 리스트에서 요소 삭제시 뒤에 있는 것들이 자동으로 당겨지지만 우선순위큐를 사용하기에 자동으로 당겨지는건 무쓸모
+    void priorityQueueDequeue()
     {
         if (priorityQueue.Count - 1 < 0) return;
 
@@ -131,32 +167,30 @@ public class TurretObject : MonoBehaviour
         priorityQueue[0] = priorityQueue[priorityQueue.Count - 1];
         priorityQueue.RemoveAt(priorityQueue.Count - 1);
 
-        int nowIndex = 0; // 현재 노드
+        int nowIndex = 0;
         while (true)
         {
-            int leftIndex = 2 * nowIndex + 1; // 왼쪽 자식
-            int rightIndex = 2 * nowIndex + 2; // 오른쪽 자식
+            int leftIndex = 2 * nowIndex + 1;
+            int rightIndex = 2 * nowIndex + 2;
 
-            if (leftIndex <= lastIndex && DistanceWithEnemy(priorityQueue[leftIndex]) > DistanceWithEnemy(priorityQueue[nowIndex])) // 마지막 인덱스보다 작고 ( 위에 있을 수록 작은 인덱스 )
-                // 거리를 비교했을 때 더 자식이 더 크면 위치 바꿈.
+            if (leftIndex <= lastIndex && (priorityQueue[leftIndex] == null || DistanceWithEnemy(priorityQueue[leftIndex]) < DistanceWithEnemy(priorityQueue[nowIndex]))) // 마지막 인덱스보다 작고 ( 위에 있을 수록 작은 인덱스 )
             {
                 nowIndex = leftIndex;
                 Swap(priorityQueue[leftIndex], priorityQueue[nowIndex]);
             }
-            else if (rightIndex <= lastIndex && DistanceWithEnemy(priorityQueue[rightIndex]) > DistanceWithEnemy(priorityQueue[nowIndex]))
+            else if (rightIndex <= lastIndex && (priorityQueue[leftIndex] == null || DistanceWithEnemy(priorityQueue[rightIndex]) < DistanceWithEnemy(priorityQueue[nowIndex])))
             {
                 nowIndex = rightIndex;
                 Swap(priorityQueue[rightIndex], priorityQueue[nowIndex]);
             }
-            else break; // 두 경우 모두 아니라면 while문 종료
+            else break;
         }
     }
 
-    // 거리에 따라 정렬하는 함수를 따로 만들어야함. 그래야 위치가 바뀔 때 정렬이 됨.
-    // 그리고 우선순위큐 안에 들어가 있는데 플레이어가 죽여서 없어질 경우에는 어떻게 알아채서 삭제하지?
-    
-    // 1. 죽었는지 어떻게 확인할까
-    // 2. 죽은 적이 우선순위큐 내에서 몇번째 인지 어떻게 알지?
+    void RemoveNull(int index)
+    {
+
+    }
 
     void Swap (GameObject obj1, GameObject obj2)
     {
@@ -165,7 +199,7 @@ public class TurretObject : MonoBehaviour
         obj2 = temp;
     }
 
-    public GameObject priorityQueuePeek() // peek() == null 이면 비어있는 함수
+    public GameObject priorityQueueMinObject()
     {
         if (priorityQueue.Count == 0)
         {
