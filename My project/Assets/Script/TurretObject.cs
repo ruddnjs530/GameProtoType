@@ -114,7 +114,7 @@ public class TurretObject : MonoBehaviour
 
             while (priorityQueue[parentNode] == null)
             {
-                if (currentIndex == priorityQueue.Count - 1 && currentIndex / 2 != 0)
+                if (currentIndex == priorityQueue.Count - 1 && currentIndex % 2 != 0) // 현재 인덱스가 마지막 노드이면서 왼쪽 노드라면
                 {
                     Swap(priorityQueue[parentNode], priorityQueue[currentIndex]);
                     currentIndex = parentNode;
@@ -124,23 +124,36 @@ public class TurretObject : MonoBehaviour
                 int leftChild = parentNode * 2 + 1;
                 int rightChild = parentNode * 2 + 2;
 
+                // 자식 중 우선순위가 더 높은 노드 (거리가 가까운) 와 스왚
                 if (leftChild != currentIndex)
                 {
                     if (DistanceWithEnemy(priorityQueue[leftChild]) < DistanceWithEnemy(priorityQueue[currentIndex]))
+                    {
                         Swap(priorityQueue[parentNode], priorityQueue[leftChild]);
+                        RemoveNull(leftChild);
+                        Heapify(leftChild);
+                    }         
                     else
                     {
                         Swap(priorityQueue[parentNode], priorityQueue[currentIndex]);
+                        RemoveNull(currentIndex);
+                        Heapify(currentIndex);
                         currentIndex = parentNode;
                     }
                 }
                 else
                 {
                     if (DistanceWithEnemy(priorityQueue[rightChild]) < DistanceWithEnemy(priorityQueue[currentIndex]))
+                    {
                         Swap(priorityQueue[parentNode], priorityQueue[rightChild]);
-                    else
+                        RemoveNull(rightChild);
+                        Heapify(rightChild);
+                    }
+                    else // 이거는 위와 완전히 똑같음
                     {
                         Swap(priorityQueue[parentNode], priorityQueue[currentIndex]);
+                        RemoveNull(currentIndex);
+                        Heapify(currentIndex);
                         currentIndex = parentNode;
                     }
                 }
@@ -150,46 +163,59 @@ public class TurretObject : MonoBehaviour
 
             if (DistanceWithEnemy(priorityQueue[parentNode]) < DistanceWithEnemy(priorityQueue[currentIndex])) break;
             
-
             Swap(priorityQueue[parentNode], priorityQueue[currentIndex]);
 
             currentIndex = parentNode;
         }
-
     }
 
     void priorityQueueDequeue()
     {
         if (priorityQueue.Count - 1 < 0) return;
 
-        int lastIndex = priorityQueue.Count - 1;
-
         priorityQueue[0] = priorityQueue[priorityQueue.Count - 1];
         priorityQueue.RemoveAt(priorityQueue.Count - 1);
 
-        int nowIndex = 0;
+        int currentIndex = 0;
+        Heapify(currentIndex);
+
+    }
+
+    void RemoveNull(int index) // null을 삭제하는 함수, null이 있는 인덱스를 주면 마지막 노드와 바꿔서 삭제 후 빌드힙까지?
+    {
+        Swap(priorityQueue[index], priorityQueue[priorityQueue.Count - 1]); // 마지막 노드와 null 노드를 바꿈
+        priorityQueue.RemoveAt(priorityQueue.Count - 1);                    // null 노드인 마지막 노드를 삭제
+    }
+
+    void Heapify (int currentIndex) // 인덱스부터 밑으로 힙정렬
+    {
+        int lastIndex = priorityQueue.Count - 1;
         while (true)
         {
-            int leftIndex = 2 * nowIndex + 1;
-            int rightIndex = 2 * nowIndex + 2;
+            int leftIndex = 2 * currentIndex + 1;
+            int rightIndex = 2 * currentIndex + 2;
 
-            if (leftIndex <= lastIndex && (priorityQueue[leftIndex] == null || DistanceWithEnemy(priorityQueue[leftIndex]) < DistanceWithEnemy(priorityQueue[nowIndex]))) // 마지막 인덱스보다 작고 ( 위에 있을 수록 작은 인덱스 )
+            if (priorityQueue[leftIndex] == null)
             {
-                nowIndex = leftIndex;
-                Swap(priorityQueue[leftIndex], priorityQueue[nowIndex]);
+                RemoveNull(leftIndex); // leftIndex에 마지막 노드가 들어감. 그리고 밑으로 내려가면 swap됨
             }
-            else if (rightIndex <= lastIndex && (priorityQueue[leftIndex] == null || DistanceWithEnemy(priorityQueue[rightIndex]) < DistanceWithEnemy(priorityQueue[nowIndex])))
+            if (priorityQueue[rightIndex] == null)
             {
-                nowIndex = rightIndex;
-                Swap(priorityQueue[rightIndex], priorityQueue[nowIndex]);
+                RemoveNull(rightIndex);
+            }
+
+            if (leftIndex <= lastIndex && DistanceWithEnemy(priorityQueue[leftIndex]) < DistanceWithEnemy(priorityQueue[currentIndex])) // 마지막 인덱스보다 작고 ( 위에 있을 수록 작은 인덱스 )
+            {
+                currentIndex = leftIndex;
+                Swap(priorityQueue[leftIndex], priorityQueue[currentIndex]);
+            }
+            else if (rightIndex <= lastIndex && DistanceWithEnemy(priorityQueue[rightIndex]) < DistanceWithEnemy(priorityQueue[currentIndex]))
+            {
+                currentIndex = rightIndex;
+                Swap(priorityQueue[rightIndex], priorityQueue[currentIndex]);
             }
             else break;
         }
-    }
-
-    void RemoveNull(int index)
-    {
-
     }
 
     void Swap (GameObject obj1, GameObject obj2)
