@@ -43,20 +43,19 @@ public class TurretObject : MonoBehaviour
                 break;
 
             case TurretState.Attack:
-                //GameObject target = priorityQueueMinObject();
-                //if (target == null || target.GetComponent<Enemy>().hp < 0)
-                //{
-                //    //priorityQueueDequeue(); // 피가 0이하이면 surroundingObj에서 target을 삭제
-                //    if (priorityQueue.Count == 0)
-                //    {
-                //        transform.rotation = originalRotation;
-                //        turretState = TurretState.Idle;
-                //        break;
-                //    }
-                //    //target = priorityQueueMinObject();
-                //}
+                if (attackTarget == null || attackTarget.GetComponent<Enemy>().hp < 0)
+                {
+                    //priorityQueueDequeue(); // 피가 0이하이면 surroundingObj에서 target을 삭제
+                    //if (priorityQueue.Count == 0)
+                    //{
+                    //    transform.rotation = originalRotation;
+                    //    turretState = TurretState.Idle;
+                    //    break;
+                    //}
+                    //target = priorityQueueMinObject();
+                }
 
-                //Attack(target);
+                Attack(attackTarget);
                 break;
             case TurretState.Die:
                 Die();
@@ -80,9 +79,17 @@ public class TurretObject : MonoBehaviour
     GameObject NearestObj(GameObject obj)
     {
         List<GameObject> objs = new List<GameObject>();
-        objs.Add(obj); // 중복인지 체크 안해도 됨. 매번 새롭게 찾을거니까
-        // 리스트에 들어간 것 중 가장 가까운 적을 찾는 기능
+        objs.Add(obj);
+
         GameObject nearestObj = objs[0];
+        foreach (GameObject objInList in objs)
+        {
+            if (DistanceWithEnemy(nearestObj) > DistanceWithEnemy(objInList))
+            {
+                nearestObj = objInList;
+            }
+        }
+       
         return nearestObj;
     }
 
@@ -107,8 +114,6 @@ public class TurretObject : MonoBehaviour
     {
         Destroy(gameObject);
     }
-
- 
 
     float DistanceWithEnemy(GameObject enemy)
     {
