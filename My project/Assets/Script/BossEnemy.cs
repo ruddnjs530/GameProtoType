@@ -12,7 +12,7 @@ public class BossEnemy : MonoBehaviour
 
     [SerializeField] Transform shotPos;
     LineRenderer laserLine;
-    float laserRange = 50f;
+    float laserRange = 10f;
     float laserDuration = 0.5f;
     float fireRate = 1.0f;
 
@@ -39,6 +39,8 @@ public class BossEnemy : MonoBehaviour
     float jumpSpeed = 2f;
     int jumpDamage = 5;
 
+    [SerializeField] GameObject laser;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -56,114 +58,144 @@ public class BossEnemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        switch (bossState)
-        { 
-            case BossState.Idle:
-                anim.SetBool("isIdle", true); // 이거는 idle로 상태가 바뀔 때 같이 바꿔주기. 여기에 지정해주면 idle일 동안 계속 돌아가서 비효율적이라고 함
-                if (hp <= 0)
-                {
-                    bossState = BossState.Die;
-                    break;
-                }
-                if (hp <= 30) // 굳이 페이즈1, 2일 필요X 공격 상태이고 피가 적을 때 스킬이 추가되는 형태가 되는게 좋을듯. 그리고 여기서도 쿨타임인지 확인하고, attack2에서도 쿨타임 확인할 필요 없을듯.
-                {
-                    if (CanExecuteJumpAttack() || CanExecuteEightWayAttack())
-                    {
-                        bossState = BossState.Attack2;
-                        break;
-                    }
-                }
-                if (canAttack) // 이거는 굳이 변수 사용안하고 그냥 충돌되면 공격되게 하는게 나을거 같다고 함.
-                {
-                    bossState = BossState.Attack1;
-                    break;
-                }
-                else
-                {
-                    bossState = BossState.MoveToPlayer;
-                    break;
-                }
+        //switch (bossState)
+        //{ 
+        //    case BossState.Idle:
+        //        anim.SetBool("isIdle", true); // 이거는 idle로 상태가 바뀔 때 같이 바꿔주기. 여기에 지정해주면 idle일 동안 계속 돌아가서 비효율적이라고 함
+        //        if (hp <= 0)
+        //        {
+        //            bossState = BossState.Die;
+        //            break;
+        //        }
+        //        if (hp <= 30) // 굳이 페이즈1, 2일 필요X 공격 상태이고 피가 적을 때 스킬이 추가되는 형태가 되는게 좋을듯. 그리고 여기서도 쿨타임인지 확인하고, attack2에서도 쿨타임 확인할 필요 없을듯.
+        //        {
+        //            if (CanExecuteJumpAttack() || CanExecuteEightWayAttack())
+        //            {
+        //                bossState = BossState.Attack2;
+        //                break;
+        //            }
+        //        }
+        //        if (canAttack) // 이거는 굳이 변수 사용안하고 그냥 충돌되면 공격되게 하는게 나을거 같다고 함.
+        //        {
+        //            bossState = BossState.Attack1;
+        //            break;
+        //        }
+        //        else
+        //        {
+        //            bossState = BossState.MoveToPlayer;
+        //            break;
+        //        }
 
-            case BossState.MoveToPlayer: 
-                 Move(); // 이동 상태일 때도 다른 상태로 넘어갈 수 있는지 부터 체크하고 다른 조건이 안되면 Move함수가 실행되게 하는게 나을거 같다고 함.
+        //    case BossState.MoveToPlayer: 
+        //         Move(); // 이동 상태일 때도 다른 상태로 넘어갈 수 있는지 부터 체크하고 다른 조건이 안되면 Move함수가 실행되게 하는게 나을거 같다고 함.
 
-                if (hp <= 0)
-                {
-                    bossState = BossState.Die;
-                    break;
-                }
-                if (canAttack)
-                {
-                    bossState = BossState.Attack1;
-                    break;
-                }
-                if (hp <= 30)
-                {
-                    if (CanExecuteJumpAttack() || CanExecuteEightWayAttack())
-                    {
-                        bossState = BossState.Attack2;
-                        break;
-                    }
-                }
-                break;
+        //        if (hp <= 0)
+        //        {
+        //            bossState = BossState.Die;
+        //            break;
+        //        }
+        //        if (canAttack)
+        //        {
+        //            bossState = BossState.Attack1;
+        //            break;
+        //        }
+        //        if (hp <= 30)
+        //        {
+        //            if (CanExecuteJumpAttack() || CanExecuteEightWayAttack())
+        //            {
+        //                bossState = BossState.Attack2;
+        //                break;
+        //            }
+        //        }
+        //        break;
 
-            case BossState.Attack1:
-                timer += Time.deltaTime;
-                if (timer > fireRate)
-                {
-                    StartCoroutine(LaserAttack()); // 코루틴이 매번 시작만 되면 직전에 돌아가던 코루틴함수가 끝나지 않은 상태로 새로운 코루틴 함수가 시작될 수 있기 때문에 오류가 날 수 있다고 함. 코루틴이 끝나고 실행되게 하던지, 코루틴은 완전히 끝난 후에 다시 시작한다는 것을 입증하던지 해야할듯
-                    timer = 0.0f;
-                }
+        //    case BossState.Attack1:
+        //        timer += Time.deltaTime;
+        //        if (timer > fireRate)
+        //        {
+        //            StartCoroutine(LaserAttack()); // 코루틴이 매번 시작만 되면 직전에 돌아가던 코루틴함수가 끝나지 않은 상태로 새로운 코루틴 함수가 시작될 수 있기 때문에 오류가 날 수 있다고 함. 코루틴이 끝나고 실행되게 하던지, 코루틴은 완전히 끝난 후에 다시 시작한다는 것을 입증하던지 해야할듯
+        //            timer = 0.0f;
+        //        }
 
-                if (hp <= 0)
-                {
-                    bossState = BossState.Die;
-                    break;
-                }
-                if (hp <= 30)
-                {
-                    if (CanExecuteJumpAttack() || CanExecuteEightWayAttack())
-                    {
-                        bossState = BossState.Attack2;
-                        break;
-                    }
-                }
-                if (!canAttack)
-                {
-                    bossState = BossState.MoveToPlayer;
-                    break;
-                }
-                break;
+        //        if (hp <= 0)
+        //        {
+        //            bossState = BossState.Die;
+        //            break;
+        //        }
+        //        if (hp <= 30)
+        //        {
+        //            if (CanExecuteJumpAttack() || CanExecuteEightWayAttack())
+        //            {
+        //                bossState = BossState.Attack2;
+        //                break;
+        //            }
+        //        }
+        //        if (!canAttack)
+        //        {
+        //            bossState = BossState.MoveToPlayer;
+        //            break;
+        //        }
+        //        break;
 
-            case BossState.Attack2:
-                if (CanExecuteJumpAttack())
-                {
-                    StartCoroutine(JumpAttack(target.position));
-                    jumpAttackCoolTime = Time.time + jumpAttackCoolTime;
-                    break;
-                }
-                else if (CanExecuteEightWayAttack())
-                {
-                    StartCoroutine(EightWayAttack());
-                    eightWayAttackCoolTime = Time.time + eightWayAttackCoolTime;
-                    break;
-                }
-                if (hp <= 0)
-                {
-                    bossState = BossState.Die;
-                    break;
-                }
-                if (!canAttack)
-                {
-                    bossState = BossState.MoveToPlayer;
-                    break;
-                }
-                break;
+        //    case BossState.Attack2:
+        //        if (CanExecuteJumpAttack())
+        //        {
+        //            StartCoroutine(JumpAttack(target.position));
+        //            jumpAttackCoolTime = Time.time + jumpAttackCoolTime;
+        //            break;
+        //        }
+        //        else if (CanExecuteEightWayAttack())
+        //        {
+        //            StartCoroutine(EightWayAttack());
+        //            eightWayAttackCoolTime = Time.time + eightWayAttackCoolTime;
+        //            break;
+        //        }
+        //        if (hp <= 0)
+        //        {
+        //            bossState = BossState.Die;
+        //            break;
+        //        }
+        //        if (!canAttack)
+        //        {
+        //            bossState = BossState.MoveToPlayer;
+        //            break;
+        //        }
+        //        break;
 
-            case BossState.Die:
-                anim.SetBool("isDie", true);
-                Destroy(this.gameObject, 3f);
-                break;
+        //    case BossState.Die:
+        //        anim.SetBool("isDie", true);
+        //        Destroy(this.gameObject, 3f);
+        //        break;
+        //}
+
+        timer += Time.deltaTime;
+        if (timer > fireRate)
+        {
+            StartCoroutine(LaserAttack2());
+            timer = 0.0f;
+        }
+    }
+
+    IEnumerator LaserAttack2()
+    {
+        Vector3 direction = transform.forward - transform.up;
+        RaycastHit hit;
+        Vector3 startPosition = shotPos.position;
+
+        if (Physics.Raycast(startPosition, direction , out hit, laserRange))
+        {
+            if (hit.transform.tag == "Player")
+            {
+                GameObject currentLaser = Instantiate(laser, startPosition, Quaternion.identity);
+                float distance = Vector3.Distance(startPosition, hit.point);
+                currentLaser.transform.localScale = new Vector3(0.01f, distance, 0.01f);
+                currentLaser.transform.rotation = Quaternion.LookRotation(direction);
+                //currentLaser.transform.Rotate(-135f, 0f, 0f);
+                hit.transform.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
+
+                yield return new WaitForSeconds(laserDuration);
+                Destroy(currentLaser);
+            }
         }
     }
 
@@ -197,7 +229,7 @@ public class BossEnemy : MonoBehaviour
         RaycastHit hit;
         Vector3 startPosition = shotPos.position;
 
-        if (Physics.Raycast(startPosition, transform.forward + (transform.up * -1), out hit, laserRange)) 
+        if (Physics.Raycast(startPosition, transform.forward + (transform.up), out hit, laserRange)) 
         {
             laserLine.SetPosition(1, hit.point);
             if (hit.transform.tag == "Player")

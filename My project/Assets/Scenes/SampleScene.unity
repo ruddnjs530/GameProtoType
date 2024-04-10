@@ -3891,6 +3891,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  laser: {fileID: 0}
 --- !u!54 &683156531
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -7891,6 +7892,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  laser: {fileID: 0}
 --- !u!136 &1185895716
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -8159,6 +8161,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1346016339888485516, guid: 2be38c51601500640b008d69dec21a1a, type: 3}
+      propertyPath: laser
+      value: 
+      objectReference: {fileID: 122648, guid: 11530f2b0a0cd2442949827ecbb622f2, type: 3}
     - target: {fileID: 1346016339888485516, guid: 2be38c51601500640b008d69dec21a1a, type: 3}
       propertyPath: bulletPrefab
       value: 
