@@ -43,6 +43,8 @@ public class Player : MonoBehaviour
     [SerializeField] float aimSpeed = 20;
     [SerializeField] LayerMask aimMask;
 
+    bool isDiveRoll = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -124,13 +126,17 @@ public class Player : MonoBehaviour
                 break;
 
             case PlayerState.DiveRoll:
-                DiveRoll();
-                if (Input.GetKeyUp(KeyCode.LeftShift))
+                if (currentHP <= 0) playerState = PlayerState.Die;
+
+                if (!isDiveRoll)
                 {
+                    DiveRoll();
+
                     playerState = PlayerState.Idle;
+                    break;
                 }
-                else if (currentHP <= 0) playerState = PlayerState.Die;
                 break;
+
             case PlayerState.Die:
                 Destroy(this.gameObject, 2f);
                 GameManager.Instance.isPlayerAlive = false;
@@ -147,6 +153,8 @@ public class Player : MonoBehaviour
 
     void Move()
     {
+        if (isDiveRoll) return;
+
         hzInput = Input.GetAxis("Horizontal");
         vInput = Input.GetAxis("Vertical");
 
@@ -172,6 +180,33 @@ public class Player : MonoBehaviour
         anim.SetBool("Running", true);
         anim.SetFloat("horizontal", hzInput);
         anim.SetFloat("vertical", vInput);
+    }
+
+    void DiveRoll()
+    {
+
+
+
+        //dir = transform.forward * vInput + transform.right * hzInput;
+        //cc.Move(dir.normalized * moveSpeed * Time.deltaTime);
+
+        Vector3 horizontalMove = transform.right * hzInput;
+        Vector3 verticalMove = transform.forward * vInput;
+        Vector3 moveDirection = (horizontalMove + verticalMove).normalized * moveSpeed * 2;
+
+        isDiveRoll = true;
+
+        cc.Move(moveDirection * Time.deltaTime);
+        anim.SetTrigger("DiveRoll");
+
+        StartCoroutine(EndDiveRoll());
+    }
+
+    IEnumerator EndDiveRoll()
+    {
+        yield return new WaitForSeconds(0.95f); 
+        isDiveRoll = false;
+        playerState = PlayerState.Idle;
     }
 
     void Gravity()
@@ -249,15 +284,6 @@ public class Player : MonoBehaviour
     public float GetHP() { return currentHP; }
     public void SetHP(float hp) { currentHP = hp; }
 
-    void DiveRoll()
-    {
-        anim.SetBool("DiveRoll", true);
-        hzInput = Input.GetAxis("Horizontal");
-        vInput = Input.GetAxis("Vertical");
-
-        dir = transform.forward * vInput + transform.right * hzInput;
-        cc.Move(dir.normalized * moveSpeed * 2 * Time.deltaTime);
-    }
 
     private void LookAround()
     {
