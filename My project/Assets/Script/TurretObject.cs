@@ -38,23 +38,9 @@ public class TurretObject : MonoBehaviour
                     turretState = TurretState.Die;
                     break;
                 }
-                //else if (priorityQueue.Count != 0)
-                    //turretState = TurretState.Attack;
                 break;
 
             case TurretState.Attack:
-                if (attackTarget == null || attackTarget.GetComponent<Enemy>().hp < 0)
-                {
-                    //priorityQueueDequeue(); // 피가 0이하이면 surroundingObj에서 target을 삭제
-                    //if (priorityQueue.Count == 0)
-                    //{
-                    //    transform.rotation = originalRotation;
-                    //    turretState = TurretState.Idle;
-                    //    break;
-                    //}
-                    //target = priorityQueueMinObject();
-                }
-
                 Attack(attackTarget);
                 break;
             case TurretState.Die:
@@ -65,15 +51,27 @@ public class TurretObject : MonoBehaviour
 
     private void OnTriggerEnter(Collider other) 
     {
-        if (turretState == TurretState.Attack && attackTarget == null)
+        if (other.gameObject.tag == "Enemy")
         {
-            if (other.gameObject.tag == "Enemy") attackTarget = NearestObj(other.gameObject);
-        }    
+            if (turretState == TurretState.Idle)
+            {
+                turretState = TurretState.Attack;
+            }
+            else if (turretState == TurretState.Attack && attackTarget == null)
+            {
+                attackTarget = NearestObj(other.gameObject);
+            }
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        //if (other.gameObject.tag == "Enemy") 
+        if (other.gameObject.tag == "Enemy" && other.gameObject == attackTarget)
+        {
+            attackTarget = null;
+            turretState = TurretState.Idle;
+            return;
+        }
     }
 
     GameObject NearestObj(GameObject obj)
@@ -91,6 +89,11 @@ public class TurretObject : MonoBehaviour
         }
        
         return nearestObj;
+    }
+    float DistanceWithEnemy(GameObject enemy)
+    {
+        float distance = Vector3.Distance(enemy.transform.position, this.transform.position);
+        return distance;
     }
 
     void Attack(GameObject target)
@@ -115,9 +118,4 @@ public class TurretObject : MonoBehaviour
         Destroy(gameObject);
     }
 
-    float DistanceWithEnemy(GameObject enemy)
-    {
-        float distance = Vector3.Distance(enemy.transform.position, this.transform.position);
-        return distance;
-    }
 }
