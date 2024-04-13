@@ -130,11 +130,9 @@ public class Player : MonoBehaviour
 
                 if (!isDiveRoll)
                 {
-                    DiveRoll();
-
-                    playerState = PlayerState.Idle;
-                    break;
+                    anim.SetTrigger("DiveRoll");
                 }
+                DiveRoll();
                 break;
 
             case PlayerState.Die:
@@ -145,6 +143,7 @@ public class Player : MonoBehaviour
 
         LookAround();
         Gravity();
+
         anim.SetFloat("horizontal", hzInput);
         anim.SetFloat("vertical", vInput);
 
@@ -154,9 +153,6 @@ public class Player : MonoBehaviour
     void Move()
     {
         if (isDiveRoll) return;
-
-        hzInput = Input.GetAxis("Horizontal");
-        vInput = Input.GetAxis("Vertical");
 
         dir = new Vector3(hzInput, 0, vInput);
 
@@ -177,6 +173,9 @@ public class Player : MonoBehaviour
                 cc.Move(moveDir.normalized * moveSpeed * Time.deltaTime);
             }
         }
+
+        hzInput = Input.GetAxis("Horizontal");
+        vInput = Input.GetAxis("Vertical");
         anim.SetBool("Running", true);
         anim.SetFloat("horizontal", hzInput);
         anim.SetFloat("vertical", vInput);
@@ -184,21 +183,16 @@ public class Player : MonoBehaviour
 
     void DiveRoll()
     {
-
-
-
+        isDiveRoll = true;
         //dir = transform.forward * vInput + transform.right * hzInput;
         //cc.Move(dir.normalized * moveSpeed * Time.deltaTime);
 
-        Vector3 horizontalMove = transform.right * hzInput;
-        Vector3 verticalMove = transform.forward * vInput;
-        Vector3 moveDirection = (horizontalMove + verticalMove).normalized * moveSpeed * 2;
+        Vector3 horizontalMove = cameraArm.right * hzInput;
+        Vector3 verticalMove = cameraArm.forward * vInput;
+        Vector3 moveDirection = (horizontalMove + verticalMove).normalized; 
 
-        isDiveRoll = true;
-
-        cc.Move(moveDirection * Time.deltaTime);
-        anim.SetTrigger("DiveRoll");
-
+        float rollSpeed = moveSpeed * 2;
+        cc.Move(moveDirection * rollSpeed * Time.deltaTime);
         StartCoroutine(EndDiveRoll());
     }
 
@@ -206,7 +200,7 @@ public class Player : MonoBehaviour
     {
         yield return new WaitForSeconds(0.95f); 
         isDiveRoll = false;
-        playerState = PlayerState.Idle;
+        playerState = PlayerState.Run;
     }
 
     void Gravity()
