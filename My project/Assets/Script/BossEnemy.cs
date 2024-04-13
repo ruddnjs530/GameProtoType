@@ -39,7 +39,12 @@ public class BossEnemy : MonoBehaviour
     float jumpSpeed = 2f;
     int jumpDamage = 5;
 
-    [SerializeField] GameObject laser;
+    List<BossSkills> skills = new List<BossSkills>
+    {
+        new BossSkills("laserAttack", 1f, 1),
+        new BossSkills("frontAttack", 5f, 2),
+        new BossSkills("jumpAttack", 8f, 3)
+    };
 
     // Start is called before the first frame update
     void Start()
@@ -285,101 +290,29 @@ public class BossEnemy : MonoBehaviour
     }
 }
 
+public class BossSkills
+{
+    string skillname;
+    float coolTime;
+    float currentCoolTime;
+    int prioty;
 
-//void EightWayAttack()
-//{
-//    anim.SetTrigger("eightWayAttack");
+    public BossSkills (string skillname, float coolTime, int  prioty)
+    {
+        this.skillname = skillname;
+        this.coolTime = coolTime;
+        this.currentCoolTime = coolTime;
+        this.prioty = prioty;
+    }
 
-//    Vector3[] directions = {
-//            Vector3.forward,
-//            Vector3.back,
-//            Vector3.left,
-//            Vector3.right,
-//            (Vector3.forward + Vector3.right).normalized,
-//            (Vector3.forward + Vector3.left).normalized,
-//            (Vector3.back + Vector3.right).normalized,
-//            (Vector3.back + Vector3.left).normalized
-//        };
-
-//    foreach (Vector3 direction in directions)
-//    {
-//        GameObject sphere = Instantiate(bulletPrefab, transform.position, Quaternion.identity); // 여기 transform.position말고 bulletShotPos로 해서 생성해야할듯
-//        Rigidbody rb = sphere.GetComponent<Rigidbody>();
-//        if (rb != null)
-//        {
-//            rb.AddForce(direction * 10f, ForceMode.VelocityChange);
-//        }
-//    }
-//}
-
-
-//IEnumerator EeightWayAttack()
-//{
-//    Vector3[] directions = { // 이걸 굳이 매번 받아야할까? 보스가 회전하니까 매번 받아야하나?
-//        Vector3.forward,
-//        Vector3.back,
-//        Vector3.left,
-//        Vector3.right,
-//        (Vector3.forward + Vector3.right).normalized,
-//        (Vector3.forward + Vector3.left).normalized,
-//        (Vector3.back + Vector3.right).normalized,
-//        (Vector3.back + Vector3.left).normalized
-//    };
-
-//    foreach (Vector3 direction in directions)
-//    {
-//        GameObject sphere = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-//        Rigidbody rb = sphere.GetComponent<Rigidbody>();
-//        if (rb != null)
-//        {
-//            rb.AddForce(direction * 10f, ForceMode.VelocityChange);
-//        }
-//    }
-//    yield return new WaitForSeconds(3f);
-//    canAttack = false;
-//}
-
-
-//void JumpAttack2() // 위에꺼 처럼 하고 네비메쉬로 이동하는걸로 수정해봐야할듯
-//{
-//    //float lerpRatio = timer / lerpTime;
-//    //Vector3 positionOffset = HeightCurve.Evaluate(lerpRatio) * lerpOffset;
-
-//    //transform.position = Vector3.Lerp(transform.position, target.position, lerpRatio) + positionOffset;
-
-//    for (float time = 0; time < 1; time += Time.deltaTime * jumpSpeed)
-//    {
-//        this.transform.position = Vector3.Lerp(this.transform.position, target.position, time)
-//            + Vector3.up * HeightCurve.Evaluate(time);
-//    }
-//    useTime = Time.time;
-//}
-
-//IEnumerator JumpAttack(Vector3 targetPostion)
-//{
-//    for (float time = 0; time < 1; time += Time.deltaTime * jumpSpeed)
-//    {
-//        this.transform.position = Vector3.Lerp(this.transform.position, targetPostion, time)
-//            + Vector3.up * HeightCurve.Evaluate(time);
-//        //transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(target.position - transform.position),
-//        //    time);
-
-//        //transform.position =new Vector3(target.position.x, HeightCurve.Evaluate(time), target.position.z);
-
-//        //this.transform.position = new Vector3(Vector3.Lerp(this.transform.position, target.position, time).x,
-//        //Vector3.Lerp(this.transform.position, target.position, time).y, Vector3.Lerp(this.transform.position, target.position, time).z) 
-//        //    +Vector3.up * HeightCurve.Evaluate(time);
-
-//        yield return null;
-//    }
-
-//    useTime = Time.time;
-
-//    float distance = Vector3.Distance(this.transform.position, target.position);
-//    //if (distance <= 2f) target.GetComponent<Player>().TakeDamage(jumpDamage);
-
-//    //if (NavMesh.SamplePosition(target.position, out NavMeshHit hit, 1f, this.agent.areaMask))
-//    //{
-//    //    agent.Warp(hit.position);
-//    //}
-//}
+    public bool isCoolTimeEnd(float deltaTime)
+    {
+        currentCoolTime += deltaTime;
+        if (currentCoolTime > coolTime)
+        {
+            currentCoolTime = 0;
+            return true;
+        }
+        return false;
+    }
+}
