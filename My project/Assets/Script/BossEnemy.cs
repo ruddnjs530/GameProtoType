@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public enum BossState { Idle, Die, Attack1, Attack2, MoveToPlayer}
+public enum BossState { Die, Attack, MoveToPlayer}
 public class BossEnemy : MonoBehaviour
 {
     BossState bossState;
@@ -49,7 +49,7 @@ public class BossEnemy : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        bossState = BossState.Idle;
+        bossState = BossState.MoveToPlayer;
         laserLine = GetComponent<LineRenderer>();
 
         anim = GetComponent<Animator>();
@@ -65,106 +65,21 @@ public class BossEnemy : MonoBehaviour
     {
         switch (bossState)
         {
-            case BossState.Idle:
-                anim.SetBool("isIdle", true); // 이거는 idle로 상태가 바뀔 때 같이 바꿔주기. 여기에 지정해주면 idle일 동안 계속 돌아가서 비효율적이라고 함
-                if (hp <= 0)
-                {
-                    bossState = BossState.Die;
-                    break;
-                }
-                if (hp <= 30) // 굳이 페이즈1, 2일 필요X 공격 상태이고 피가 적을 때 스킬이 추가되는 형태가 되는게 좋을듯. 그리고 여기서도 쿨타임인지 확인하고, attack2에서도 쿨타임 확인할 필요 없을듯.
-                {
-                    if (CanExecuteJumpAttack() || CanExecuteEightWayAttack())
-                    {
-                        bossState = BossState.Attack2;
-                        break;
-                    }
-                }
-                if (canAttack) // 이거는 굳이 변수 사용안하고 그냥 충돌되면 공격되게 하는게 나을거 같다고 함.
-                {
-                    bossState = BossState.Attack1;
-                    break;
-                }
-                else
-                {
-                    bossState = BossState.MoveToPlayer;
-                    break;
-                }
-
             case BossState.MoveToPlayer:
-                Move(); // 이동 상태일 때도 다른 상태로 넘어갈 수 있는지 부터 체크하고 다른 조건이 안되면 Move함수가 실행되게 하는게 나을거 같다고 함.
-
-                if (hp <= 0)
-                {
-                    bossState = BossState.Die;
-                    break;
-                }
-                if (canAttack)
-                {
-                    bossState = BossState.Attack1;
-                    break;
-                }
-                if (hp <= 30)
-                {
-                    if (CanExecuteJumpAttack() || CanExecuteEightWayAttack())
-                    {
-                        bossState = BossState.Attack2;
-                        break;
-                    }
-                }
+                CheckDeath();
+                Move();
                 break;
 
-            case BossState.Attack1:
-                timer += Time.deltaTime;
-                if (timer > fireRate)
+            case BossState.Attack:
+                CheckDeath();
+                foreach (var skill in skills)
                 {
-                    StartCoroutine(LaserAttack()); // 코루틴이 매번 시작만 되면 직전에 돌아가던 코루틴함수가 끝나지 않은 상태로 새로운 코루틴 함수가 시작될 수 있기 때문에 오류가 날 수 있다고 함. 코루틴이 끝나고 실행되게 하던지, 코루틴은 완전히 끝난 후에 다시 시작한다는 것을 입증하던지 해야할듯
-                    timer = 0.0f;
-                }
-
-                if (hp <= 0)
-                {
-                    bossState = BossState.Die;
-                    break;
-                }
-                if (hp <= 30)
-                {
-                    if (CanExecuteJumpAttack() || CanExecuteEightWayAttack())
+                    if (skill.isReady())
                     {
-                        bossState = BossState.Attack2;
-                        break;
+                        Attack(skill);
+                        skill.setUseSkillTime();
                     }
-                }
-                if (!canAttack)
-                {
-                    bossState = BossState.MoveToPlayer;
-                    break;
-                }
-                break;
-
-            case BossState.Attack2:
-                if (CanExecuteJumpAttack())
-                {
-                    StartCoroutine(JumpAttack(target.position));
-                    jumpAttackCoolTime = Time.time + jumpAttackCoolTime;
-                    break;
-                }
-                else if (CanExecuteEightWayAttack())
-                {
-                    StartCoroutine(EightWayAttack());
-                    eightWayAttackCoolTime = Time.time + eightWayAttackCoolTime;
-                    break;
-                }
-                if (hp <= 0)
-                {
-                    bossState = BossState.Die;
-                    break;
-                }
-                if (!canAttack)
-                {
-                    bossState = BossState.MoveToPlayer;
-                    break;
-                }
+                }        
                 break;
 
             case BossState.Die:
@@ -179,6 +94,72 @@ public class BossEnemy : MonoBehaviour
         agent.SetDestination(target.position);
         agent.speed = walkSpeed;
         anim.SetBool("isWalking", true);
+    }
+
+    private void Attack(BossSkills skill) // 가독성이 좋아보이지는 않음 BossSkills skills
+    {
+        //if (hp > 30)
+        //{
+        //    timer += Time.deltaTime;
+        //    if (timer > fireRate)
+        //    {
+        //        StartCoroutine(LaserAttack());
+        //        timer = 0.0f;
+        //    }
+        //}
+        //else
+        //{
+        //    if (CanExecuteJumpAttack())
+        //    {
+        //        StartCoroutine(JumpAttack(target.position));
+        //        jumpAttackCoolTime = Time.time + jumpAttackCoolTime;
+        //    }
+        //    else if (CanExecuteEightWayAttack())
+        //    {
+        //        StartCoroutine(JumpAttack(target.position));
+        //        jumpAttackCoolTime = Time.time + jumpAttackCoolTime;
+        //    }
+        //    else
+        //    {
+        //        timer += Time.deltaTime;
+        //        if (timer > fireRate)
+        //        {
+        //            StartCoroutine(LaserAttack());
+        //            timer = 0.0f;
+        //        }
+        //    }
+        //}
+        if (hp > 30)
+        {
+            timer += Time.deltaTime;
+            if (timer > fireRate)
+            {
+                StartCoroutine(LaserAttack()); // 코루틴이 매번 시작만 되면 직전에 돌아가던 코루틴함수가 끝나지 않은 상태로 새로운 코루틴 함수가 시작될 수 있기 때문에 오류가 날 수 있다고 함. 코루틴이 끝나고 실행되게 하던지, 코루틴은 완전히 끝난 후에 다시 시작한다는 것을 입증하던지 해야할듯
+                timer = 0.0f;
+            }
+        }
+        else
+        {
+            switch (skill.skillname)
+            {
+                case "laserAttack":
+                    timer += Time.deltaTime;
+                    if (timer > fireRate)
+                    {
+                        StartCoroutine(LaserAttack());
+                        timer = 0.0f;
+                    }
+                    break;
+                case "frontAttack":
+                    StartCoroutine(EightWayAttack());
+                    eightWayAttackCoolTime = Time.time + eightWayAttackCoolTime;
+                    break;
+                case "jumpAttack":
+                    StartCoroutine(JumpAttack(target.position));
+                    jumpAttackCoolTime = Time.time + jumpAttackCoolTime;
+                    break;
+            }
+        }
     }
 
     IEnumerator JumpAttack(Vector3 targetPosition)
@@ -258,16 +239,15 @@ public class BossEnemy : MonoBehaviour
     {
         if (other.gameObject.tag == "Player")
         {
-            //shotPos.LookAt(other.transform); // 이걸 빼면 레이저가 제대로 안나감
             transform.LookAt(other.transform);
-            canAttack = true;
+            bossState = BossState.Attack;
         }
     }
     private void OnTriggerExit(Collider other)
     {
         if (other.gameObject.tag == "Player")
         {
-            canAttack = false;
+            bossState = BossState.MoveToPlayer;
         }
     }
 
@@ -288,31 +268,38 @@ public class BossEnemy : MonoBehaviour
         textPosition.z = transform.position.z + rand;
         return textPosition;
     }
+
+    void CheckDeath()
+    {
+        if (hp <= 0)
+        {
+            bossState = BossState.Die;
+        }
+    }
 }
 
 public class BossSkills
 {
-    string skillname;
+    public string skillname;
     float coolTime;
-    float currentCoolTime;
+    float LastUsedTime;
     int prioty;
 
     public BossSkills (string skillname, float coolTime, int  prioty)
     {
         this.skillname = skillname;
         this.coolTime = coolTime;
-        this.currentCoolTime = coolTime;
+        this.LastUsedTime = -coolTime;
         this.prioty = prioty;
     }
 
-    public bool isCoolTimeEnd(float deltaTime)
+    public bool isReady()
     {
-        currentCoolTime += deltaTime;
-        if (currentCoolTime > coolTime)
-        {
-            currentCoolTime = 0;
-            return true;
-        }
-        return false;
+        return (Time.time - LastUsedTime) >= coolTime;
+    }
+
+    public void setUseSkillTime()
+    {
+        LastUsedTime = Time.time;
     }
 }
