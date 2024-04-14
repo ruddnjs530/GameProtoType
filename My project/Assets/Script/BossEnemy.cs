@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using System.Linq;
 
 public enum BossState { Die, Attack, MoveToPlayer}
 public class BossEnemy : MonoBehaviour
@@ -39,11 +40,15 @@ public class BossEnemy : MonoBehaviour
     float jumpSpeed = 2f;
     int jumpDamage = 5;
 
+    float levitationAttackRange = 20f;
+    [SerializeField] LayerMask playerLayer;
+    float levitationAttackAngle = 90f;
+
     List<BossSkills> skills = new List<BossSkills>
     {
         new BossSkills("laserAttack", 1f, 1),
-        new BossSkills("frontAttack", 5f, 2),
-        new BossSkills("jumpAttack", 8f, 3)
+        new BossSkills("jumpAttack", 5f, 2),
+        new BossSkills("levitationAttack", 8f, 3)
     };
 
     // Start is called before the first frame update
@@ -79,7 +84,7 @@ public class BossEnemy : MonoBehaviour
                         Attack(skill);
                         skill.setUseSkillTime();
                     }
-                }        
+                }
                 break;
 
             case BossState.Die:
@@ -150,8 +155,8 @@ public class BossEnemy : MonoBehaviour
                         timer = 0.0f;
                     }
                     break;
-                case "frontAttack":
-                    StartCoroutine(EightWayAttack());
+                case "levitiationAttack":
+                    levitationAttack();
                     eightWayAttackCoolTime = Time.time + eightWayAttackCoolTime;
                     break;
                 case "jumpAttack":
@@ -199,40 +204,35 @@ public class BossEnemy : MonoBehaviour
         canAttack = false;
     }
 
-    IEnumerator EightWayAttack() // 8 방향 공격말고 다른 공격을 생각해야할듯
+    void levitationAttack()
     {
-        anim.SetTrigger("eightWayAttack");
-        yield return new WaitForSeconds(1f);
-        Vector3[] directions = {
-            Vector3.forward,
-            Vector3.back,
-            Vector3.left,
-            Vector3.right,
-            (Vector3.forward + Vector3.right).normalized,
-            (Vector3.forward + Vector3.left).normalized,
-            (Vector3.back + Vector3.right).normalized,
-            (Vector3.back + Vector3.left).normalized
-        };
-
-        foreach (Vector3 direction in directions)
+        Collider player = Physics.OverlapSphere(transform.position, levitationAttackRange, playerLayer).FirstOrDefault();   
+        if (player != null)
         {
-            GameObject sphere = Instantiate(bulletPrefab, eightWayShotPos.position, Quaternion.identity);
-            Rigidbody rb = sphere.GetComponent<Rigidbody>();
-            if (rb != null)
+            Vector3 direction = (player.transform.position - transform.position).normalized;
+            float angleBetween = Vector3.Angle(transform.forward, direction);
+            if (angleBetween < levitationAttackAngle / 2)
             {
-                rb.AddForce(direction * 10f, ForceMode.VelocityChange);
+                CharacterController playerController = player.GetComponent<CharacterController>();
+                if (playerController != null)
+                {
+                    //StartCoroutine(ApplyKnockback(playerController));
+                    playerController.Move((playerController.transform.position + new Vector3(0,5,0)) * 0.1f);
+                }
             }
         }
     }
 
-    bool CanExecuteJumpAttack()
+    IEnumerator ApplyKnockback(CharacterController controller)
     {
-        return Time.time >= jumpAttackCoolTime;
-    }
-
-    bool CanExecuteEightWayAttack()
-    {
-        return Time.time >= eightWayAttackCoolTime;
+        Vector3 knockbackForce = new Vector3(0, 5, 0); 
+        float timer = 0;
+        while (timer < 0.5f)
+        {
+            controller.Move(knockbackForce * Time.deltaTime); 
+            timer += Time.deltaTime;
+            yield return null;
+        }
     }
 
     private void OnTriggerStay(Collider other)
