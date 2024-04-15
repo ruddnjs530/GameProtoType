@@ -69,7 +69,7 @@ public class BossEnemy : MonoBehaviour
         {
             case BossState.MoveToPlayer:
                 CheckDeath();
-                CheckForAttackTransition();
+                CheckAttackCoolTime();
                 Move();
                 break;
 
@@ -88,7 +88,6 @@ public class BossEnemy : MonoBehaviour
 
                 if (!hasAttacked)
                 {
-                    Debug.Log("hi");
                     anim.SetBool("isWalking", true);
                     agent.isStopped = false;
                     bossState = BossState.MoveToPlayer;
@@ -228,7 +227,7 @@ public class BossEnemy : MonoBehaviour
         isAttacking = false;
     }
 
-    void CheckForAttackTransition()
+    void CheckAttackCoolTime()
     {
         foreach (var skill in skills)
         {
