@@ -19,7 +19,6 @@ public class Player : MonoBehaviour
     float groundYOffset;
     [SerializeField]
     LayerMask groundMask;
-    //Vector3 playerPos;
 
     [SerializeField]
     float gravity = -9.8f;
@@ -27,7 +26,7 @@ public class Player : MonoBehaviour
 
     float jumpSpeed = 5;
 
-    Animator anim;
+    public Animator anim;
 
     PlayerState playerState = PlayerState.Idle;
 
@@ -206,7 +205,7 @@ public class Player : MonoBehaviour
     void Gravity()
     {
         if (!cc.isGrounded) velocity.y += gravity * Time.deltaTime;
-        if (velocity.y < 0) velocity.y = -2;
+        else velocity.y = 0;
 
         cc.Move(velocity * Time.deltaTime);
     }
