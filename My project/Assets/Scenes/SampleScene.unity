@@ -3259,6 +3259,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 65
   gravity: -9.8
+  anim: {fileID: 0}
   hpBar: {fileID: 2077122823}
   theInventory: {fileID: 842146042}
   characterBody: {fileID: 0}
@@ -3975,7 +3976,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 0
-  attackRangeProjector: {fileID: 0}
+  projector: {fileID: 0}
 --- !u!54 &683156531
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -8164,7 +8165,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 0
-  attackRangeProjector: {fileID: 0}
+  projector: {fileID: 0}
 --- !u!136 &1185895716
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -8437,6 +8438,10 @@ PrefabInstance:
       propertyPath: laser
       value: 
       objectReference: {fileID: 122648, guid: 11530f2b0a0cd2442949827ecbb622f2, type: 3}
+    - target: {fileID: 1346016339888485516, guid: 2be38c51601500640b008d69dec21a1a, type: 3}
+      propertyPath: projector
+      value: 
+      objectReference: {fileID: 474384588}
     - target: {fileID: 1346016339888485516, guid: 2be38c51601500640b008d69dec21a1a, type: 3}
       propertyPath: bulletPrefab
       value: 
@@ -14027,6 +14032,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 65
   gravity: -9.8
+  anim: {fileID: 0}
   hpBar: {fileID: 2077122823}
   theInventory: {fileID: 842146042}
   characterBody: {fileID: 543450653158879568}
@@ -14517,6 +14523,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 65
   gravity: -9.8
+  anim: {fileID: 0}
   hpBar: {fileID: 2077122823}
   theInventory: {fileID: 842146042}
   characterBody: {fileID: 533119626}
