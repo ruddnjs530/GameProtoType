@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using System.Linq;
+using System;
 
 
 public enum BossState { Die, Attack, MoveToPlayer}
@@ -40,12 +41,7 @@ public class BossEnemy : MonoBehaviour
 
     bool isAttacking = false;
 
-    List<BossSkills> skills = new List<BossSkills>
-    {
-        new BossSkills("laserAttack", 2f, 3),
-        new BossSkills("jumpAttack", 8f, 2),
-        new BossSkills("levitationAttack", 12f, 1)
-    };
+    List<BossSkills> skills = new List<BossSkills>();
 
     // Start is called before the first frame update
     void Start()
@@ -60,6 +56,15 @@ public class BossEnemy : MonoBehaviour
 
         target = GameObject.FindGameObjectWithTag("Player").transform;
         projector.enabled = false;
+
+        skills.Add(new BossSkills("laserAttack", 2f));
+        skills.Add(new BossSkills("jumpAttack", 8f));
+        skills.Add(new BossSkills("levitationAttack", 12f));
+
+        foreach (var skill in skills)
+        {
+            skill.OnCooldownFinished += HandleSkillReady;
+        }
     }
 
     // Update is called once per frame
@@ -76,23 +81,9 @@ public class BossEnemy : MonoBehaviour
             case BossState.Attack:
                 CheckDeath();
 
-                bool hasAttacked = false;
-                foreach (var skill in skills.OrderBy(s => s.GetPriority()))
-                {
-                    if (!isAttacking && skill.isReady())
-                    {
-                        Attack(skill);
-                        hasAttacked = true;
-                    }
-                }
-
-                if (!hasAttacked)
-                {
-                    anim.SetBool("isWalking", true);
-                    agent.isStopped = false;
-                    bossState = BossState.MoveToPlayer;
-                    break;
-                }
+                anim.SetBool("isWalking", true);
+                agent.isStopped = false;
+                bossState = BossState.MoveToPlayer;
                 break;
 
             case BossState.Die:
@@ -137,8 +128,9 @@ public class BossEnemy : MonoBehaviour
                     StartCoroutine(JumpAttack(target.position));
                     skill.setUseSkillTime();
                     break;
-            }      
+            }
         }
+        skill.setUseSkillTime();
     }
 
     IEnumerator JumpAttack(Vector3 targetPosition)
@@ -185,7 +177,7 @@ public class BossEnemy : MonoBehaviour
         isAttacking = false;
     }
 
-    IEnumerator levitationAttack(Collider player)
+    IEnumerator levitationAttack(Collider player) 
     {
         isAttacking = true;
         Vector3 direction = (player.transform.position - transform.position).normalized;
@@ -227,16 +219,29 @@ public class BossEnemy : MonoBehaviour
         isAttacking = false;
     }
 
+
+    private void HandleSkillReady(BossSkills skill)
+    {
+        if (bossState == BossState.Die) return;
+
+        anim.SetBool("isWalking", false);
+        agent.isStopped = true;
+        bossState = BossState.Attack;
+        Attack(skill);
+        Debug.Log(skill.lastUsedTime);
+    }
+
     void CheckAttackCoolTime()
     {
         foreach (var skill in skills)
         {
-            if (skill.isReady() && skill.GetSkillName() != "laserAttack")
+            if (skill.isReady())
             {
+                //Debug.Log("hi");
                 anim.SetBool("isWalking", false);
                 agent.isStopped = true;
                 bossState = BossState.Attack;
-                break; 
+                break;
             }
         }
     }
@@ -278,7 +283,7 @@ public class BossEnemy : MonoBehaviour
     Vector3 MakeRandomPosition()
     {
         Vector3 textPosition;
-        float rand = Random.Range(-0.5f, 0.5f);
+        float rand = UnityEngine.Random.Range(-0.5f, 0.5f);
         textPosition.x = transform.position.x + rand;
         textPosition.y = transform.position.y + 1;
         textPosition.z = transform.position.z + rand;
@@ -292,34 +297,5 @@ public class BossEnemy : MonoBehaviour
             anim.SetBool("isDie", true);
             bossState = BossState.Die;
         }
-    }
-}
-
-public class BossSkills
-{
-    string skillname;
-    float coolTime;
-    float LastUsedTime;
-    int priority;
-
-    public string GetSkillName() { return skillname; }
-    public int GetPriority() { return priority; }
-
-    public BossSkills (string skillname, float coolTime, int priority)
-    {
-        this.skillname = skillname;
-        this.coolTime = coolTime;
-        this.LastUsedTime = -coolTime;
-        this.priority = priority;
-    }
-
-    public bool isReady()
-    {
-        return (Time.time - LastUsedTime) >= coolTime;
-    }
-
-    public void setUseSkillTime()
-    {
-        LastUsedTime = Time.time;
     }
 }
