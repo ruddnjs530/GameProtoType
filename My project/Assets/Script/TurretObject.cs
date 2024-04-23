@@ -7,7 +7,7 @@ public enum TurretState { Idle, Attack, Die }
 public class TurretObject : MonoBehaviour
 {
     //GameObjectPriorityQueue surroundingsObj;
-    TurretState turretState;
+    public TurretState turretState;
     [SerializeField] GameObject bulletPrefab;
     [SerializeField] Transform firePos;
     float rateOfFire = 1f;
@@ -49,10 +49,11 @@ public class TurretObject : MonoBehaviour
                 break;
 
             case TurretState.Attack:
-                if (priorityQueueDequeue() != null) {
-                    Attack(priorityQueueDequeue());
-                }
-                // 아마 플레이어와 멀어졌을 때, 타겟과 멀어졌을 때, 등등을 넣어야할 것 같음.
+                if (attackTarget == null) attackTarget = priorityQueueDequeue();
+                else  Attack(attackTarget);
+
+
+                // 아마 플레이어와 멀어졌을 때 이건 이벤트로 넣자. 등등을 넣어야할 것 같음.
                 break;
 
             case TurretState.Die:
@@ -68,41 +69,25 @@ public class TurretObject : MonoBehaviour
             if (turretState == TurretState.Idle)
             {
                 priorityQueueEnqueue(other.gameObject.GetComponent<Enemy>());
-                //turretState = TurretState.Attack;
             }
-            //else if (turretState == TurretState.Attack && attackTarget == null)
-            //{
-            //    //attackTarget = NearestObj(other.gameObject);
-            //}
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "Enemy" && other.gameObject == attackTarget)
+        if (other.gameObject.tag == "Enemy")
         {
-            attackTarget = null;
-            turretState = TurretState.Idle;
-            return;
+            if (other.gameObject == attackTarget)
+            {
+                attackTarget = null;
+                turretState = TurretState.Idle;
+                return;
+            }
+
+            RemovepriorityQueueElements(other.gameObject.GetComponent<Enemy>());
         }
     }
 
-    //GameObject NearestObj(GameObject obj)
-    //{
-    //    List<GameObject> objs = new List<GameObject>();
-    //    objs.Add(obj);
-
-    //    GameObject nearestObj = objs[0];
-    //    foreach (GameObject objInList in objs)
-    //    {
-    //        if (DistanceWithEnemy(nearestObj) > DistanceWithEnemy(objInList))
-    //        {
-    //            nearestObj = objInList;
-    //        }
-    //    }
-       
-    //    return nearestObj;
-    //}
     float DistanceWithEnemy(Enemy enemy)
     {
         float distance = Vector3.Distance(enemy.transform.position, this.transform.position);
