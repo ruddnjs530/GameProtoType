@@ -19,7 +19,7 @@ public class TurretObject : MonoBehaviour
 
     GameObject attackTarget;
 
-    List<GameObject> priorityQueue = new List<GameObject>();
+    List<Enemy> priorityQueue = new List<Enemy>();
 
     // Start is called before the first frame update
     void Start()
@@ -41,11 +41,20 @@ public class TurretObject : MonoBehaviour
                     turretState = TurretState.Die;
                     break;
                 }
+                else if (priorityQueue.Count > 0)
+                {
+                    turretState = TurretState.Attack;
+                    break;
+                }
                 break;
 
             case TurretState.Attack:
-                Attack(attackTarget);
+                if (priorityQueueDequeue() != null) {
+                    Attack(priorityQueueDequeue());
+                }
+                // 아마 플레이어와 멀어졌을 때, 타겟과 멀어졌을 때, 등등을 넣어야할 것 같음.
                 break;
+
             case TurretState.Die:
                 Die();
                 break;
@@ -58,12 +67,13 @@ public class TurretObject : MonoBehaviour
         {
             if (turretState == TurretState.Idle)
             {
-                turretState = TurretState.Attack;
+                priorityQueueEnqueue(other.gameObject.GetComponent<Enemy>());
+                //turretState = TurretState.Attack;
             }
-            else if (turretState == TurretState.Attack && attackTarget == null)
-            {
-                attackTarget = NearestObj(other.gameObject);
-            }
+            //else if (turretState == TurretState.Attack && attackTarget == null)
+            //{
+            //    //attackTarget = NearestObj(other.gameObject);
+            //}
         }
     }
 
@@ -77,23 +87,23 @@ public class TurretObject : MonoBehaviour
         }
     }
 
-    GameObject NearestObj(GameObject obj)
-    {
-        List<GameObject> objs = new List<GameObject>();
-        objs.Add(obj);
+    //GameObject NearestObj(GameObject obj)
+    //{
+    //    List<GameObject> objs = new List<GameObject>();
+    //    objs.Add(obj);
 
-        GameObject nearestObj = objs[0];
-        foreach (GameObject objInList in objs)
-        {
-            if (DistanceWithEnemy(nearestObj) > DistanceWithEnemy(objInList))
-            {
-                nearestObj = objInList;
-            }
-        }
+    //    GameObject nearestObj = objs[0];
+    //    foreach (GameObject objInList in objs)
+    //    {
+    //        if (DistanceWithEnemy(nearestObj) > DistanceWithEnemy(objInList))
+    //        {
+    //            nearestObj = objInList;
+    //        }
+    //    }
        
-        return nearestObj;
-    }
-    float DistanceWithEnemy(GameObject enemy)
+    //    return nearestObj;
+    //}
+    float DistanceWithEnemy(Enemy enemy)
     {
         float distance = Vector3.Distance(enemy.transform.position, this.transform.position);
         return distance;
@@ -121,7 +131,7 @@ public class TurretObject : MonoBehaviour
         Destroy(gameObject);
     }
 
-    void priorityQueueEnqueue(GameObject obj)
+    void priorityQueueEnqueue(Enemy obj)
     {
         if (!priorityQueue.Contains(obj))
         {
@@ -132,87 +142,32 @@ public class TurretObject : MonoBehaviour
 
         while (currentIndex > 0)
         {
-            int parentNode = (currentIndex - 1) / 2;
-
-            while (priorityQueue[parentNode] == null)
+            int parentIndex = (currentIndex - 1) / 2;
+            if (DistanceWithEnemy(priorityQueue[parentIndex]) > DistanceWithEnemy(priorityQueue[currentIndex]))
             {
-                if (currentIndex == priorityQueue.Count - 1 && currentIndex % 2 != 0)     
-                {
-                    Swap(priorityQueue[parentNode], priorityQueue[currentIndex]);
-                    currentIndex = parentNode;
-                    priorityQueue.RemoveAt(priorityQueue.Count - 1);
-                }
-
-                int leftChild = parentNode * 2 + 1;
-                int rightChild = parentNode * 2 + 2;
-
-                if (leftChild != currentIndex)
-                {
-                    if (DistanceWithEnemy(priorityQueue[leftChild]) < DistanceWithEnemy(priorityQueue[currentIndex]))
-                    {
-                        Swap(priorityQueue[parentNode], priorityQueue[leftChild]);
-                        RemoveNull(leftChild);
-                        Heapify(leftChild);
-                    }
-                    else
-                    {
-                        Swap(priorityQueue[parentNode], priorityQueue[currentIndex]);
-                        RemoveNull(currentIndex);
-                        Heapify(currentIndex);
-                        currentIndex = parentNode;
-                    }
-                }
-                else
-                {
-                    if (DistanceWithEnemy(priorityQueue[rightChild]) < DistanceWithEnemy(priorityQueue[currentIndex]))
-                    {
-                        Swap(priorityQueue[parentNode], priorityQueue[rightChild]);
-                        RemoveNull(rightChild);
-                        Heapify(rightChild);
-                    }
-                    else
-                    {
-                        Swap(priorityQueue[parentNode], priorityQueue[currentIndex]);
-                        RemoveNull(currentIndex);
-                        Heapify(currentIndex);
-                        currentIndex = parentNode;
-                    }
-                }
-
-                parentNode = (currentIndex - 1) / 2;
+                Swap(currentIndex, parentIndex);
+                currentIndex = parentIndex;
             }
-
-            if (DistanceWithEnemy(priorityQueue[parentNode]) < DistanceWithEnemy(priorityQueue[currentIndex])) break;
-
-            Swap(priorityQueue[parentNode], priorityQueue[currentIndex]);
-
-            currentIndex = parentNode;
+            else
+            {
+                break;
+            }
         }
     }
 
 
-    void priorityQueueDequeue()
+    GameObject priorityQueueDequeue()
     {
-        if (priorityQueue.Count - 1 < 0) return;
+        if (priorityQueue.Count == 0) return null;
 
+        GameObject target = priorityQueue[0].gameObject;
         priorityQueue[0] = priorityQueue[priorityQueue.Count - 1];
         priorityQueue.RemoveAt(priorityQueue.Count - 1);
 
-        int currentIndex = 0;
-        Heapify(currentIndex);
+        if (priorityQueue.Count > 0) Heapify(0);
+        return target;
 
     }
-
-    void RemoveNull(int index)
-    {
-        Swap(priorityQueue[index], priorityQueue[priorityQueue.Count - 1]);
-        priorityQueue.RemoveAt(priorityQueue.Count - 1);
-    }
-
-    //void RemoveIntermediateElement(int index)
-    //{
-    //    Swap()
-    //}
 
     void Heapify(int currentIndex)
     {
@@ -222,42 +177,55 @@ public class TurretObject : MonoBehaviour
             int leftIndex = 2 * currentIndex + 1;
             int rightIndex = 2 * currentIndex + 2;
 
-            if (priorityQueue[leftIndex] == null)
-            {
-                RemoveNull(leftIndex);
-            }
-            if (priorityQueue[rightIndex] == null)
-            {
-                RemoveNull(rightIndex);
-            }
-
             if (leftIndex <= lastIndex && DistanceWithEnemy(priorityQueue[leftIndex]) < DistanceWithEnemy(priorityQueue[currentIndex]))
             {
                 currentIndex = leftIndex;
-                Swap(priorityQueue[leftIndex], priorityQueue[currentIndex]);
+                Swap(currentIndex, leftIndex);
             }
             else if (rightIndex <= lastIndex && DistanceWithEnemy(priorityQueue[rightIndex]) < DistanceWithEnemy(priorityQueue[currentIndex]))
             {
                 currentIndex = rightIndex;
-                Swap(priorityQueue[rightIndex], priorityQueue[currentIndex]);
+                Swap(currentIndex, rightIndex);
             }
             else break;
         }
     }
 
-    void Swap(GameObject obj1, GameObject obj2)
+    void Swap(int index1, int index2)
     {
-        GameObject temp = obj1;
-        obj1 = obj2;
-        obj2 = temp;
+        Enemy temp = priorityQueue[index1];
+        priorityQueue[index1] = priorityQueue[index2];
+        priorityQueue[index2] = temp;
     }
 
-    public GameObject priorityQueueMinObject()
+    public Enemy priorityQueueMinObject()
     {
         if (priorityQueue.Count == 0)
         {
             return null;
         }
         return priorityQueue[0];
+    }
+
+    public void RemovepriorityQueueElements(Enemy targetEnemy)
+    {
+        for (int i = 0; i < priorityQueue.Count; i++)
+        {
+            if (priorityQueue[i] == targetEnemy)
+            {
+                priorityQueue.RemoveAt(i);
+                RebuildHeap();
+                break;
+            }
+        }
+    }
+
+    public void RebuildHeap()
+    {
+        int lastParentIndex = (priorityQueue.Count - 2) / 2;
+        for (int i = lastParentIndex; i >= 0; i--)
+        {
+            Heapify(i);
+        }
     }
 }

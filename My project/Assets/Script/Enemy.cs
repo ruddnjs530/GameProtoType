@@ -28,15 +28,8 @@ public class Enemy : MonoBehaviour
 
     Animator anim;
 
-    //private Vector3 enemyPos;
-    //private float destinationFromDrone;
-
-    //public Enemy(Vector3 pos, float dist)
-    //{
-    //    enemyPos = pos;
-    //    destinationFromDrone = dist;
-    //}
-
+    public delegate void EnemyDied(Enemy enemy);
+    public static event EnemyDied OnEnemyDied;
     // Start is called before the first frame update
     protected virtual void Start()
     {
@@ -162,6 +155,9 @@ public class Enemy : MonoBehaviour
     {
         anim.SetBool("Die", true);
         isDie = true;
+
+        OnEnemyDied?.Invoke(this);
+
         Destroy(gameObject);
     }
 
