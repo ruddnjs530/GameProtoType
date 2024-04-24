@@ -724,7 +724,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7880398357943289031, guid: 7b1994802d8269e45883975deac1c5d5, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7880398357943289031, guid: 7b1994802d8269e45883975deac1c5d5, type: 3}
       propertyPath: m_TagString
@@ -1773,6 +1773,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ad2a6930e46c964298c7147af6e0f84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  turretState: 0
   bulletPrefab: {fileID: 6638930534329082773, guid: 09a6628244e458044959f82f9e42349e, type: 3}
   firePos: {fileID: 328472079}
 --- !u!54 &272013460
@@ -2360,7 +2361,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6910638113337568, guid: cc97c7aeb6935dd44a1b4adbddb3ebdc, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6910638113337569, guid: cc97c7aeb6935dd44a1b4adbddb3ebdc, type: 3}
       propertyPath: m_Radius
@@ -4558,6 +4559,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ad2a6930e46c964298c7147af6e0f84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  turretState: 0
   bulletPrefab: {fileID: 6638930534329082773, guid: 09a6628244e458044959f82f9e42349e, type: 3}
   firePos: {fileID: 729675018}
 --- !u!135 &729675020
@@ -6661,6 +6663,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ad2a6930e46c964298c7147af6e0f84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  turretState: 0
   bulletPrefab: {fileID: 6638930534329082773, guid: 09a6628244e458044959f82f9e42349e, type: 3}
   firePos: {fileID: 887591661}
 --- !u!54 &943638225
@@ -9294,6 +9297,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ad2a6930e46c964298c7147af6e0f84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  turretState: 0
   bulletPrefab: {fileID: 6638930534329082773, guid: 09a6628244e458044959f82f9e42349e, type: 3}
   firePos: {fileID: 1302745524}
 --- !u!1 &1305194407

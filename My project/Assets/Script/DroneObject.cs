@@ -12,16 +12,23 @@ public class DroneObject : MonoBehaviour
     private enum DroneState { MoveToPlayer, Attack }
     DroneState droneState;
 
-    TurretObject turret;
+    //TurretObject turret;
+
+    public delegate void DistanceEventHandler();
+    public event DistanceEventHandler OnPlayerTooFar;
+
     // Start is called before the first frame update
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         agentTarget = GameObject.FindWithTag("Player").transform;
 
-        turret = GetComponentInChildren<TurretObject>();
+        //turret = GetComponentInChildren<TurretObject>();
 
         droneState = DroneState.MoveToPlayer;
+
+        var turret = GetComponentInChildren<TurretObject>();
+        turret.OnIsAttack += ChangeStateToAttack;
     }
 
     // Update is called once per frame
@@ -30,35 +37,47 @@ public class DroneObject : MonoBehaviour
         switch(droneState)
         {
             case DroneState.MoveToPlayer:
-                if (turret.turretState == TurretState.Attack)
-                {
-                    agent.isStopped = true;
-                    droneState = DroneState.Attack;
-                    break;
-                }            
+                //if (turret.turretState == TurretState.Attack)
+                //{
+                //    agent.isStopped = true;
+                //    droneState = DroneState.Attack;
+                //    break;
+                //}            
                 destination = agentTarget.position;
                 agent.SetDestination(destination);
 
                 break;
 
             case DroneState.Attack:
-                if (turret.turretState == TurretState.Idle || DistanceWithPlayer(agentTarget) > 10f)
-                {
+                //if (turret.turretState == TurretState.Idle || DistanceWithPlayer(agentTarget) > 10f)
+                //{
+                //    agent.isStopped = false;
+                //    turret.turretState = TurretState.Idle; // 커플링이 너무 심한가? 너무 주먹구구식인가?
+                //    droneState = DroneState.MoveToPlayer;
+                //    break;
+                //}
+
+                if (DistanceWithPlayer(agentTarget) > 10f)
+                {     
                     agent.isStopped = false;
-                    turret.turretState = TurretState.Idle; // 커플링이 너무 심한가? 너무 주먹구구식인가?
                     droneState = DroneState.MoveToPlayer;
-                    break;
-                }
-                
+                    OnPlayerTooFar?.Invoke();
+                }          
 
                 break;
 
         }
     }
 
-    float DistanceWithPlayer(Transform player)
+    private float DistanceWithPlayer(Transform player)
     {
         float distance = Vector3.Distance(player.transform.position, this.transform.position);
         return distance;
+    }
+
+    private void ChangeStateToAttack()
+    {
+        agent.isStopped = true;
+        droneState = DroneState.Attack;
     }
 }

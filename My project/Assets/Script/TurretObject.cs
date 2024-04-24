@@ -21,12 +21,17 @@ public class TurretObject : MonoBehaviour
 
     List<Enemy> priorityQueue = new List<Enemy>();
 
+    public delegate void AttackStateHandler();
+    public event AttackStateHandler OnIsAttack;
+
     // Start is called before the first frame update
     void Start()
     {
         turretState = TurretState.Idle;
         originalRotation = transform.rotation;
-        //surroundingsObj = new GameObjectPriorityQueue();
+
+        var drone = GetComponentInParent<DroneObject>();
+        if (drone != null) drone.OnPlayerTooFar += HandleDroneTooFar;
     }
 
     // Update is called once per frame
@@ -50,7 +55,11 @@ public class TurretObject : MonoBehaviour
 
             case TurretState.Attack:
                 if (attackTarget == null) attackTarget = priorityQueueDequeue();
-                else  Attack(attackTarget);
+                else
+                {
+                    Attack(attackTarget);
+                    OnIsAttack?.Invoke();
+                }
 
 
                 // 아마 플레이어와 멀어졌을 때 이건 이벤트로 넣자. 등등을 넣어야할 것 같음.
@@ -88,13 +97,13 @@ public class TurretObject : MonoBehaviour
         }
     }
 
-    float DistanceWithEnemy(Enemy enemy)
+    private float DistanceWithEnemy(Enemy enemy)
     {
         float distance = Vector3.Distance(enemy.transform.position, this.transform.position);
         return distance;
     }
 
-    void Attack(GameObject target)
+    private void Attack(GameObject target)
     {
         if (target == null) return;
         Vector3 direction = target.transform.position - transform.position;
@@ -111,12 +120,12 @@ public class TurretObject : MonoBehaviour
         }
     }
 
-    void Die()
+    private void Die()
     {
         Destroy(gameObject);
     }
 
-    void priorityQueueEnqueue(Enemy obj)
+    private void priorityQueueEnqueue(Enemy obj)
     {
         if (!priorityQueue.Contains(obj))
         {
@@ -140,8 +149,7 @@ public class TurretObject : MonoBehaviour
         }
     }
 
-
-    GameObject priorityQueueDequeue()
+    private GameObject priorityQueueDequeue()
     {
         if (priorityQueue.Count == 0) return null;
 
@@ -154,7 +162,7 @@ public class TurretObject : MonoBehaviour
 
     }
 
-    void Heapify(int currentIndex)
+    private void Heapify(int currentIndex)
     {
         int lastIndex = priorityQueue.Count - 1;
         while (true)
@@ -176,14 +184,14 @@ public class TurretObject : MonoBehaviour
         }
     }
 
-    void Swap(int index1, int index2)
+    private void Swap(int index1, int index2)
     {
         Enemy temp = priorityQueue[index1];
         priorityQueue[index1] = priorityQueue[index2];
         priorityQueue[index2] = temp;
     }
 
-    public Enemy priorityQueueMinObject()
+    private Enemy priorityQueueMinObject()
     {
         if (priorityQueue.Count == 0)
         {
@@ -192,7 +200,7 @@ public class TurretObject : MonoBehaviour
         return priorityQueue[0];
     }
 
-    public void RemovepriorityQueueElements(Enemy targetEnemy)
+    private void RemovepriorityQueueElements(Enemy targetEnemy)
     {
         for (int i = 0; i < priorityQueue.Count; i++)
         {
@@ -205,12 +213,18 @@ public class TurretObject : MonoBehaviour
         }
     }
 
-    public void RebuildHeap()
+    private void RebuildHeap()
     {
         int lastParentIndex = (priorityQueue.Count - 2) / 2;
         for (int i = lastParentIndex; i >= 0; i--)
         {
             Heapify(i);
         }
+    }
+
+    private void HandleDroneTooFar()
+    {
+        attackTarget = null;
+        turretState = TurretState.Idle;
     }
 }
