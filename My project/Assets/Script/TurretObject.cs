@@ -21,8 +21,8 @@ public class TurretObject : MonoBehaviour
 
     List<Enemy> priorityQueue = new List<Enemy>();
 
-    public delegate void AttackStateHandler();
-    public event AttackStateHandler OnIsAttack;
+    //public delegate void AttackStateHandler();
+    //public event AttackStateHandler OnIsAttack;
 
     // Start is called before the first frame update
     void Start()
@@ -30,8 +30,9 @@ public class TurretObject : MonoBehaviour
         turretState = TurretState.Idle;
         originalRotation = transform.rotation;
 
-        var drone = GetComponentInParent<DroneObject>();
-        if (drone != null) drone.OnPlayerTooFar += HandleDroneTooFar;
+        attackTarget = null;
+        //var drone = GetComponentInParent<DroneObject>();
+        //if (drone != null) drone.OnPlayerTooFar += HandleDroneTooFar;
     }
 
     // Update is called once per frame
@@ -46,23 +47,21 @@ public class TurretObject : MonoBehaviour
                     turretState = TurretState.Die;
                     break;
                 }
-                else if (priorityQueue.Count > 0)
-                {
-                    turretState = TurretState.Attack;
-                    break;
-                }
+                //else if (priorityQueue.Count > 0)
+                //{
+                //    turretState = TurretState.Attack;
+                //    break;
+                //}
                 break;
 
             case TurretState.Attack:
-                if (attackTarget == null) attackTarget = priorityQueueDequeue();
-                else
-                {
-                    Attack(attackTarget);
-                    OnIsAttack?.Invoke();
-                }
-
-
-                // 아마 플레이어와 멀어졌을 때 이건 이벤트로 넣자. 등등을 넣어야할 것 같음.
+                //if (attackTarget == null) attackTarget = priorityQueueDequeue();
+                //else
+                //{
+                //    Attack(attackTarget);
+                //    OnIsAttack?.Invoke();
+                //}
+                Attack(attackTarget);
                 break;
 
             case TurretState.Die:
@@ -71,30 +70,68 @@ public class TurretObject : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other) 
+    private void OnTriggerStay(Collider other) 
     {
         if (other.gameObject.tag == "Enemy")
         {
+            //if (turretState == TurretState.Idle)
+            //{
+            //    priorityQueueEnqueue(other.gameObject.GetComponent<Enemy>());
+            //}
             if (turretState == TurretState.Idle)
             {
-                priorityQueueEnqueue(other.gameObject.GetComponent<Enemy>());
+                turretState = TurretState.Attack;
+            }
+            else if (turretState == TurretState.Attack && attackTarget == null)
+            {
+                attackTarget = NearestObj(other.gameObject);
             }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "Enemy")
-        {
-            if (other.gameObject == attackTarget)
-            {
-                attackTarget = null;
-                turretState = TurretState.Idle;
-                return;
-            }
+        //if (other.gameObject.tag == "Enemy")
+        //{
+        //    if (other.gameObject == attackTarget)
+        //    {
+        //        attackTarget = null;
+        //        turretState = TurretState.Idle;
+        //        return;
+        //    }
 
-            RemovepriorityQueueElements(other.gameObject.GetComponent<Enemy>());
+        //    RemovepriorityQueueElements(other.gameObject.GetComponent<Enemy>());
+        //}
+        if (other.gameObject.tag == "Enemy" && other.gameObject == attackTarget)
+        {
+            attackTarget = null;
+            turretState = TurretState.Idle;
+            Debug.Log("enemy out");
+            return;
         }
+    }
+
+    GameObject NearestObj(GameObject obj)
+    {
+        List<GameObject> objs = new List<GameObject>();
+        objs.Add(obj);
+
+        GameObject nearestObj = objs[0];
+        foreach (GameObject objInList in objs)
+        {
+            if (DistanceWithEnemy2(nearestObj) > DistanceWithEnemy2(objInList))
+            {
+                nearestObj = objInList;
+            }
+        }
+
+        return nearestObj;
+    }
+
+    float DistanceWithEnemy2(GameObject enemy)
+    {
+        float distance = Vector3.Distance(enemy.transform.position, this.transform.position);
+        return distance;
     }
 
     private float DistanceWithEnemy(Enemy enemy)

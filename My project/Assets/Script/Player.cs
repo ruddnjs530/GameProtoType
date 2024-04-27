@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public enum PlayerState { Idle, Run, Jump, StopAttack, MoveAttack, DiveRoll, Die}
+public enum PlayerState { Idle, Move, Attack, Die }
 
 public class Player : MonoBehaviour
 {
@@ -44,6 +44,9 @@ public class Player : MonoBehaviour
 
     bool isDiveRoll = false;
 
+    float lastInputTime;
+    float inputBufferTime = 0.01f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -60,78 +63,81 @@ public class Player : MonoBehaviour
         switch (playerState)
         {
             case PlayerState.Idle:
-                if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D))
-                    playerState = PlayerState.Run;
-
-                else if (Input.GetKey(KeyCode.Space)) playerState = PlayerState.Jump;
-                else if (Input.GetMouseButton(0) && !Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.StopAttack;
-                else if (Input.GetKeyDown(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
-                else if (currentHP <= 0) playerState = PlayerState.Die;
+                if (currentHP <= 0)
+                {
+                    playerState = PlayerState.Die;
+                    break;
+                }
+                else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D)
+                    || Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.Space))
+                {
+                    anim.SetBool("Running", true);
+                    playerState = PlayerState.Move;
+                    break;
+                }
+                else if (Input.GetMouseButton(0))
+                {
+                    //anim.SetBool("Shooting", true);
+                    playerState = PlayerState.Attack;
+                    break;
+                }
                 break;
 
-            case PlayerState.Run:
+            case PlayerState.Move:
+                if (currentHP <= 0)
+                {
+                    playerState = PlayerState.Die;
+                    break;
+                }
+                else if (Input.GetMouseButton(0))
+                {
+                   // anim.SetBool("Shooting", true);
+                    playerState = PlayerState.Attack;
+                    break;
+                }
+
                 Move();
-                if (dir.magnitude < 0.1f)
+                if (dir.magnitude < 0.5f && (Time.time - lastInputTime > inputBufferTime))
                 {
-                    playerState = PlayerState.Idle;
                     anim.SetBool("Running", false);
-                }
-                else if (Input.GetKey(KeyCode.Space)) playerState = PlayerState.Jump;
-                else if (Input.GetMouseButton(0) && !Input.GetKey(KeyCode.LeftShift)) playerState = PlayerState.MoveAttack;
-                else if (Input.GetKeyDown(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
-                else if (currentHP <= 0) playerState = PlayerState.Die;
-                break;
-
-            case PlayerState.Jump:
-                Jump();
-                if (cc.isGrounded)
-                {
                     playerState = PlayerState.Idle;
-                    anim.SetBool("Jump", false);
+                    break;
                 }
-                else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D))
-                    playerState = PlayerState.Run;
-                else if (Input.GetMouseButton(0)) playerState = PlayerState.MoveAttack;
-                else if (Input.GetKeyDown(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
-                else if (currentHP <= 0) playerState = PlayerState.Die;
+                StartCoroutine(DiveRoll());
+                Jump();
                 break;
 
-            case PlayerState.StopAttack:
+            case PlayerState.Attack:
+                if (currentHP <= 0)
+                {
+                    playerState = PlayerState.Die;
+                    break;
+                }
+
                 Attack();
-                if (Input.GetMouseButtonUp(0)) playerState = PlayerState.Idle;
-                else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D)) playerState = PlayerState.Run;
-                else if (Input.GetKey(KeyCode.Space)) playerState = PlayerState.Jump;
-                else if (Input.GetKeyDown(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
-                else if (currentHP <= 0) playerState = PlayerState.Die;
-                break;
+                if (Input.GetMouseButtonUp(0))
+                {
+                    //anim.SetBool("Shooting", false);
+                    playerState = PlayerState.Move;
+                    break;
+                }
 
-            case PlayerState.MoveAttack:
                 Move();
-                Attack();
+
                 Jump();
-                if (Input.GetMouseButtonUp(0)) playerState = PlayerState.Run;
-                else if (Input.GetKeyDown(KeyCode.LeftShift)) playerState = PlayerState.DiveRoll;
-                else if (currentHP <= 0) playerState = PlayerState.Die;
-                else if (dir.magnitude < 0.1f)
-                {
-                    playerState = PlayerState.StopAttack;
-                    anim.SetBool("Running", false);
-                }
-                else if (Input.GetMouseButtonUp(0) && dir.magnitude < 0.1f)
-                {
-                    playerState = PlayerState.Idle;
-                    anim.SetBool("Running", false);
-                }
-                break;
+                StartCoroutine(DiveRoll());
 
-            case PlayerState.DiveRoll:
-                if (currentHP <= 0) playerState = PlayerState.Die;
-
-                if (!isDiveRoll)
+                if (dir.magnitude < 0.5f)
                 {
-                    anim.SetTrigger("DiveRoll");
+                    anim.SetBool("Running", false);
+
+                    if (Input.GetMouseButtonUp(0))
+                    {
+                        //anim.SetBool("Shooting", false);
+                        playerState = PlayerState.Idle;
+                        break;
+                    }
                 }
-                DiveRoll();
                 break;
 
             case PlayerState.Die:
@@ -171,35 +177,38 @@ public class Player : MonoBehaviour
                 characterBody.forward = moveDir;
                 cc.Move(moveDir.normalized * moveSpeed * Time.deltaTime);
             }
+
+            lastInputTime = Time.time;
         }
 
         hzInput = Input.GetAxis("Horizontal");
         vInput = Input.GetAxis("Vertical");
-        anim.SetBool("Running", true);
         anim.SetFloat("horizontal", hzInput);
         anim.SetFloat("vertical", vInput);
     }
 
-    void DiveRoll()
+    IEnumerator DiveRoll()
     {
-        isDiveRoll = true;
-        //dir = transform.forward * vInput + transform.right * hzInput;
-        //cc.Move(dir.normalized * moveSpeed * Time.deltaTime);
+        if (Input.GetKeyDown(KeyCode.LeftShift) && !isDiveRoll)
+        {
+            isDiveRoll = true;
+            anim.SetTrigger("DiveRoll");
 
-        Vector3 horizontalMove = cameraArm.right * hzInput;
-        Vector3 verticalMove = cameraArm.forward * vInput;
-        Vector3 moveDirection = (horizontalMove + verticalMove).normalized; 
+            Vector3 horizontalMove = cameraArm.right * hzInput;
+            Vector3 verticalMove = cameraArm.forward * vInput;
+            Vector3 moveDirection = (horizontalMove + verticalMove).normalized;
 
-        float rollSpeed = moveSpeed * 2;
-        cc.Move(moveDirection * rollSpeed * Time.deltaTime);
-        StartCoroutine(EndDiveRoll());
-    }
+            float rollSpeed = moveSpeed * 2;
 
-    IEnumerator EndDiveRoll()
-    {
-        yield return new WaitForSeconds(0.95f); 
-        isDiveRoll = false;
-        playerState = PlayerState.Run;
+            float startTime = Time.time;
+            float rollDuration = 1.0f;
+            while (Time.time - startTime < rollDuration)
+            {
+                cc.Move(moveDirection * rollSpeed * Time.deltaTime);
+                yield return null;
+            }
+            isDiveRoll = false;
+        }
     }
 
     void Gravity()
@@ -209,6 +218,7 @@ public class Player : MonoBehaviour
 
         cc.Move(velocity * Time.deltaTime);
     }
+
     void Jump()
     {
         if (cc.isGrounded && Input.GetButton("Jump"))
@@ -216,12 +226,12 @@ public class Player : MonoBehaviour
             anim.SetTrigger("Jump");
             velocity.y = jumpSpeed;
         }
-           
+
         cc.Move(velocity * Time.deltaTime);
     }
 
     void Attack()
-    {      
+    {
         if (Input.GetMouseButton(0))
         {
             Vector3 lookForward = new Vector3(cameraArm.forward.x, 0f, cameraArm.forward.z).normalized;
@@ -230,7 +240,7 @@ public class Player : MonoBehaviour
             anim.SetLayerWeight(1, 1);
             anim.SetBool("Shooting", true);
         }
-        else 
+        else
         {
             anim.SetBool("Shooting", false);
             anim.SetLayerWeight(1, 0);
@@ -251,7 +261,7 @@ public class Player : MonoBehaviour
             theInventory.AcquireItem(other.gameObject.transform.GetComponent<ItemManager>().healthBuff, 1);
             maxHP += 20;
             currentHP += 20;
-            Destroy(other.gameObject);  
+            Destroy(other.gameObject);
         }
         if (other.gameObject.tag == "DamageBuff")
         {
