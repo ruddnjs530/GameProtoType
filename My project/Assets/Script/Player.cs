@@ -77,7 +77,11 @@ public class Player : MonoBehaviour
                 }
                 else if (Input.GetMouseButton(0))
                 {
-                    //anim.SetBool("Shooting", true);
+                    Vector3 lookForward = new Vector3(cameraArm.forward.x, 0f, cameraArm.forward.z).normalized;
+                    characterBody.forward = lookForward;
+
+                    anim.SetLayerWeight(1, 1);
+                    anim.SetBool("Shooting", true);
                     playerState = PlayerState.Attack;
                     break;
                 }
@@ -91,7 +95,8 @@ public class Player : MonoBehaviour
                 }
                 else if (Input.GetMouseButton(0))
                 {
-                   // anim.SetBool("Shooting", true);
+                    anim.SetLayerWeight(1, 1);
+                    anim.SetBool("Shooting", true);
                     playerState = PlayerState.Attack;
                     break;
                 }
@@ -113,31 +118,25 @@ public class Player : MonoBehaviour
                     playerState = PlayerState.Die;
                     break;
                 }
-
-                Attack();
                 if (Input.GetMouseButtonUp(0))
                 {
-                    //anim.SetBool("Shooting", false);
+                    anim.SetLayerWeight(1, 0);
+                    anim.SetBool("Shooting", false);
+
+                    if (dir.magnitude < 0.5f)
+                    {
+                        playerState = PlayerState.Idle;
+                        break;
+                    }
+                    anim.SetBool("Running", true);
                     playerState = PlayerState.Move;
+
                     break;
                 }
 
                 Move();
-
                 Jump();
                 StartCoroutine(DiveRoll());
-
-                if (dir.magnitude < 0.5f)
-                {
-                    anim.SetBool("Running", false);
-
-                    if (Input.GetMouseButtonUp(0))
-                    {
-                        //anim.SetBool("Shooting", false);
-                        playerState = PlayerState.Idle;
-                        break;
-                    }
-                }
                 break;
 
             case PlayerState.Die:
@@ -228,24 +227,6 @@ public class Player : MonoBehaviour
         }
 
         cc.Move(velocity * Time.deltaTime);
-    }
-
-    void Attack()
-    {
-        if (Input.GetMouseButton(0))
-        {
-            Vector3 lookForward = new Vector3(cameraArm.forward.x, 0f, cameraArm.forward.z).normalized;
-            characterBody.forward = lookForward;
-
-            anim.SetLayerWeight(1, 1);
-            anim.SetBool("Shooting", true);
-        }
-        else
-        {
-            anim.SetBool("Shooting", false);
-            anim.SetLayerWeight(1, 0);
-            playerState = PlayerState.Idle;
-        }
     }
 
     public void TakeDamage(float damage)
