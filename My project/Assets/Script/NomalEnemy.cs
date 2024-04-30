@@ -16,17 +16,6 @@ public class NomalEnemy : Enemy
         base.Update();
     }
 
-    //protected override void Chase()
-    //{
-    //    if (agentTarget == null) return;
-    //    //Debug.Log(agentTarget);
-    //    destination = agentTarget.position;
-    //    agent.SetDestination(destination);
-    //    agent.speed = chaseSpeed;
-    //    //Debug.Log("ÀÚ½Ä chase");
-    //    //Debug.Log(chaseSpeed);
-    //}
-
     protected override void Attack()
     {
         base.Attack();

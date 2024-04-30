@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public enum EnemyState { Idle, SimpleMove, Chase, Attack, Die }
 
@@ -12,7 +13,8 @@ public class Enemy : MonoBehaviour
     protected Vector3 destination;
     protected float walkSpeed = 3f;
     protected float chaseSpeed = 6f;
-    public float hp = 100;
+    public float maxHP = 100;
+    protected float currentHP = 100;
 
     EnemyState enemyState;
     float currentTime = 0f;
@@ -30,12 +32,17 @@ public class Enemy : MonoBehaviour
 
     public delegate void EnemyDied(Enemy enemy);
     public static event EnemyDied OnEnemyDied;
+
+    [SerializeField] protected Slider hpBar;
+    GameObject cam;
     // Start is called before the first frame update
     protected virtual void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
         enemyState = EnemyState.Idle;
+
+        cam = GameObject.Find("Main Camera");
     }
 
     // Update is called once per frame
@@ -46,7 +53,7 @@ public class Enemy : MonoBehaviour
             case EnemyState.Idle:
                 LookAround();
                 currentTime += Time.deltaTime;
-                if (hp <= 0) enemyState = EnemyState.Die;
+                if (currentHP <= 0) enemyState = EnemyState.Die;
                 else if(isSeePlayer) enemyState = EnemyState.Chase;
                 else if (currentTime >= 1f) enemyState = EnemyState.SimpleMove;
                 break;
@@ -55,7 +62,7 @@ public class Enemy : MonoBehaviour
                 ReSetDestination();
                 SimpleMove();
                 currentTime = 0;
-                if (hp <= 0) enemyState = EnemyState.Die;
+                if (currentHP <= 0) enemyState = EnemyState.Die;
                 else if (isSeePlayer) enemyState = EnemyState.Chase;
                 else enemyState = EnemyState.Idle;
 
@@ -63,7 +70,7 @@ public class Enemy : MonoBehaviour
 
             case EnemyState.Chase:
                 Chase();
-                if (hp <= 0) enemyState = EnemyState.Die;
+                if (currentHP <= 0) enemyState = EnemyState.Die;
                 else if (canAttack)
                 {
                     anim.SetBool("Chase", false);
@@ -81,7 +88,7 @@ public class Enemy : MonoBehaviour
 
             case EnemyState.Attack:
                 Attack();
-                if (hp <= 0)
+                if (currentHP <= 0)
                 {
                     anim.SetBool("Attack", false);
                     enemyState = EnemyState.Die;
@@ -99,11 +106,16 @@ public class Enemy : MonoBehaviour
                 Die();
                 break;
         }
+
+        if (hpBar != null)
+        {
+            hpBar.value = currentHP / maxHP;
+        }
     }
 
     public void TakeDamageAndInstantiateText(int damage, float yPos = 1)
     {
-        hp -= damage;
+        currentHP -= damage;
         GameObject text = Instantiate(textObject, MakeRandomPosition(yPos), Quaternion.identity);
         text.GetComponent<DamageText>().damage = damage;
         anim.SetTrigger("GetHit");
