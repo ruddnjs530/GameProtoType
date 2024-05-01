@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using System.Linq;
-using System;
+using UnityEngine.UI;
 
 
 public enum BossState { Die, Attack, MoveToPlayer}
@@ -21,7 +21,8 @@ public class BossEnemy : MonoBehaviour
     float attackDamage = 10.0f;
 
     public GameObject textObject;
-    float hp = 20;
+    float currentHP = 20f;
+    float maxHP = 100f;
 
     Animator anim;
 
@@ -42,6 +43,9 @@ public class BossEnemy : MonoBehaviour
     bool isAttacking = false;
 
     List<BossSkills> skills = new List<BossSkills>();
+
+    [SerializeField] Slider hpBar;
+    HealthBar healthBar;
 
     // Start is called before the first frame update
     void Start()
@@ -65,6 +69,9 @@ public class BossEnemy : MonoBehaviour
         {
             skill.OnCooldownFinished += HandleSkillReady;
         }
+
+        healthBar = new HealthBar(hpBar, maxHP, false, new Vector2(0.5f, 0.9f));
+        healthBar.Show();
     }
 
     // Update is called once per frame
@@ -90,6 +97,8 @@ public class BossEnemy : MonoBehaviour
                 Destroy(this.gameObject, 3f);
                 break;
         }
+
+        healthBar.SetHealth(currentHP);
     }
 
     private void Move()
@@ -103,7 +112,7 @@ public class BossEnemy : MonoBehaviour
     private void Attack(BossSkills skill)
     {
         if (isAttacking) return;
-        if (hp > 30)
+        if (currentHP > 30)
         {
             StartCoroutine(LaserAttack());
             skill.setUseSkillTime();
@@ -274,7 +283,7 @@ public class BossEnemy : MonoBehaviour
 
     public void TakeDamageAndInstantiateText(int damage)
     {
-        hp -= damage;
+        currentHP -= damage;
         GameObject text = Instantiate(textObject, MakeRandomPosition(), Quaternion.identity);
         text.GetComponent<DamageText>().damage = damage;
         anim.SetTrigger("isHit");
@@ -292,7 +301,7 @@ public class BossEnemy : MonoBehaviour
 
     void CheckDeath()
     {
-        if (hp <= 0)
+        if (currentHP <= 0)
         {
             anim.SetBool("isDie", true);
             bossState = BossState.Die;

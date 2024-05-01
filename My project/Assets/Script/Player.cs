@@ -33,6 +33,7 @@ public class Player : MonoBehaviour
     float maxHP = 100f;
     float currentHP = 100f;
     [SerializeField] Slider hpBar;
+    HealthBar healthBar;
 
     [SerializeField] Inventory theInventory;
 
@@ -54,6 +55,8 @@ public class Player : MonoBehaviour
         anim = GetComponent<Animator>();
 
         anim.SetLayerWeight(1, 0);
+
+        healthBar = new HealthBar(hpBar, maxHP, false, new Vector2(0.05f, 0.05f));
     }
 
     // Update is called once per frame
@@ -151,7 +154,7 @@ public class Player : MonoBehaviour
         anim.SetFloat("horizontal", hzInput);
         anim.SetFloat("vertical", vInput);
 
-        hpBar.value = currentHP / maxHP;
+        healthBar.SetHealth(currentHP);
     }
 
     void Move()

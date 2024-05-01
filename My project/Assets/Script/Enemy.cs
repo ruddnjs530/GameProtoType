@@ -34,7 +34,9 @@ public class Enemy : MonoBehaviour
     public static event EnemyDied OnEnemyDied;
 
     [SerializeField] protected Slider hpBar;
-    GameObject cam;
+    HealthBar healthBar;
+
+    private Coroutine currentCoroutine;
     // Start is called before the first frame update
     protected virtual void Start()
     {
@@ -42,7 +44,11 @@ public class Enemy : MonoBehaviour
         anim = GetComponent<Animator>();
         enemyState = EnemyState.Idle;
 
-        cam = GameObject.Find("Main Camera");
+        if (hpBar != null)
+        {
+            healthBar = new HealthBar(hpBar, maxHP, true);
+            healthBar.Hide();
+        }      
     }
 
     // Update is called once per frame
@@ -119,6 +125,11 @@ public class Enemy : MonoBehaviour
         GameObject text = Instantiate(textObject, MakeRandomPosition(yPos), Quaternion.identity);
         text.GetComponent<DamageText>().damage = damage;
         anim.SetTrigger("GetHit");
+        if (hpBar != null)
+        {
+            if (currentCoroutine != null) StopCoroutine(currentCoroutine);
+            currentCoroutine = StartCoroutine(healthBar.ShwoAndHide());
+        }
     }
 
     Vector3 MakeRandomPosition(float yPos)

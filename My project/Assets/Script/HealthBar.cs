@@ -10,18 +10,19 @@ public class HealthBar : MonoBehaviour
     private float currentHealth;
     private Vector3 attachmentLocation = new Vector3(0, 1, 0);
 
-    public HealthBar(Slider healthBar, float maxHealth, bool isAttachment)
+    public HealthBar(Slider healthBar, float maxHealth, bool isAttachment, Vector2 position = default)
     {
         this.healthBar = healthBar;
         this.maxHealth = maxHealth;
         this.currentHealth = maxHealth;
 
-        if (isAttachment) SetHealthBarPosition();
+        if (isAttachment) SetHealthBarOnObject();
         else
         {
-            // 따라다니지 않다면 화면에 고정하고 싶은 위치를 받아서 고정하는 함수
+            SetHealthBarToScreen(position);
         }
     }
+
     public void SetHealth(float health)
     {
         currentHealth = Mathf.Clamp(health, 0, maxHealth);
@@ -33,18 +34,33 @@ public class HealthBar : MonoBehaviour
         healthBar.value = currentHealth / maxHealth;
     }
 
-    private void SetHealthBarPosition()
+    private void SetHealthBarOnObject()
     {
-        this.transform.position = transform.parent.position + attachmentLocation;
+        healthBar.transform.position = healthBar.transform.parent.position + attachmentLocation;
     }
 
     public void Show() // enemy의 경우 보이게 안보이게 하기 위함. 또한 보스의 경우에도 생성될 때만 체력바가 보이게 하기 위함
     {
-        this.gameObject.SetActive(true);
+        healthBar.gameObject.SetActive(true);
     }
 
     public void Hide()
     {
-        this.gameObject.SetActive(false);
+        healthBar.gameObject.SetActive(false);
+    }
+
+    public IEnumerator ShwoAndHide()
+    {
+        Show();
+        yield return new WaitForSeconds(2f);
+        Hide();
+    }
+
+    private void SetHealthBarToScreen(Vector2 position)
+    {
+        RectTransform rectTransform = healthBar.GetComponent<RectTransform>();
+        rectTransform.anchorMin = position;
+        rectTransform.anchorMax = position + new Vector2(healthBar.GetComponent<RectTransform>().sizeDelta.x / Screen.width, healthBar.GetComponent<RectTransform>().sizeDelta.y / Screen.height);
+        rectTransform.pivot = position;
     }
 }
