@@ -48,6 +48,11 @@ public class Player : MonoBehaviour
     float lastInputTime;
     float inputBufferTime = 0.01f;
 
+    [SerializeField] Image coolTimeImage;
+    float maxCoolTime = 1.0f;
+    float currentCooltime = 1.0f;
+    CoolTime coolTime;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -57,6 +62,7 @@ public class Player : MonoBehaviour
         anim.SetLayerWeight(1, 0);
 
         healthBar = new HealthBar(hpBar, maxHP, false, new Vector2(0.05f, 0.05f));
+        coolTime = new CoolTime(coolTimeImage, maxCoolTime);
     }
 
     // Update is called once per frame
@@ -195,6 +201,7 @@ public class Player : MonoBehaviour
         {
             isDiveRoll = true;
             anim.SetTrigger("DiveRoll");
+            StartCoroutine(coolTime.ShowCoolTime());
 
             Vector3 horizontalMove = cameraArm.right * hzInput;
             Vector3 verticalMove = cameraArm.forward * vInput;
