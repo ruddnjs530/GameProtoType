@@ -17,27 +17,20 @@ public class BossSkills
     {
         this.skillName = skillName;
         this.coolTime = coolTime;
-        this.lastUsedTime = -coolTime;
+        this.lastUsedTime = Time.time - coolTime;
     }
 
-    public bool isReady()
+    public void UpdateCoolTime()
     {
         if ((Time.time - lastUsedTime) >= coolTime)
         {
-            CooldownFinished();
-            return true;
+            lastUsedTime = Time.time;
+            OnCooldownFinished?.Invoke(this);
         }
-        return false;
     }
 
     public void setUseSkillTime()
     {
         lastUsedTime = Time.time;
-    }
-
-    private void CooldownFinished()
-    {
-        Debug.Log("cool down finished");
-        OnCooldownFinished?.Invoke(this);
     }
 }

@@ -43,6 +43,7 @@ public class BossEnemy : MonoBehaviour
     bool isAttacking = false;
 
     List<BossSkills> skills = new List<BossSkills>();
+    BossSkills currentSkill;
 
     [SerializeField] Slider hpBar;
     HealthBar healthBar;
@@ -81,12 +82,17 @@ public class BossEnemy : MonoBehaviour
         {
             case BossState.MoveToPlayer:
                 CheckDeath();
-                CheckAttackCoolTime();
+                //CheckAttackCoolTime();
                 Move();
                 break;
 
             case BossState.Attack:
                 CheckDeath();
+
+                if (currentSkill != null)
+                {
+                    Attack(currentSkill);
+                }
 
                 anim.SetBool("isWalking", true);
                 agent.isStopped = false;
@@ -111,11 +117,9 @@ public class BossEnemy : MonoBehaviour
 
     private void Attack(BossSkills skill)
     {
-        if (isAttacking) return;
         if (currentHP > 30)
         {
             StartCoroutine(LaserAttack());
-            skill.setUseSkillTime();
         }
         else
         {
@@ -123,23 +127,21 @@ public class BossEnemy : MonoBehaviour
             {
                 case "laserAttack":
                     StartCoroutine(LaserAttack());
-                    skill.setUseSkillTime();
                     break;
+
                 case "levitationAttack":
                     Collider player = Physics.OverlapSphere(transform.position, levitationAttackRange, playerLayer).FirstOrDefault();
                     if (player != null)
                     {
                         StartCoroutine(levitationAttack(player));
-                        skill.setUseSkillTime();
                     }
                     break;
+
                 case "jumpAttack":
                     StartCoroutine(JumpAttack(target.position));
-                    skill.setUseSkillTime();
                     break;
             }
         }
-        skill.setUseSkillTime();
     }
 
     IEnumerator JumpAttack(Vector3 targetPosition)
@@ -157,7 +159,7 @@ public class BossEnemy : MonoBehaviour
 
         float distance = Vector3.Distance(this.transform.position, target.position);
         if (distance <= 10f) target.GetComponent<Player>().TakeDamage(jumpDamage);
-        isAttacking = false;
+        currentSkill = null;
     }
 
     IEnumerator LaserAttack()
@@ -183,7 +185,7 @@ public class BossEnemy : MonoBehaviour
         yield return new WaitForSeconds(laserDuration);
 
         laserLine.enabled = false;
-        isAttacking = false;
+        currentSkill = null;
     }
 
     IEnumerator levitationAttack(Collider player) 
@@ -225,35 +227,46 @@ public class BossEnemy : MonoBehaviour
             yield return null;
         }
         yield return new WaitForSeconds(2);
-        isAttacking = false;
+        currentSkill = null;
     }
 
 
     private void HandleSkillReady(BossSkills skill)
     {
-        if (bossState == BossState.Die) return;
+        //if (bossState == BossState.Die) return;
 
-        anim.SetBool("isWalking", false);
-        agent.isStopped = true;
+        //anim.SetBool("isWalking", false);
+        //agent.isStopped = true;
+        //bossState = BossState.Attack;
+        //Attack(skill);
+        //Debug.Log(skill.lastUsedTime);
+
+        currentSkill = skill;
         bossState = BossState.Attack;
-        Attack(skill);
-        Debug.Log(skill.lastUsedTime);
     }
 
-    void CheckAttackCoolTime()
-    {
-        foreach (var skill in skills)
-        {
-            if (skill.isReady())
-            {
-                //Debug.Log("hi");
-                anim.SetBool("isWalking", false);
-                agent.isStopped = true;
-                bossState = BossState.Attack;
-                break;
-            }
-        }
-    }
+    //void UpdateSkill()
+    //{
+    //    foreach (var skill in skills)
+    //    {
+    //        skill.UpdateCoolTime();
+    //    }
+    //}
+
+    //void CheckAttackCoolTime()
+    //{
+    //    foreach (var skill in skills)
+    //    {
+    //        if (skill.isReady())
+    //        {
+    //            //Debug.Log("hi");
+    //            anim.SetBool("isWalking", false);
+    //            agent.isStopped = true;
+    //            bossState = BossState.Attack;
+    //            break;
+    //        }
+    //    }
+    //}
 
     private void OnTriggerEnter(Collider other)
     {
