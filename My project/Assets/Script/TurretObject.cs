@@ -15,7 +15,7 @@ public class TurretObject : MonoBehaviour
 
     float hp = 100;
 
-    Quaternion originalRotation;
+    Quaternion correctRotation;
 
     GameObject attackTarget;
 
@@ -28,7 +28,7 @@ public class TurretObject : MonoBehaviour
     void Start()
     {
         turretState = TurretState.Idle;
-        originalRotation = transform.rotation;
+        correctRotation = new Quaternion(transform.rotation.x, 0, transform.rotation.z, transform.rotation.w);
 
         attackTarget = null;
         var drone = GetComponentInParent<DroneObject>();
@@ -99,6 +99,7 @@ public class TurretObject : MonoBehaviour
             if (other.gameObject == attackTarget)
             {
                 attackTarget = null;
+                transform.rotation = Quaternion.Slerp(transform.rotation, correctRotation, 0.1f);
                 turretState = TurretState.Idle;
                 return;
             }
@@ -265,6 +266,7 @@ public class TurretObject : MonoBehaviour
     private void HandleDroneTooFar()
     {
         attackTarget = null;
+        transform.rotation = Quaternion.Slerp(transform.rotation, correctRotation, 0.1f);
         turretState = TurretState.Idle;
     }
 }
