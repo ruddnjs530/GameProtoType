@@ -9,11 +9,11 @@ public class DroneObject : MonoBehaviour
     Transform agentTarget;
     Vector3 destination;
 
-    //private enum DroneState { MoveToPlayer, Attack }
-    //DroneState droneState;
+    private enum DroneState { MoveToPlayer, Attack }
+    DroneState droneState;
 
-    //public delegate void DistanceEventHandler();
-    //public event DistanceEventHandler OnPlayerTooFar;
+    public delegate void DistanceEventHandler();
+    public event DistanceEventHandler OnPlayerTooFar;
 
     // Start is called before the first frame update
     void Start()
@@ -22,38 +22,38 @@ public class DroneObject : MonoBehaviour
         agentTarget = GameObject.FindWithTag("Player").transform;
 
 
-        //droneState = DroneState.MoveToPlayer;
+        droneState = DroneState.MoveToPlayer;
 
-        //var turret = GetComponentInChildren<TurretObject>();
-        //turret.OnIsAttack += ChangeStateToAttack;
+        var turret = GetComponentInChildren<TurretObject>();
+        turret.OnIsAttack += ChangeStateToAttack;
     }
 
     // Update is called once per frame
     void Update()
     {
-        //switch(droneState)
-        //{
-        //    case DroneState.MoveToPlayer:
+        switch (droneState)
+        {
+            case DroneState.MoveToPlayer:
 
-        //        destination = agentTarget.position;
-        //        agent.SetDestination(destination);
+                destination = agentTarget.position;
+                agent.SetDestination(destination);
 
-        //        break;
+                break;
 
-        //    case DroneState.Attack:
+            case DroneState.Attack:
 
-        //        if (DistanceWithPlayer(agentTarget) > 10f)
-        //        {     
-        //            agent.isStopped = false;
-        //            droneState = DroneState.MoveToPlayer;
-        //            OnPlayerTooFar?.Invoke();
-        //        }          
+                if (DistanceWithPlayer(agentTarget) > 10f)
+                {
+                    agent.isStopped = false;
+                    droneState = DroneState.MoveToPlayer;
+                    OnPlayerTooFar?.Invoke();
+                }
 
-        //        break;
+                break;
 
-        //}
-        destination = agentTarget.position;
-        agent.SetDestination(destination);
+        }
+        //destination = agentTarget.position;
+        //agent.SetDestination(destination);
     }
 
     private float DistanceWithPlayer(Transform player)
@@ -62,9 +62,9 @@ public class DroneObject : MonoBehaviour
         return distance;
     }
 
-    //private void ChangeStateToAttack()
-    //{
-    //    agent.isStopped = true;
-    //    droneState = DroneState.Attack;
-    //}
+    private void ChangeStateToAttack()
+    {
+        agent.isStopped = true;
+        droneState = DroneState.Attack;
+    }
 }

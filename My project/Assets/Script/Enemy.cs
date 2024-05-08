@@ -31,7 +31,7 @@ public class Enemy : MonoBehaviour
     Animator anim;
 
     public delegate void EnemyDied(Enemy enemy);
-    public static event EnemyDied OnEnemyDied;
+    public event EnemyDied OnEnemyDied;
 
     [SerializeField] protected Slider hpBar;
     HealthBar healthBar;
