@@ -44,11 +44,8 @@ public class Enemy : MonoBehaviour
         anim = GetComponent<Animator>();
         enemyState = EnemyState.Idle;
 
-        if (hpBar != null)
-        {
-            healthBar = new HealthBar(hpBar, maxHP, true);
-            healthBar.Hide();
-        }      
+        healthBar = new HealthBar(hpBar, maxHP, true);
+        healthBar.Hide();
     }
 
     // Update is called once per frame

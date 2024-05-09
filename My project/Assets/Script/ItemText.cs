@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class ItemText : MonoBehaviour
 {
-    [SerializeField] GameObject cam;
+    GameObject cam;
+
+    private void Start()
+    {
+        cam = GameObject.FindGameObjectWithTag("MainCamera");
+    }
 
     // Update is called once per frame
     void Update()
