@@ -8,15 +8,18 @@ public class Bullet : MonoBehaviour
     float timer;
 
     ParticleSystem hitParticle;
+    Rigidbody bulletRigidbody;
 
     private void Start()
     {
         hitParticle = GetComponentInChildren<ParticleSystem>();
+        bulletRigidbody = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        bulletRigidbody.velocity = transform.forward * 5f;
         timer += Time.deltaTime;
         if (timer >= destroyTime) Destroy(this.gameObject);
     }

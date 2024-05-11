@@ -37,7 +37,7 @@ public class Player : MonoBehaviour
 
     [SerializeField] Inventory theInventory;
 
-    [SerializeField] Transform characterBody;
+    [SerializeField] public Transform characterBody;
     [SerializeField] Transform cameraArm;
     public Transform aimPos;
     [SerializeField] float aimSpeed = 20;
@@ -154,6 +154,7 @@ public class Player : MonoBehaviour
                 break;
         }
 
+        //anim.SetLayerWeight(1, Mathf.Lerp(0, 1, Time.deltaTime * 2.0f));
         LookAround();
         Gravity();
 
@@ -167,6 +168,9 @@ public class Player : MonoBehaviour
     {
         if (isDiveRoll) return;
 
+        hzInput = Input.GetAxis("Horizontal");
+        vInput = Input.GetAxis("Vertical");
+
         dir = new Vector3(hzInput, 0, vInput);
 
         if (dir != Vector3.zero)
@@ -175,22 +179,22 @@ public class Player : MonoBehaviour
             Vector3 lookRight = new Vector3(cameraArm.right.x, 0f, cameraArm.right.z).normalized;
             Vector3 moveDir = lookForward * dir.z + lookRight * dir.x;
 
+            Quaternion targetRotation;
+
             if (Input.GetMouseButton(0))
             {
-                characterBody.forward = lookForward;
-                cc.Move(moveDir.normalized * moveSpeed * Time.deltaTime);
+                targetRotation = Quaternion.LookRotation(lookForward);
             }
             else
             {
-                characterBody.forward = moveDir;
-                cc.Move(moveDir.normalized * moveSpeed * Time.deltaTime);
+                targetRotation = Quaternion.LookRotation(moveDir);
             }
+
+            characterBody.rotation = Quaternion.Slerp(characterBody.rotation, targetRotation, Time.deltaTime * 6.0f);
+            cc.Move(moveDir.normalized * moveSpeed * Time.deltaTime);
 
             lastInputTime = Time.time;
         }
-
-        hzInput = Input.GetAxis("Horizontal");
-        vInput = Input.GetAxis("Vertical");
         anim.SetFloat("horizontal", hzInput);
         anim.SetFloat("vertical", vInput);
     }
