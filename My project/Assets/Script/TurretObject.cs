@@ -34,8 +34,7 @@ public class TurretObject : MonoBehaviour
         var drone = GetComponentInParent<DroneObject>();
         if (drone != null) drone.OnPlayerTooFar += HandleDroneTooFar;
 
-        //var enemy = GetComponent<Enemy>();
-        //enemy.OnEnemyDied += RemovepriorityQueueElements;
+        Invoke("FindEnemys", 0.5f);
     }
 
     // Update is called once per frame
@@ -50,21 +49,22 @@ public class TurretObject : MonoBehaviour
                     turretState = TurretState.Die;
                     break;
                 }
-                //else if (priorityQueue.Count > 0)
-                //{
-                //    turretState = TurretState.Attack;
-                //    break;
-                //}
+                else if (priorityQueue.Count > 0)
+                {
+                    turretState = TurretState.Attack;
+                    break;
+                }
                 break;
 
             case TurretState.Attack:
-                //if (attackTarget == null) attackTarget = priorityQueueDequeue();
-                //else
-                //{
-                //    Attack(attackTarget);
-                //    OnIsAttack?.Invoke();
-                //}
-                Attack(attackTarget);
+                if (attackTarget == null) attackTarget = priorityQueueDequeue();
+                else
+                {
+                    Attack(attackTarget);
+                    OnIsAttack?.Invoke();
+                }
+                //Attack(attackTarget);
+                //OnIsAttack?.Invoke();
                 break;
 
             case TurretState.Die:
@@ -77,42 +77,42 @@ public class TurretObject : MonoBehaviour
     {
         if (other.gameObject.tag == "Enemy")
         {
-            //if (turretState == TurretState.Idle)
-            //{
-            //    priorityQueueEnqueue(other.gameObject.GetComponent<Enemy>());
-            //}
             if (turretState == TurretState.Idle)
             {
-                turretState = TurretState.Attack;
+                priorityQueueEnqueue(other.gameObject.GetComponent<Enemy>());
             }
-            else if (turretState == TurretState.Attack && attackTarget == null)
-            {
-                attackTarget = NearestObj(other.gameObject);
-            }
+            //if (turretState == TurretState.Idle)
+            //{
+            //    turretState = TurretState.Attack;
+            //}
+            //else if (turretState == TurretState.Attack && attackTarget == null)
+            //{
+            //    attackTarget = NearestObj(other.gameObject);
+            //}
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        //if (other.gameObject.tag == "Enemy")
-        //{
-        //    if (other.gameObject == attackTarget)
-        //    {
-        //        attackTarget = null;
-        //        transform.rotation = Quaternion.Slerp(transform.rotation, correctRotation, 0.1f);
-        //        turretState = TurretState.Idle;
-        //        return;
-        //    }
-
-        //    RemovepriorityQueueElements(other.gameObject.GetComponent<Enemy>());
-        //}
-        if (other.gameObject.tag == "Enemy" && other.gameObject == attackTarget)
+        if (other.gameObject.tag == "Enemy")
         {
-            attackTarget = null;
-            turretState = TurretState.Idle;
-            Debug.Log("enemy out");
-            return;
+            if (other.gameObject == attackTarget)
+            {
+                attackTarget = null;
+                transform.rotation = Quaternion.Slerp(transform.rotation, correctRotation, 0.1f);
+                turretState = TurretState.Idle;
+                return;
+            }
+
+            RemovepriorityQueueElements(other.gameObject.GetComponent<Enemy>());
         }
+        //if (other.gameObject.tag == "Enemy" && other.gameObject == attackTarget)
+        //{
+        //    attackTarget = null;
+        //    turretState = TurretState.Idle;
+        //    Debug.Log("enemy out");
+        //    return;
+        //}
     }
 
     GameObject NearestObj(GameObject obj)
@@ -268,5 +268,15 @@ public class TurretObject : MonoBehaviour
         attackTarget = null;
         transform.rotation = Quaternion.Slerp(transform.rotation, correctRotation, 0.1f);
         turretState = TurretState.Idle;
+    }
+
+    void FindEnemys()
+    {
+        Enemy[] enemies = FindObjectsOfType<Enemy>();
+        foreach (Enemy enemy in enemies)
+        {
+            enemy.OnEnemyDied += RemovepriorityQueueElements;
+            Debug.Log("hi2");
+        }
     }
 }

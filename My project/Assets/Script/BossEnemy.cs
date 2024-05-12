@@ -40,8 +40,6 @@ public class BossEnemy : MonoBehaviour
     float levitationAttackAngle = 90f;
     [SerializeField] Projector projector;
 
-    bool isAttacking = false;
-
     List<BossSkills> skills = new List<BossSkills>();
     BossSkills currentSkill;
 
@@ -92,6 +90,7 @@ public class BossEnemy : MonoBehaviour
                 if (currentSkill != null)
                 {
                     Attack(currentSkill);
+                    currentSkill = null;
                 }
 
                 anim.SetBool("isWalking", true);
@@ -103,7 +102,7 @@ public class BossEnemy : MonoBehaviour
                 Destroy(this.gameObject, 3f);
                 break;
         }
-
+        UpdateSkill();
         healthBar.SetHealth(currentHP);
     }
 
@@ -129,24 +128,23 @@ public class BossEnemy : MonoBehaviour
                     StartCoroutine(LaserAttack());
                     break;
 
-                case "levitationAttack":
-                    Collider player = Physics.OverlapSphere(transform.position, levitationAttackRange, playerLayer).FirstOrDefault();
-                    if (player != null)
-                    {
-                        StartCoroutine(levitationAttack(player));
-                    }
-                    break;
+                //case "levitationAttack":
+                //    Collider player = Physics.OverlapSphere(transform.position, levitationAttackRange, playerLayer).FirstOrDefault();
+                //    if (player != null)
+                //    {
+                //        StartCoroutine(levitationAttack(player));
+                //    }
+                //    break;
 
-                case "jumpAttack":
-                    StartCoroutine(JumpAttack(target.position));
-                    break;
+                //case "jumpAttack":
+                //    StartCoroutine(JumpAttack(target.position));
+                //    break;
             }
         }
     }
 
     IEnumerator JumpAttack(Vector3 targetPosition)
     {
-        isAttacking = true;
         anim.SetTrigger("jumpAttack");
         yield return new WaitForSeconds(0.5f);     
         Vector3 startingPos = transform.position;
@@ -164,33 +162,44 @@ public class BossEnemy : MonoBehaviour
 
     IEnumerator LaserAttack()
     {
-        isAttacking = true;
         laserLine.enabled = true;
         laserLine.SetPosition(0, shotPos.position);
         RaycastHit hit;
         Vector3 startPosition = shotPos.position;
+        Vector3 direction = (transform.forward - transform.up).normalized;
 
-        if (Physics.Raycast(startPosition, transform.forward + (transform.up), out hit, laserRange)) 
+        if (Physics.Raycast(startPosition, direction, out hit, laserRange)) 
         {
             laserLine.SetPosition(1, hit.point);
             if (hit.transform.tag == "Player")
             {
                 transform.LookAt(hit.transform);
-                hit.transform.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
+                //hit.transform.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
+
+                Player player = hit.transform.gameObject.GetComponent<Player>();
+                if (player != null)
+                {
+                    //Debug.Log("player in");
+                    player.TakeDamage(attackDamage);
+                    yield return new WaitForSeconds(laserDuration);
+                    laserLine.enabled = false;
+                    currentSkill = null;
+                }
             }
         }    
         else
-            laserLine.SetPosition(1, startPosition + (transform.forward + (transform.up * -1)) * laserRange); 
-
-        yield return new WaitForSeconds(laserDuration);
-
+        {
+            laserLine.SetPosition(1, startPosition + (transform.forward + (transform.up * -1)) * laserRange);
+            yield return new WaitForSeconds(laserDuration);
+            laserLine.enabled = false;
+            currentSkill = null;
+        }
         laserLine.enabled = false;
         currentSkill = null;
     }
 
     IEnumerator levitationAttack(Collider player) 
     {
-        isAttacking = true;
         Vector3 direction = (player.transform.position - transform.position).normalized;
         float angleBetween = Vector3.Angle(transform.forward, direction);
 
@@ -233,40 +242,17 @@ public class BossEnemy : MonoBehaviour
 
     private void HandleSkillReady(BossSkills skill)
     {
-        //if (bossState == BossState.Die) return;
-
-        //anim.SetBool("isWalking", false);
-        //agent.isStopped = true;
-        //bossState = BossState.Attack;
-        //Attack(skill);
-        //Debug.Log(skill.lastUsedTime);
-
         currentSkill = skill;
         bossState = BossState.Attack;
     }
 
-    //void UpdateSkill()
-    //{
-    //    foreach (var skill in skills)
-    //    {
-    //        skill.UpdateCoolTime();
-    //    }
-    //}
-
-    //void CheckAttackCoolTime()
-    //{
-    //    foreach (var skill in skills)
-    //    {
-    //        if (skill.isReady())
-    //        {
-    //            //Debug.Log("hi");
-    //            anim.SetBool("isWalking", false);
-    //            agent.isStopped = true;
-    //            bossState = BossState.Attack;
-    //            break;
-    //        }
-    //    }
-    //}
+    void UpdateSkill()
+    {
+        foreach (var skill in skills)
+        {
+            skill.UpdateCoolTime();
+        }
+    }
 
     private void OnTriggerEnter(Collider other)
     {
