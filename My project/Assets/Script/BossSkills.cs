@@ -24,12 +24,11 @@ public class BossSkills
     {
         if ((Time.time - lastUsedTime) >= coolTime)
         {
-            lastUsedTime = Time.time;
             OnCooldownFinished?.Invoke(this);
         }
     }
 
-    public void setUseSkillTime()
+    public void SetSkillTime()
     {
         lastUsedTime = Time.time;
     }
