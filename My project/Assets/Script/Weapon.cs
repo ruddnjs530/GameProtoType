@@ -63,16 +63,16 @@ public class Weapon : MonoBehaviour
     void Fire()
     {
         fireRateTimer = 0;
-        //barrelPos.LookAt(aim.aimPos);
+        barrelPos.LookAt(aim.aimPos);
         muzzleFalsh();
 
         for (int i = 0; i < bulletPerShot; i++)
         {
-            //GameObject currentBullet = Instantiate(bullet, barrelPos.position, barrelPos.rotation);
-            //Rigidbody rb = currentBullet.GetComponent<Rigidbody>();
-            //rb.AddForce(barrelPos.forward * bulletVelocity, ForceMode.Impulse);
-            Vector3 aimDir = (aim.aimPos.position - barrelPos.position).normalized;
-            Instantiate(bullet, barrelPos.position, Quaternion.LookRotation(aimDir, Vector3.up));
+            GameObject currentBullet = Instantiate(bullet, barrelPos.position, barrelPos.rotation);
+            Rigidbody rb = currentBullet.GetComponent<Rigidbody>();
+            rb.AddForce(barrelPos.forward * bulletVelocity, ForceMode.Impulse);
+            //Vector3 aimDir = (aim.aimPos.position - barrelPos.position).normalized;
+            //Instantiate(bullet, barrelPos.position, Quaternion.LookRotation(aimDir, Vector3.up));
         }
     }
 
