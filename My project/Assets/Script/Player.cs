@@ -50,7 +50,6 @@ public class Player : MonoBehaviour
 
     [SerializeField] Image coolTimeImage;
     float maxCoolTime = 1.0f;
-    float currentCooltime = 1.0f;
     CoolTime coolTime;
 
     // Start is called before the first frame update

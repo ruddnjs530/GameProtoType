@@ -15,7 +15,7 @@ public class BossEnemy : MonoBehaviour
 
     [SerializeField] Transform shotPos;
     LineRenderer laserLine;
-    float laserRange = 10f;
+    float laserRange = 15f;
     float laserDuration = 0.5f;
 
     float attackDamage = 10.0f;
@@ -35,7 +35,7 @@ public class BossEnemy : MonoBehaviour
     float jumpSpeed = 2f;
     int jumpDamage = 5;
 
-    float levitationAttackRange = 20f;
+    //float levitationAttackRange = 20f;
     [SerializeField] LayerMask playerLayer;
     float levitationAttackAngle = 90f;
     [SerializeField] Projector projector;
@@ -87,13 +87,19 @@ public class BossEnemy : MonoBehaviour
 
             case BossState.Attack:
                 CheckDeath();
+                if (currentSkill != null)
+                    //Debug.Log("current skill " + currentSkill.GetSkillName());
+                //Debug.Log("isAttacking " + isAttacking);
 
                 if (isAttacking == false)
                     Attack(currentSkill);
-
-                anim.SetBool("isWalking", true);
-                agent.isStopped = false;
-                bossState = BossState.MoveToPlayer;
+                
+                if (currentSkill == null)
+                {
+                    anim.SetBool("isWalking", true);
+                    agent.isStopped = false;
+                    bossState = BossState.MoveToPlayer;
+                }
                 break;
 
             case BossState.Die:
@@ -116,32 +122,45 @@ public class BossEnemy : MonoBehaviour
     {
         if (skill == null)
         {
-            Debug.Log("skill is null");
+            //Debug.Log("skill is null");
             return; // skill이 null이면 아무 것도 하지 않음
         }
 
         if (currentHP > 30)
         {
-            StartCoroutine(LaserAttack());
-            skill.SetSkillTime();
+            Collider playerCollider = Physics.OverlapSphere(transform.position, laserRange, playerLayer).FirstOrDefault();
+            if (playerCollider != null)
+            {
+                Vector3 playerPosition = playerCollider.transform.position;
+                StartCoroutine(LaserAttack(playerPosition));
+            }
+            currentSkill.SetSkillTime();
         }
         else
         {
             switch (skill.GetSkillName())
             {
                 case "laserAttack":
-                    StartCoroutine(LaserAttack());
-                    skill.SetSkillTime();
+                    Collider playerCollider = Physics.OverlapSphere(transform.position, laserRange, playerLayer).FirstOrDefault();
+                    if (playerCollider != null)
+                    {
+                        Vector3 playerPosition = playerCollider.transform.position;
+                        StartCoroutine(LaserAttack(playerPosition));
+                    }
+                    currentSkill?.SetSkillTime();
+
+                    //StartCoroutine(LaserAttack());
+                    //skill.SetSkillTime();
                     break;
 
-                case "levitationAttack":
-                    Collider player = Physics.OverlapSphere(transform.position, levitationAttackRange, playerLayer).FirstOrDefault();
-                    if (player != null)
-                    {
-                        StartCoroutine(levitationAttack(player));
-                        skill.SetSkillTime();
-                    }
-                    break;
+                //case "levitationAttack":
+                //    Collider player = Physics.OverlapSphere(transform.position, levitationAttackRange, playerLayer).FirstOrDefault();
+                //    if (player != null)
+                //    {
+                //        StartCoroutine(levitationAttack(player));
+                //        skill.SetSkillTime();
+                //    }
+                //    break;
 
                     //case "jumpAttack":
                     //    StartCoroutine(JumpAttack(target.position));
@@ -170,31 +189,66 @@ public class BossEnemy : MonoBehaviour
         isAttacking = false;
     }
 
-    IEnumerator LaserAttack()
+    //IEnumerator LaserAttack()
+    //{
+    //    isAttacking = true;
+
+    //    RaycastHit hit;
+    //    Vector3 startPosition = shotPos.position;
+    //    Vector3 direction = (transform.forward - transform.up).normalized;
+
+    //    if (Physics.Raycast(startPosition, direction, out hit, laserRange))
+    //    {
+    //        if (hit.transform.tag == "Player")
+    //        {
+    //            Debug.Log("hit player");
+    //            laserLine.enabled = true;
+    //            laserLine.SetPosition(0, shotPos.position);
+    //            transform.LookAt(hit.transform);
+    //            laserLine.SetPosition(1, hit.point);
+
+    //            Player player = hit.transform.gameObject.GetComponent<Player>();
+    //            if (player != null)
+    //            {
+    //                player.TakeDamage(attackDamage);
+    //            }
+    //        }
+    //        yield return new WaitForSeconds(laserDuration);
+    //    }
+    //    laserLine.enabled = false;
+    //    currentSkill = null;
+    //    isAttacking = false;
+    //}
+
+    IEnumerator LaserAttack(Vector3 playerPosition)
     {
         isAttacking = true;
         laserLine.enabled = true;
         laserLine.SetPosition(0, shotPos.position);
-        RaycastHit hit;
-        Vector3 startPosition = shotPos.position;
-        Vector3 direction = (transform.forward - transform.up).normalized;
 
-        if (Physics.Raycast(startPosition, direction, out hit, laserRange))
+        Vector3 direction = (playerPosition - transform.position).normalized;
+        float angleBetween = Vector3.Angle(transform.forward, direction);
+
+        if (angleBetween < levitationAttackAngle / 2)
         {
-            laserLine.SetPosition(1, hit.point);
-            if (hit.transform.tag == "Player")
-            {
-                transform.LookAt(hit.transform);
-                //hit.transform.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
+            Vector3 hitPoint = playerPosition;
+            laserLine.SetPosition(1, hitPoint);
+            transform.LookAt(hitPoint);
 
-                Player player = hit.transform.gameObject.GetComponent<Player>();
-                if (player != null)
+            RaycastHit hit;
+            if (Physics.Raycast(shotPos.position, direction, out hit, laserRange))
+            {
+                if (hit.transform.tag == "Player")
                 {
-                    //Debug.Log("player in");
-                    player.TakeDamage(attackDamage);
+                    Player player = hit.transform.GetComponent<Player>();
+                    if (player != null)
+                    {
+                        player.TakeDamage(attackDamage);
+                    }
                 }
             }
         }
+
         yield return new WaitForSeconds(laserDuration);
         laserLine.enabled = false;
         currentSkill = null;
@@ -249,7 +303,7 @@ public class BossEnemy : MonoBehaviour
     private void HandleSkillReady(BossSkills skill)
     {
         if (currentSkill != null) return;
-        Debug.Log($"Skill {skill.GetSkillName()} is ready");
+        //Debug.Log($"Skill {skill.GetSkillName()} is ready");
 
         currentSkill = skill;
 
