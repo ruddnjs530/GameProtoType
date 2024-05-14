@@ -49,7 +49,7 @@ public class Weapon : MonoBehaviour
         if (Input.GetMouseButton(0))
         {
             Vector3 lookDirection = new Vector3(Camera.main.transform.forward.x, 0, Camera.main.transform.forward.z).normalized;
-            Vector3 bodyDirection = player.characterBody.forward; // character body public으로 바꿈. 프로퍼티로 만드는게 좋을듯
+            Vector3 bodyDirection = player.characterBody.forward;
 
             float alignment = Vector3.Dot(lookDirection, bodyDirection);
             if (alignment > 0.95f)

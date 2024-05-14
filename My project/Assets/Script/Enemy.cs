@@ -24,8 +24,6 @@ public class Enemy : MonoBehaviour
 
     [SerializeField] GameObject textObject;
 
-    public bool isDie = false;
-
     protected bool isSeePlayer = false;
 
     Animator anim;
@@ -118,6 +116,12 @@ public class Enemy : MonoBehaviour
 
     public void TakeDamageAndInstantiateText(int damage, float yPos = 1)
     {
+        if (currentHP <= 0)
+        {
+            enemyState = EnemyState.Die;
+            return;
+        }
+
         currentHP -= damage;
         GameObject text = Instantiate(textObject, MakeRandomPosition(yPos), Quaternion.identity);
         text.GetComponent<DamageText>().damage = damage;
@@ -174,10 +178,8 @@ public class Enemy : MonoBehaviour
     protected virtual void Die()
     {
         anim.SetBool("Die", true);
-        isDie = true;
 
         OnEnemyDied?.Invoke(this);
-
         Destroy(gameObject);
     }
 

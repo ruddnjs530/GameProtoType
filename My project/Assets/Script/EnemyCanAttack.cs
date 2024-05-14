@@ -13,7 +13,7 @@ public class EnemyCanAttack : MonoBehaviour
             this.transform.GetComponentInParent<Enemy>().LookAtTarget(other);
 
             this.transform.GetComponentInParent<Enemy>().canAttack= true;
-            Debug.Log("player in");
+            //Debug.Log("player in");
         }
     }
 

@@ -584,6 +584,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4548674064904119929, guid: 04536c9887fc27245947cd3ca7318d61, type: 3}
   m_PrefabInstance: {fileID: 4241640306571647946}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &105575819 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3758800984545888842, guid: 7b1994802d8269e45883975deac1c5d5, type: 3}
+  m_PrefabInstance: {fileID: 55035530}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df546d5e8cbee4c47acfea98cec48114, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &126392079 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4548674064904119929, guid: 04536c9887fc27245947cd3ca7318d61, type: 3}
@@ -5945,7 +5956,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4002154561155277885, guid: 2be38c51601500640b008d69dec21a1a, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6997252171549348183, guid: 2be38c51601500640b008d69dec21a1a, type: 3}
       propertyPath: m_Enabled
@@ -9381,7 +9392,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemys:
   - {fileID: 8409223503964833210, guid: cc97c7aeb6935dd44a1b4adbddb3ebdc, type: 3}
-  - {fileID: 3758800984545888842, guid: 7b1994802d8269e45883975deac1c5d5, type: 3}
+  - {fileID: 105575819}
   enemySpawnPoints:
   - {fileID: 1301658438}
   enemyWaveSpawnPoints:

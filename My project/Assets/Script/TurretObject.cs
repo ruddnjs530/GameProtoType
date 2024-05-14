@@ -6,7 +6,6 @@ public enum TurretState { Idle, Attack, Die }
 
 public class TurretObject : MonoBehaviour
 {
-    //GameObjectPriorityQueue surroundingsObj;
     public TurretState turretState;
     [SerializeField] GameObject bulletPrefab;
     [SerializeField] Transform firePos;
@@ -195,10 +194,17 @@ public class TurretObject : MonoBehaviour
         if (priorityQueue.Count == 0) return null;
 
         GameObject target = priorityQueue[0].gameObject;
+
         priorityQueue[0] = priorityQueue[priorityQueue.Count - 1];
         priorityQueue.RemoveAt(priorityQueue.Count - 1);
 
         if (priorityQueue.Count > 0) Heapify(0);
+
+        if (target == null && priorityQueue.Count > 0)
+        {
+            return priorityQueueDequeue();
+        }
+
         return target;
 
     }
@@ -232,25 +238,15 @@ public class TurretObject : MonoBehaviour
         priorityQueue[index2] = temp;
     }
 
-    private Enemy priorityQueueMinObject()
-    {
-        if (priorityQueue.Count == 0)
-        {
-            return null;
-        }
-        return priorityQueue[0];
-    }
-
     private void RemovepriorityQueueElements(Enemy targetEnemy)
     {
-        for (int i = 0; i < priorityQueue.Count; i++)
+        priorityQueue.Remove(targetEnemy);
+        RebuildHeap();
+
+        if (attackTarget == targetEnemy.gameObject)
         {
-            if (priorityQueue[i] == targetEnemy)
-            {
-                priorityQueue.RemoveAt(i);
-                RebuildHeap();
-                break;
-            }
+            attackTarget = null;
+            turretState = TurretState.Idle;
         }
     }
 
@@ -276,7 +272,6 @@ public class TurretObject : MonoBehaviour
         foreach (Enemy enemy in enemies)
         {
             enemy.OnEnemyDied += RemovepriorityQueueElements;
-            Debug.Log("hi2");
         }
     }
 }
