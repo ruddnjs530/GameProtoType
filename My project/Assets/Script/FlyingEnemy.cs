@@ -44,7 +44,6 @@ public class FlyingEnemy : Enemy
             agentTarget = other.transform;
             isSeePlayer = true;
             canAttack = true;
-            //Debug.Log("자식 in");
         }
     }
 
@@ -63,13 +62,12 @@ public class FlyingEnemy : Enemy
             isSeePlayer = false;
             agentTarget = null;
             canAttack = false;
-            Debug.Log("자식 out");
         }
     }
 
     protected override void Die()
     {
         GameManager.Instance.IncreaseMoney(flyingPrice);
-        Destroy(gameObject);
+        base.Die();
     }
 }

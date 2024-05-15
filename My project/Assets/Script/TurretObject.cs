@@ -18,7 +18,9 @@ public class TurretObject : MonoBehaviour
 
     GameObject attackTarget;
 
-    List<Enemy> priorityQueue = new List<Enemy>();
+    int queueMaxSize = 50;
+    Enemy[] priorityQueue;
+    int currentQueueCount = 0;
 
     public delegate void AttackStateHandler();
     public event AttackStateHandler OnIsAttack;
@@ -26,14 +28,13 @@ public class TurretObject : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        priorityQueue = new Enemy[queueMaxSize];
         turretState = TurretState.Idle;
         correctRotation = new Quaternion(transform.rotation.x, 0, transform.rotation.z, transform.rotation.w);
 
         attackTarget = null;
         var drone = GetComponentInParent<DroneObject>();
         if (drone != null) drone.OnPlayerTooFar += HandleDroneTooFar;
-
-        Invoke("FindEnemys", 0.5f);
     }
 
     // Update is called once per frame
@@ -48,7 +49,7 @@ public class TurretObject : MonoBehaviour
                     turretState = TurretState.Die;
                     break;
                 }
-                else if (priorityQueue.Count > 0)
+                else if (currentQueueCount > 0)
                 {
                     turretState = TurretState.Attack;
                     break;
@@ -167,12 +168,23 @@ public class TurretObject : MonoBehaviour
 
     private void priorityQueueEnqueue(Enemy obj)
     {
-        if (!priorityQueue.Contains(obj))
+        for (int i = 0; i < currentQueueCount; i++)
         {
-            priorityQueue.Add(obj);
+            if (priorityQueue[i] == obj) return;
         }
 
-        int currentIndex = priorityQueue.Count - 1;
+        if (currentQueueCount >= queueMaxSize)
+        {
+            queueMaxSize *= 2;
+            Enemy[] newQueue = new Enemy[queueMaxSize];
+            System.Array.Copy(priorityQueue, newQueue, currentQueueCount);
+            priorityQueue = newQueue;
+        }
+
+        priorityQueue[currentQueueCount] = obj;
+        currentQueueCount++;
+
+        int currentIndex = currentQueueCount - 1;
 
         while (currentIndex > 0)
         {
@@ -191,16 +203,16 @@ public class TurretObject : MonoBehaviour
 
     private GameObject priorityQueueDequeue()
     {
-        if (priorityQueue.Count == 0) return null;
+        if (currentQueueCount == 0) return null;
 
         GameObject target = priorityQueue[0].gameObject;
 
-        priorityQueue[0] = priorityQueue[priorityQueue.Count - 1];
-        priorityQueue.RemoveAt(priorityQueue.Count - 1);
+        priorityQueue[0] = priorityQueue[currentQueueCount - 1];
+        currentQueueCount--;
 
-        if (priorityQueue.Count > 0) Heapify(0);
+        if (currentQueueCount > 0) Heapify(0);
 
-        if (target == null && priorityQueue.Count > 0)
+        if (target == null && currentQueueCount > 0)
         {
             return priorityQueueDequeue();
         }
@@ -211,7 +223,7 @@ public class TurretObject : MonoBehaviour
 
     private void Heapify(int currentIndex)
     {
-        int lastIndex = priorityQueue.Count - 1;
+        int lastIndex = currentQueueCount - 1;
         while (true)
         {
             int leftIndex = 2 * currentIndex + 1;
@@ -240,8 +252,15 @@ public class TurretObject : MonoBehaviour
 
     private void RemovepriorityQueueElements(Enemy targetEnemy)
     {
-        priorityQueue.Remove(targetEnemy);
-        RebuildHeap();
+        for (int i = 0; i < currentQueueCount -1; i++)
+        {
+            if (priorityQueue[i] == targetEnemy)
+            {
+                priorityQueue[i] = priorityQueue[currentQueueCount - 1];
+                currentQueueCount--;
+                RebuildHeap();
+            }
+        }
 
         if (attackTarget == targetEnemy.gameObject)
         {
@@ -252,7 +271,7 @@ public class TurretObject : MonoBehaviour
 
     private void RebuildHeap()
     {
-        int lastParentIndex = (priorityQueue.Count - 2) / 2;
+        int lastParentIndex = (currentQueueCount - 2) / 2;
         for (int i = lastParentIndex; i >= 0; i--)
         {
             Heapify(i);
@@ -264,14 +283,5 @@ public class TurretObject : MonoBehaviour
         attackTarget = null;
         transform.rotation = Quaternion.Slerp(transform.rotation, correctRotation, 0.1f);
         turretState = TurretState.Idle;
-    }
-
-    void FindEnemys()
-    {
-        Enemy[] enemies = FindObjectsOfType<Enemy>();
-        foreach (Enemy enemy in enemies)
-        {
-            enemy.OnEnemyDied += RemovepriorityQueueElements;
-        }
     }
 }

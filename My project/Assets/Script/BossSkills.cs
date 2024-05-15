@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class BossSkills
+public class BossSkill
 {
     string skillName;
     float coolTime;
     public float lastUsedTime;
 
-    public event Action<BossSkills> OnCooldownFinished;
+    public event Action<BossSkill> OnCooldownFinished;
 
     public string GetSkillName() { return skillName; }
 
-    public BossSkills(string skillName, float coolTime)
+    public BossSkill(string skillName, float coolTime)
     {
         this.skillName = skillName;
         this.coolTime = coolTime;

@@ -42,8 +42,8 @@ public class BossEnemy : MonoBehaviour
 
     bool isAttacking = false;
 
-    List<BossSkills> skills = new List<BossSkills>();
-    BossSkills currentSkill;
+    List<BossSkill> skills = new List<BossSkill>();
+    BossSkill currentSkill;
 
     [SerializeField] Slider hpBar;
     HealthBar healthBar;
@@ -65,9 +65,9 @@ public class BossEnemy : MonoBehaviour
         projector.enabled = false;
         transform.LookAt(target);
 
-        skills.Add(new BossSkills("laserAttack", 2f));
-        skills.Add(new BossSkills("jumpAttack", 15f));
-        skills.Add(new BossSkills("levitationAttack", 12f));
+        skills.Add(new BossSkill("laserAttack", 2f));
+        skills.Add(new BossSkill("jumpAttack", 15f));
+        skills.Add(new BossSkill("levitationAttack", 12f));
 
         foreach (var skill in skills)
         {
@@ -117,7 +117,7 @@ public class BossEnemy : MonoBehaviour
         anim.SetBool("isWalking", true);
     }
 
-    private void Attack(BossSkills skill)
+    private void Attack(BossSkill skill)
     {
         if (skill == null) return;
 
@@ -260,7 +260,7 @@ public class BossEnemy : MonoBehaviour
     }
 
 
-    private void HandleSkillReady(BossSkills skill)
+    private void HandleSkillReady(BossSkill skill)
     {
         if (currentSkill != null) return;
 
