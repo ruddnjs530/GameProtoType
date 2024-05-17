@@ -22,6 +22,8 @@ public class TurretObject : MonoBehaviour
     Enemy[] priorityQueue;
     int currentQueueCount = 0;
 
+    EnemyData[] enemyQueue;
+
     public delegate void AttackStateHandler();
     public event AttackStateHandler OnIsAttack;
 
@@ -29,6 +31,8 @@ public class TurretObject : MonoBehaviour
     void Start()
     {
         priorityQueue = new Enemy[queueMaxSize];
+        enemyQueue = new EnemyData[queueMaxSize];
+
         turretState = TurretState.Idle;
         correctRotation = new Quaternion(transform.rotation.x, 0, transform.rotation.z, transform.rotation.w);
 
@@ -143,6 +147,14 @@ public class TurretObject : MonoBehaviour
         float distance = Vector3.Distance(enemy.transform.position, this.transform.position);
         return distance;
     }
+
+    private int CompareEnemiesDistance(EnemyData e1, EnemyData e2)
+    {
+        float distance1 = e1.GetDistance(this.transform.position);
+        float distance2 = e2.GetDistance(this.transform.position);
+        return distance1.CompareTo(distance2);
+    }
+
 
     private void Attack(GameObject target)
     {

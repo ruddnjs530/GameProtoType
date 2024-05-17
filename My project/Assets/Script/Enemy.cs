@@ -6,6 +6,17 @@ using UnityEngine.UI;
 
 public enum EnemyState { Idle, SimpleMove, Chase, Attack, Die }
 
+public struct EnemyData
+{
+    public Vector3 position; // public으로 사용하려면 대문자로
+    public int enemyID;
+    public float GetDistance(Vector3 turretPos)
+    {
+        return Vector3.Distance(turretPos, position);
+    }
+
+}
+
 public class Enemy : MonoBehaviour
 { 
     protected NavMeshAgent agent;
@@ -13,7 +24,7 @@ public class Enemy : MonoBehaviour
     protected Vector3 destination;
     protected float walkSpeed = 3f;
     protected float chaseSpeed = 6f;
-    public float maxHP = 100;
+    public float maxHP = 100; // 프로퍼티
     protected float currentHP = 100;
 
     EnemyState enemyState;
@@ -35,6 +46,9 @@ public class Enemy : MonoBehaviour
     HealthBar healthBar;
 
     private Coroutine currentCoroutine;
+
+    public int enemyID; // public으로 사용하려면 대문자로. 근데 프로퍼티로 만들기
+
     // Start is called before the first frame update
     protected virtual void Start()
     {

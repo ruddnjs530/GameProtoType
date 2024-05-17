@@ -17,6 +17,8 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] Transform potal;
     [SerializeField] BossEnemy boss;
 
+    Dictionary<int, Enemy> enemies = new Dictionary<int, Enemy>();
+
     // Start is called before the first frame update
     void Start()
     {
@@ -30,7 +32,7 @@ public class EnemySpawner : MonoBehaviour
         {
             Debug.Log("is enemy wave");
             //enemyCount *= 2;
-           // SpawnEnemy(enemyWaveSpawnPoints, 50f);
+            // SpawnEnemy(enemyWaveSpawnPoints, 50f);
             GameManager.Instance.isEnemyWave = false;
 
             SpawnBoss();
@@ -47,7 +49,17 @@ public class EnemySpawner : MonoBehaviour
 
             randomSpawnPoint.y = randomPoint.position.y; // y ÁÂÇ¥´Â °íÁ¤
 
-            Instantiate(enemys[Random.Range(0, enemys.Length)], randomSpawnPoint, randomPoint.rotation); // ·£´ýÇÑ enemy »ý¼º
+            Enemy newEnemy = Instantiate(enemys[Random.Range(0, enemys.Length)], randomSpawnPoint, randomPoint.rotation); // ·£´ýÇÑ enemy »ý¼º
+
+            newEnemy.enemyID = i;
+
+            enemies[newEnemy.enemyID] = newEnemy;
+
+            EnemyData newEnemyData = new EnemyData
+            {
+                position = newEnemy.transform.position,
+                enemyID = i
+            };
         }
         return;
     }
@@ -57,5 +69,11 @@ public class EnemySpawner : MonoBehaviour
         Vector3 bossSpawnPoints = potal.position;
         bossSpawnPoints.y += 5;
         Instantiate(boss, bossSpawnPoints, potal.rotation);
+    }
+
+    public Enemy GetEnemyByID(int id)
+    {
+        enemies.TryGetValue(id, out Enemy enemy);
+        return enemy;
     }
 }
