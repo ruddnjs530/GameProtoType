@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemText : MonoBehaviour
+public class TextRotation : MonoBehaviour
 {
     GameObject cam;
 

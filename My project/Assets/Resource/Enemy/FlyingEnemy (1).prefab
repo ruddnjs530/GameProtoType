@@ -453,7 +453,7 @@ GameObject:
   - component: {fileID: 4905609368245640551}
   m_Layer: 9
   m_Name: FlyingEnemy (1)
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -511,8 +511,8 @@ MonoBehaviour:
   maxHP: 100
   canAttack: 0
   textObject: {fileID: 7442387520519593891, guid: 24c2159eacc3caa4eafc8b88ddadeb13, type: 3}
-  isDie: 0
   hpBar: {fileID: 5311023398325655134}
+  enemyID: 0
   shotPos: {fileID: 360042853720041995}
   bulletPrefab: {fileID: 4004397470918893826, guid: ac86f99700be5eb4ca087a3ac78f4bd6, type: 3}
 --- !u!135 &2539150649967471607
@@ -743,8 +743,8 @@ MonoBehaviour:
   maxHP: 100
   canAttack: 1
   textObject: {fileID: 7786672510691239665, guid: 24c2159eacc3caa4eafc8b88ddadeb13, type: 3}
-  isDie: 0
   hpBar: {fileID: 0}
+  enemyID: 0
   shotPos: {fileID: 360042853720041995}
   bulletPrefab: {fileID: 4004397470918893826, guid: ac86f99700be5eb4ca087a3ac78f4bd6, type: 3}
 --- !u!4 &2038051379613060637 stripped

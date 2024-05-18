@@ -106,8 +106,8 @@ MonoBehaviour:
   maxHP: 100
   canAttack: 0
   textObject: {fileID: 7442387520519593891, guid: 24c2159eacc3caa4eafc8b88ddadeb13, type: 3}
-  isDie: 0
   hpBar: {fileID: 8201950037486998224}
+  enemyID: 0
 --- !u!195 &8409223503964833205
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -309,7 +309,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce31207bf4fa31c4290e3361d0a44f5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 0}
 --- !u!1 &4978421292823306834
 GameObject:
   m_ObjectHideFlags: 0
@@ -435,6 +434,7 @@ GameObject:
   - component: {fileID: 3777030141838087217}
   - component: {fileID: 939382279964722502}
   - component: {fileID: 50762384242808421}
+  - component: {fileID: 1128506016619016536}
   m_Layer: 11
   m_Name: Canvas
   m_TagString: Untagged
@@ -524,6 +524,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &1128506016619016536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8289961739282656710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce31207bf4fa31c4290e3361d0a44f5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8409223503955252277
 GameObject:
   m_ObjectHideFlags: 0
