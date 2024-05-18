@@ -8,12 +8,9 @@ public class EnemyCanAttack : MonoBehaviour
     {
         if (other.gameObject.tag == "Player")
         {
-            //if (!this.transform.GetComponentInParent<Enemy>().IsAgentTargetExist()) 
-            //    this.transform.GetComponentInParent<Enemy>().SetAgentTarget(other);
             this.transform.GetComponentInParent<Enemy>().LookAtTarget(other);
 
             this.transform.GetComponentInParent<Enemy>().canAttack= true;
-            //Debug.Log("player in");
         }
     }
 

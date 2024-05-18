@@ -308,7 +308,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce31207bf4fa31c4290e3361d0a44f5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 0}
 --- !u!114 &48662857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1623,7 +1622,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce31207bf4fa31c4290e3361d0a44f5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 0}
 --- !u!224 &467615115 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4548674064904119929, guid: 04536c9887fc27245947cd3ca7318d61, type: 3}
@@ -1944,7 +1942,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce31207bf4fa31c4290e3361d0a44f5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 0}
 --- !u!224 &497866677
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2130,7 +2127,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce31207bf4fa31c4290e3361d0a44f5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 0}
 --- !u!224 &498510781
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3307,7 +3303,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce31207bf4fa31c4290e3361d0a44f5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 0}
 --- !u!102 &814629332
 TextMesh:
   serializedVersion: 3
@@ -4041,7 +4036,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce31207bf4fa31c4290e3361d0a44f5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 0}
 --- !u!224 &876499393
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5674,7 +5668,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce31207bf4fa31c4290e3361d0a44f5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 0}
 --- !u!224 &1193273356
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7204,7 +7197,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce31207bf4fa31c4290e3361d0a44f5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 0}
 --- !u!224 &1493500633
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9261,7 +9253,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce31207bf4fa31c4290e3361d0a44f5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 0}
 --- !u!1 &1843346913 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1514838442195789469, guid: 6c5a99a2d80875d4f9087a3fd64bcea1, type: 3}
@@ -9389,7 +9380,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemys:
-  - {fileID: 8409223503964833210, guid: cc97c7aeb6935dd44a1b4adbddb3ebdc, type: 3}
   - {fileID: 3758800984545888842, guid: 7b1994802d8269e45883975deac1c5d5, type: 3}
   enemySpawnPoints:
   - {fileID: 1301658438}

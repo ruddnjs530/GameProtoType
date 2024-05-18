@@ -216,7 +216,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3499449845511998434}
   - component: {fileID: 8201950037486998224}
-  - component: {fileID: 2753872544855903348}
   m_Layer: 5
   m_Name: HP Bar
   m_TagString: Untagged
@@ -297,18 +296,6 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &2753872544855903348
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 928119472687338491}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce31207bf4fa31c4290e3361d0a44f5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &4978421292823306834
 GameObject:
   m_ObjectHideFlags: 0

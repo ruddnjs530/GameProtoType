@@ -13,6 +13,11 @@ public class FlyingEnemy : Enemy
     float fireRate = 1.0f;
     float timer = 0.0f;
 
+    [SerializeField] Transform enemyBody;
+    Vector3 targetPosition;
+    private float timeBetweenMoves = 1f;
+    private float timeSinceLastMove = 0f;
+
     protected override void Start()
     {
         base.Start();
@@ -21,11 +26,27 @@ public class FlyingEnemy : Enemy
     protected override void Update()
     {
         base.Update();
+
+        if (enemyState == EnemyState.Idle || enemyState == EnemyState.SimpleMove)
+        {
+            timeSinceLastMove += Time.deltaTime;
+            if (timeSinceLastMove >= timeBetweenMoves)
+            {
+                SetRandomTargetPosition();
+                timeSinceLastMove = 0f;
+            }
+            enemyBody.position = Vector3.Lerp(enemyBody.position, targetPosition, Time.deltaTime * 0.3f);
+        }
+        else enemyBody.position = Vector3.Lerp(enemyBody.position, transform.position + new Vector3(0f, 4.25f, 0f), Time.deltaTime * 0.3f);
     }
 
     protected override void Attack()
     {
         base.Attack();
+
+        if (agentTarget)
+            LookAt(agentTarget);
+
         timer += Time.deltaTime;
         if (timer > fireRate)
         {
@@ -35,6 +56,20 @@ public class FlyingEnemy : Enemy
             rb.AddForce(shotPos.forward * bulletSpeed, ForceMode.Impulse);
             timer = 0.0f;
         }
+    }
+
+    void SetRandomTargetPosition()
+    {
+        // 랜덤한 방향으로 이동할 목표 위치 설정
+        float randomAngle = Random.Range(0f, 360f);
+        targetPosition = enemyBody.position + Quaternion.Euler(0f, randomAngle, 0f) * Vector3.forward * 2f;
+    }
+
+    void LookAt(Transform target)
+    {
+        Vector3 direction = target.position - enemyBody.position;
+        Quaternion lookRotation = Quaternion.LookRotation(direction.normalized);
+        enemyBody.rotation = Quaternion.Slerp(enemyBody.rotation, lookRotation, Time.deltaTime);
     }
 
     private void OnTriggerEnter(Collider other)

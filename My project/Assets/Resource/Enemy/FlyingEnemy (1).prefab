@@ -515,6 +515,7 @@ MonoBehaviour:
   enemyID: 0
   shotPos: {fileID: 360042853720041995}
   bulletPrefab: {fileID: 4004397470918893826, guid: ac86f99700be5eb4ca087a3ac78f4bd6, type: 3}
+  enemyBody: {fileID: 2038051379613060637}
 --- !u!135 &2539150649967471607
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -735,18 +736,11 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2038051379613060632}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdb357515d939b94380e58598958a8c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 100
-  canAttack: 1
-  textObject: {fileID: 7786672510691239665, guid: 24c2159eacc3caa4eafc8b88ddadeb13, type: 3}
-  hpBar: {fileID: 0}
-  enemyID: 0
-  shotPos: {fileID: 360042853720041995}
-  bulletPrefab: {fileID: 4004397470918893826, guid: ac86f99700be5eb4ca087a3ac78f4bd6, type: 3}
 --- !u!4 &2038051379613060637 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5446477390807014368, guid: b713585f24f940f4eadb10319818ef40, type: 3}

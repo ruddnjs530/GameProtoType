@@ -27,7 +27,7 @@ public class Enemy : MonoBehaviour
     public float maxHP = 100; // 프로퍼티
     protected float currentHP = 100;
 
-    EnemyState enemyState;
+    protected EnemyState enemyState;
     float currentTime = 0f;
 
     public bool canAttack = true;
