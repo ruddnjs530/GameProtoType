@@ -21,7 +21,7 @@ public class BossEnemy : MonoBehaviour
     float attackDamage = 10.0f;
 
     public GameObject textObject;
-    float currentHP = 10000f;
+    float currentHP = 450;
     float maxHP = 10000f;
 
     Animator anim;
@@ -118,7 +118,7 @@ public class BossEnemy : MonoBehaviour
     {
         if (skill == null) return;
 
-        if (currentHP > 30)
+        if (currentHP > 500)
         {
             if (canLaserAttack)
             {
