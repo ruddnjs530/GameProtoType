@@ -21,15 +21,12 @@ public class BossEnemy : MonoBehaviour
     float attackDamage = 10.0f;
 
     public GameObject textObject;
-    float currentHP = 20f;
-    float maxHP = 100f;
+    float currentHP = 10000f;
+    float maxHP = 10000f;
 
     Animator anim;
 
     NavMeshAgent agent;
-
-    [SerializeField] GameObject bulletPrefab;
-    [SerializeField] Transform eightWayShotPos;
 
     [SerializeField] AnimationCurve HeightCurve;
     float jumpSpeed = 2f;

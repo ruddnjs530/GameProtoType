@@ -12,7 +12,7 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] Transform[] enemyWaveSpawnPoints;
     // 적 웨이브 활성화 시 적들이 생성될 위치
 
-    int enemyCount = 100; // 적 생성 수, 웨이브가 활성화 되면 *4 정도 할 예정
+    int enemyCount = 20; // 적 생성 수, 웨이브가 활성화 되면 *4 정도 할 예정
 
     [SerializeField] Transform potal;
     [SerializeField] BossEnemy boss;
@@ -39,7 +39,7 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    void SpawnEnemy(Transform[] spawnPoints, float radius = 40f)
+    void SpawnEnemy(Transform[] spawnPoints, float radius = 30f)
     {
         for (int i = 0; i < enemyCount; i++)
         {

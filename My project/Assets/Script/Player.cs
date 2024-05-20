@@ -204,7 +204,7 @@ public class Player : MonoBehaviour
         {
             isDiveRoll = true;
             anim.SetTrigger("DiveRoll");
-            StartCoroutine(coolTime.ShowCoolTime());
+            //StartCoroutine(coolTime.ShowCoolTime());
 
             Vector3 horizontalMove = cameraArm.right * hzInput;
             Vector3 verticalMove = cameraArm.forward * vInput;
