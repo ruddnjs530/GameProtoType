@@ -28,6 +28,7 @@ public class Bullet : MonoBehaviour
         {
             ContactPoint cp = collision.contacts[0];
             collision.gameObject.GetComponent<Enemy>().TakeDamageAndInstantiateText(GameManager.Instance.bulletDamage, cp.point.y + 2);
+            collision.gameObject.GetComponent<Enemy>().LookAtTarget(cp.point);
             hitParticle.Play();
         }
         if (collision.gameObject.tag == "BossEnemy")
@@ -36,6 +37,6 @@ public class Bullet : MonoBehaviour
             hitParticle.Play();
         }
 
-        Destroy(this.gameObject, 0.2f);
+        Destroy(this.gameObject, 0.05f);
     }
 }

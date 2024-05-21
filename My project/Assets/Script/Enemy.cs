@@ -203,5 +203,12 @@ public class Enemy : MonoBehaviour
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
     }
+    public void LookAtTarget(Vector3 pos)
+    {
+        Vector3 direction = pos - transform.position;
+        Quaternion lookRotation = Quaternion.LookRotation(direction);
+        transform.rotation = lookRotation;
+        Debug.Log(direction);
+    }
 }
 
