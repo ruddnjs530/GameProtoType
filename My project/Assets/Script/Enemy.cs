@@ -128,7 +128,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public void TakeDamageAndInstantiateText(int damage, float yPos = 1)
+    public void TakeDamage(int damage)
     {
         if (currentHP <= 0)
         {
@@ -137,24 +137,13 @@ public class Enemy : MonoBehaviour
         }
 
         currentHP -= damage;
-        GameObject text = Instantiate(textObject, MakeRandomPosition(yPos), Quaternion.identity);
-        text.GetComponent<DamageText>().damage = damage;
+
         anim.SetTrigger("GetHit");
         if (hpBar != null)
         {
             if (currentCoroutine != null) StopCoroutine(currentCoroutine);
             currentCoroutine = StartCoroutine(healthBar.ShwoAndHide());
         }
-    }
-
-    Vector3 MakeRandomPosition(float yPos)
-    {
-        Vector3 textPosition;
-        float rand = Random.Range(-0.5f, 0.5f);
-        textPosition.x = transform.position.x + rand;
-        textPosition.y = transform.position.y + yPos;
-        textPosition.z = transform.position.z + rand;
-        return textPosition;
     }
 
     private void LookAround()
@@ -203,12 +192,11 @@ public class Enemy : MonoBehaviour
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
     }
-    public void LookAtTarget(Vector3 pos)
+
+    public void LookAtDirection(Vector3 direction)
     {
-        Vector3 direction = pos - transform.position;
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = lookRotation;
-        Debug.Log(direction);
     }
 }
 

@@ -597,7 +597,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5224539163856977549, guid: 7b1994802d8269e45883975deac1c5d5, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 3.871573
+      value: -34.04
       objectReference: {fileID: 0}
     - target: {fileID: 5224539163856977549, guid: 7b1994802d8269e45883975deac1c5d5, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1844,6 +1844,18 @@ PrefabInstance:
       value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 6910638113337569, guid: cc97c7aeb6935dd44a1b4adbddb3ebdc, type: 3}
+      propertyPath: m_Center.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6910638113337569, guid: cc97c7aeb6935dd44a1b4adbddb3ebdc, type: 3}
+      propertyPath: m_Center.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6910638113337569, guid: cc97c7aeb6935dd44a1b4adbddb3ebdc, type: 3}
+      propertyPath: m_Center.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6910638113337569, guid: cc97c7aeb6935dd44a1b4adbddb3ebdc, type: 3}
       propertyPath: m_IsTrigger
       value: 0
       objectReference: {fileID: 0}
@@ -1853,15 +1865,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6910638113337581, guid: cc97c7aeb6935dd44a1b4adbddb3ebdc, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.193732
+      value: 17.73
       objectReference: {fileID: 0}
     - target: {fileID: 6910638113337581, guid: cc97c7aeb6935dd44a1b4adbddb3ebdc, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.6680197
+      value: 0.18
       objectReference: {fileID: 0}
     - target: {fileID: 6910638113337581, guid: cc97c7aeb6935dd44a1b4adbddb3ebdc, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 7.1391993
+      value: -28.04
       objectReference: {fileID: 0}
     - target: {fileID: 6910638113337581, guid: cc97c7aeb6935dd44a1b4adbddb3ebdc, type: 3}
       propertyPath: m_LocalRotation.w
@@ -11318,6 +11330,8 @@ MonoBehaviour:
   isGameClear: 0
   bulletDamage: 10
   moneyUI: {fileID: 1636939063}
+  hitParticle: {fileID: 5024009746357069192, guid: ec3f674830402cc45bce805cf6493db7, type: 3}
+  damageTextPrefab: {fileID: 7442387520519593891, guid: 24c2159eacc3caa4eafc8b88ddadeb13, type: 3}
 --- !u!4 &1854756347
 Transform:
   m_ObjectHideFlags: 0

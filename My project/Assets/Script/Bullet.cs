@@ -4,16 +4,11 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
+    public static event System.Action<Vector3> OnBulletHit;
     float destroyTime = 5f;
     float timer;
 
-    ParticleSystem hitParticle;
-    Rigidbody bulletRigidbody;
-
-    private void Start()
-    {
-        hitParticle = GetComponentInChildren<ParticleSystem>();
-    }
+    //[SerializeField] ParticleSystem hitParticle;
 
     // Update is called once per frame
     void Update()
@@ -27,16 +22,23 @@ public class Bullet : MonoBehaviour
         if (collision.gameObject.tag == "Enemy")
         {
             ContactPoint cp = collision.contacts[0];
-            collision.gameObject.GetComponent<Enemy>().TakeDamageAndInstantiateText(GameManager.Instance.bulletDamage, cp.point.y + 2);
-            collision.gameObject.GetComponent<Enemy>().LookAtTarget(cp.point);
-            hitParticle.Play();
+            Vector3 bulletDirection = GetComponent<Rigidbody>().velocity.normalized;
+            collision.gameObject.GetComponent<Enemy>().TakeDamage(GameManager.Instance.bulletDamage);
+            collision.gameObject.GetComponent<Enemy>().LookAtDirection(-bulletDirection);
+
+            if (OnBulletHit == null) Debug.Log("null");
+            else Debug.Log("is");
+
+            OnBulletHit?.Invoke(cp.point);
         }
+
         if (collision.gameObject.tag == "BossEnemy")
         {
             collision.gameObject.GetComponent<BossEnemy>().TakeDamageAndInstantiateText(GameManager.Instance.bulletDamage);
-            hitParticle.Play();
         }
 
-        Destroy(this.gameObject, 0.05f);
+
+
+        Destroy(this.gameObject);
     }
 }

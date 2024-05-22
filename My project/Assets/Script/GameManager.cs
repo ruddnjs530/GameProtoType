@@ -25,6 +25,9 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] TextMeshProUGUI moneyUI;
 
+    [SerializeField] ParticleSystem hitParticle;
+    [SerializeField] GameObject damageTextPrefab;
+
     float time = 0f;
     private void Awake()
     {
@@ -47,6 +50,16 @@ public class GameManager : MonoBehaviour
             }
             return instance;
         }
+    }
+
+    private void OnEnable()
+    {
+        Bullet.OnBulletHit += HandleBulletHit;
+    }
+
+    private void OnDisable()
+    {
+        Bullet.OnBulletHit -= HandleBulletHit;
     }
 
     // Start is called before the first frame update
@@ -77,6 +90,40 @@ public class GameManager : MonoBehaviour
                 SceneManager.LoadScene("GameOverScene");
         }    
     }
+
+    private void HandleBulletHit(Vector3 hitPosition)
+    {
+        if (hitParticle != null)
+        {
+            ParticleSystem hitParticleInstance = Instantiate(hitParticle, hitPosition, Quaternion.identity);
+            ParticleSystem particleSystem = hitParticleInstance.GetComponent<ParticleSystem>();
+            if (particleSystem != null)
+            {
+                particleSystem.Play();
+                Destroy(hitParticleInstance, particleSystem.main.duration);
+            }
+        }
+
+        if (damageTextPrefab != null)
+        {
+            GameObject textInstance = Instantiate(damageTextPrefab, MakeRandomPosition(hitPosition), Quaternion.identity);
+            DamageText damageText = textInstance.GetComponent<DamageText>();
+            if (damageText != null)
+            {
+                damageText.damage = bulletDamage;
+            }
+        }
+    }
+
+    Vector3 MakeRandomPosition(Vector3 textPosition)
+    {
+        float rand = Random.Range(-0.5f, 0.5f);
+        textPosition.x += rand;
+        textPosition.y = transform.position.y + 4;
+        textPosition.z += rand;
+        return textPosition;
+    }
+
     public void IncreaseMoney(int price)
     {
         money += price;
