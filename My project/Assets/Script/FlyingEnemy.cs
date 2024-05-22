@@ -18,26 +18,29 @@ public class FlyingEnemy : Enemy
     private float timeBetweenMoves = 1f;
     private float timeSinceLastMove = 0f;
 
+    Quaternion originalRotation;
+
     protected override void Start()
     {
         base.Start();
+
+        originalRotation = enemyBody.rotation;
     }
 
     protected override void Update()
     {
         base.Update();
 
-        if (enemyState == EnemyState.Idle || enemyState == EnemyState.SimpleMove)
+        if (enemyState != EnemyState.Attack && Mathf.Abs(Mathf.DeltaAngle(enemyBody.rotation.x, originalRotation.x)) > 0.1f)
         {
-            timeSinceLastMove += Time.deltaTime;
-            if (timeSinceLastMove >= timeBetweenMoves)
-            {
-                SetRandomTargetPosition();
-                timeSinceLastMove = 0f;
-            }
-            enemyBody.position = Vector3.Lerp(enemyBody.position, targetPosition, Time.deltaTime * 0.3f);
+            Vector3 currentEulerAngles = enemyBody.rotation.eulerAngles;
+            Vector3 originalEulerAngles = originalRotation.eulerAngles;
+
+            float newX = Mathf.LerpAngle(currentEulerAngles.x, originalEulerAngles.x, 0.1f);
+
+            Quaternion newRotation = Quaternion.Euler(newX, currentEulerAngles.y, currentEulerAngles.z);
+            enemyBody.rotation = Quaternion.Slerp(transform.rotation, newRotation, Time.deltaTime * 0.3f);
         }
-        else enemyBody.position = Vector3.Lerp(enemyBody.position, transform.position + new Vector3(0f, 4.25f, 0f), Time.deltaTime * 0.3f);
     }
 
     protected override void Attack()
@@ -58,13 +61,6 @@ public class FlyingEnemy : Enemy
         }
     }
 
-    void SetRandomTargetPosition()
-    {
-        // 랜덤한 방향으로 이동할 목표 위치 설정
-        float randomAngle = Random.Range(0f, 360f);
-        targetPosition = enemyBody.position + Quaternion.Euler(0f, randomAngle, 0f) * Vector3.forward * 2f;
-    }
-
     void LookAt(Transform target)
     {
         Vector3 direction = target.position - enemyBody.position;
@@ -78,14 +74,6 @@ public class FlyingEnemy : Enemy
         {
             agentTarget = other.transform;
             isSeePlayer = true;
-            canAttack = true;
-        }
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        if (other.gameObject.tag == "Player")
-        {
             canAttack = true;
         }
     }

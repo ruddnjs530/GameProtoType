@@ -27,7 +27,6 @@ public class Bullet : MonoBehaviour
             collision.gameObject.GetComponent<Enemy>().LookAtDirection(-bulletDirection);
 
             if (OnBulletHit == null) Debug.Log("null");
-            else Debug.Log("is");
 
             OnBulletHit?.Invoke(cp.point);
         }
