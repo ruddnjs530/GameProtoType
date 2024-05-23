@@ -66,25 +66,51 @@ public class Enemy : MonoBehaviour
         switch (enemyState)
         {
             case EnemyState.Idle:
-                LookAround();
+                if (currentHP <= 0)
+                {
+                    enemyState = EnemyState.Die;
+                    break;
+                }
+                else if (isSeePlayer)
+                {
+                    enemyState = EnemyState.Chase;
+                    break;
+                }
+                else if (currentTime >= 1f)
+                {
+                    enemyState = EnemyState.SimpleMove;
+                    break;
+                }
+
+                //LookAround();
                 currentTime += Time.deltaTime;
-                if (currentHP <= 0) enemyState = EnemyState.Die;
-                else if(isSeePlayer) enemyState = EnemyState.Chase;
-                else if (currentTime >= 1f) enemyState = EnemyState.SimpleMove;
+
                 break;
 
             case EnemyState.SimpleMove:
+                if (currentHP <= 0)
+                {
+                    enemyState = EnemyState.Die;
+                    break;
+                }
+                else if (isSeePlayer)
+                {
+                    enemyState = EnemyState.Chase;
+                    break;
+                }
+                else if (currentTime == 0)
+                {
+                    enemyState = EnemyState.Idle;
+                    break;
+                }
+
                 ReSetDestination();
                 SimpleMove();
                 currentTime = 0;
-                if (currentHP <= 0) enemyState = EnemyState.Die;
-                else if (isSeePlayer) enemyState = EnemyState.Chase;
-                else enemyState = EnemyState.Idle;
 
                 break;
 
             case EnemyState.Chase:
-                Chase();
                 if (currentHP <= 0) enemyState = EnemyState.Die;
                 else if (canAttack)
                 {
@@ -99,10 +125,10 @@ public class Enemy : MonoBehaviour
                     break;
                 }
                 currentTime = 0;
+                Chase();
                 break;
 
             case EnemyState.Attack:
-                Attack();
                 if (currentHP <= 0)
                 {
                     anim.SetBool("Attack", false);
@@ -115,6 +141,7 @@ public class Enemy : MonoBehaviour
                     enemyState = EnemyState.Idle;
                     break;
                 }
+                Attack();
                 break;
 
             case EnemyState.Die:
@@ -148,19 +175,20 @@ public class Enemy : MonoBehaviour
 
     private void LookAround()
     {
-        int randomAngle = Random.Range(-1, 1);
+        float randomAngle = Random.Range(-180f, 180f);
         transform.Rotate(Vector3.up * Time.deltaTime * 5f * randomAngle);
     }
 
     private void ReSetDestination() // 목표 재설정.
     {
-        //agent.ResetPath();
-        destination.Set(Random.Range(-1.0f, 1.0f), 0f, Random.Range(-0.5f, 1f));
+        float randomX = Random.Range(-180.0f, 180.0f);
+        float randomZ = Random.Range(-180.0f, 180.0f);
+        destination = new Vector3(randomX, 0f, randomZ);
     }
 
     private void SimpleMove() // destination으로 이동.
     {
-        agent.SetDestination(transform.position + destination * 4f);
+        agent.SetDestination(destination);
         agent.speed = walkSpeed;
     }
 
