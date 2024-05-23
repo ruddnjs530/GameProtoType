@@ -25,7 +25,7 @@ public class NomalEnemy : Enemy
         if (attackDelay == 0)
         {
             agentTarget.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
-            attackDelay = 2f;
+            attackDelay = 1f;
         }
     }
 

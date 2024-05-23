@@ -8,13 +8,19 @@ public enum EnemyState { Idle, SimpleMove, Chase, Attack, Die }
 
 public struct EnemyData
 {
-    public Vector3 position; // public으로 사용하려면 대문자로
-    public int enemyID;
-    public float GetDistance(Vector3 turretPos)
+    public Transform Transform { get; set; } // public으로 사용하려면 대문자로
+    public int EnemyDataID { get; set; }
+
+    public EnemyData(Transform transform, int enemyID)
     {
-        return Vector3.Distance(turretPos, position);
+        this.Transform = transform;
+        this.EnemyDataID = enemyID;
     }
 
+    public float GetDistance(Vector3 targetPosition)
+    {
+        return Vector3.Distance(targetPosition, Transform.position);
+    }
 }
 
 public class Enemy : MonoBehaviour
@@ -24,7 +30,7 @@ public class Enemy : MonoBehaviour
     protected Vector3 destination;
     protected float walkSpeed = 3f;
     protected float chaseSpeed = 6f;
-    public float maxHP = 100; // 프로퍼티
+    public float MaxHP { get; set; } = 100;
     protected float currentHP = 100;
 
     protected EnemyState enemyState;
@@ -47,7 +53,7 @@ public class Enemy : MonoBehaviour
 
     private Coroutine currentCoroutine;
 
-    public int enemyID; // public으로 사용하려면 대문자로. 근데 프로퍼티로 만들기
+    public int EnemyID { get; set; }
 
     // Start is called before the first frame update
     protected virtual void Start()
@@ -56,7 +62,7 @@ public class Enemy : MonoBehaviour
         anim = GetComponent<Animator>();
         enemyState = EnemyState.Idle;
 
-        healthBar = new HealthBar(hpBar, maxHP, true);
+        healthBar = new HealthBar(hpBar, MaxHP, true);
         healthBar.Hide();
     }
 
@@ -151,7 +157,7 @@ public class Enemy : MonoBehaviour
 
         if (hpBar != null)
         {
-            hpBar.value = currentHP / maxHP;
+            hpBar.value = currentHP / MaxHP;
         }
     }
 
@@ -182,7 +188,7 @@ public class Enemy : MonoBehaviour
     private void ReSetDestination() // 목표 재설정.
     {
         float randomX = Random.Range(-180.0f, 180.0f);
-        float randomZ = Random.Range(-180.0f, 180.0f);
+        float randomZ = Random.Range(-1.0f, 180.0f);
         destination = new Vector3(randomX, 0f, randomZ);
     }
 
@@ -225,6 +231,7 @@ public class Enemy : MonoBehaviour
     {
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = lookRotation;
+        enemyState = EnemyState.Chase;
     }
 }
 

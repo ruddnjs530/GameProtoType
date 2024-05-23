@@ -14,9 +14,6 @@ public class FlyingEnemy : Enemy
     float timer = 0.0f;
 
     [SerializeField] Transform enemyBody;
-    Vector3 targetPosition;
-    private float timeBetweenMoves = 1f;
-    private float timeSinceLastMove = 0f;
 
     Quaternion originalRotation;
 

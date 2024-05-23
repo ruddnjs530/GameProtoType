@@ -14,15 +14,13 @@ public class TurretObject : MonoBehaviour
 
     float hp = 100;
 
-    Quaternion correctRotation;
+    Quaternion originalRotation;
 
     GameObject attackTarget;
 
     int queueMaxSize = 50;
-    Enemy[] priorityQueue;
+    EnemyData[] priorityQueue;
     int currentQueueCount = 0;
-
-    EnemyData[] enemyQueue;
 
     public delegate void AttackStateHandler();
     public event AttackStateHandler OnIsAttack;
@@ -30,11 +28,10 @@ public class TurretObject : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        priorityQueue = new Enemy[queueMaxSize];
-        enemyQueue = new EnemyData[queueMaxSize];
+        priorityQueue = new EnemyData[queueMaxSize];
 
         turretState = TurretState.Idle;
-        correctRotation = new Quaternion(transform.rotation.x, 0, transform.rotation.z, transform.rotation.w);
+        originalRotation = transform.rotation;
 
         attackTarget = null;
         var drone = GetComponentInParent<DroneObject>();
@@ -47,7 +44,6 @@ public class TurretObject : MonoBehaviour
         switch (turretState)
         {
             case TurretState.Idle:
-                transform.Rotate(new Vector3(0, 45, 0) * Time.deltaTime);
                 if (hp <= 0)
                 {
                     turretState = TurretState.Die;
@@ -58,6 +54,13 @@ public class TurretObject : MonoBehaviour
                     turretState = TurretState.Attack;
                     break;
                 }
+
+                if (Mathf.Abs(Mathf.DeltaAngle(transform.rotation.x, originalRotation.x)) > 0.1f)
+                {
+                    transform.rotation = Quaternion.Slerp(transform.rotation, originalRotation, Time.deltaTime);
+                }
+
+                transform.Rotate(new Vector3(0, 45, 0) * Time.deltaTime);
                 break;
 
             case TurretState.Attack:
@@ -77,14 +80,15 @@ public class TurretObject : MonoBehaviour
         }
     }
 
-    private void OnTriggerStay(Collider other) 
+    private void OnTriggerEnter(Collider other) 
     {
         if (other.gameObject.tag == "Enemy")
         {
             if (turretState == TurretState.Idle)
             {
-                priorityQueueEnqueue(other.gameObject.GetComponent<Enemy>());
+                priorityQueueEnqueue(new EnemyData(other.transform, other.GetComponent<Enemy>().EnemyID));
             }
+
             //if (turretState == TurretState.Idle)
             //{
             //    turretState = TurretState.Attack;
@@ -103,7 +107,6 @@ public class TurretObject : MonoBehaviour
             if (other.gameObject == attackTarget)
             {
                 attackTarget = null;
-                transform.rotation = Quaternion.Slerp(transform.rotation, correctRotation, 0.1f);
                 turretState = TurretState.Idle;
                 return;
             }
@@ -142,20 +145,6 @@ public class TurretObject : MonoBehaviour
         return distance;
     }
 
-    private float DistanceWithEnemy(Enemy enemy)
-    {
-        float distance = Vector3.Distance(enemy.transform.position, this.transform.position);
-        return distance;
-    }
-
-    private int CompareEnemiesDistance(EnemyData e1, EnemyData e2)
-    {
-        float distance1 = e1.GetDistance(this.transform.position);
-        float distance2 = e2.GetDistance(this.transform.position);
-        return distance1.CompareTo(distance2);
-    }
-
-
     private void Attack(GameObject target)
     {
         if (target == null) return;
@@ -178,22 +167,22 @@ public class TurretObject : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private void priorityQueueEnqueue(Enemy obj)
+    private void priorityQueueEnqueue(EnemyData enemyData)
     {
         for (int i = 0; i < currentQueueCount; i++)
         {
-            if (priorityQueue[i] == obj) return;
+            if (priorityQueue[i].EnemyDataID == enemyData.EnemyDataID) return;
         }
 
         if (currentQueueCount >= queueMaxSize)
         {
             queueMaxSize *= 2;
-            Enemy[] newQueue = new Enemy[queueMaxSize];
+            EnemyData[] newQueue = new EnemyData[queueMaxSize];
             System.Array.Copy(priorityQueue, newQueue, currentQueueCount);
             priorityQueue = newQueue;
         }
 
-        priorityQueue[currentQueueCount] = obj;
+        priorityQueue[currentQueueCount] = enemyData;
         currentQueueCount++;
 
         int currentIndex = currentQueueCount - 1;
@@ -201,7 +190,7 @@ public class TurretObject : MonoBehaviour
         while (currentIndex > 0)
         {
             int parentIndex = (currentIndex - 1) / 2;
-            if (DistanceWithEnemy(priorityQueue[parentIndex]) > DistanceWithEnemy(priorityQueue[currentIndex]))
+            if (priorityQueue[parentIndex].GetDistance(this.transform.position) > priorityQueue[currentIndex].GetDistance(this.transform.position))
             {
                 Swap(currentIndex, parentIndex);
                 currentIndex = parentIndex;
@@ -217,7 +206,7 @@ public class TurretObject : MonoBehaviour
     {
         if (currentQueueCount == 0) return null;
 
-        GameObject target = priorityQueue[0].gameObject;
+        GameObject target = priorityQueue[0].Transform.gameObject;
 
         priorityQueue[0] = priorityQueue[currentQueueCount - 1];
         currentQueueCount--;
@@ -241,12 +230,12 @@ public class TurretObject : MonoBehaviour
             int leftIndex = 2 * currentIndex + 1;
             int rightIndex = 2 * currentIndex + 2;
 
-            if (leftIndex <= lastIndex && DistanceWithEnemy(priorityQueue[leftIndex]) < DistanceWithEnemy(priorityQueue[currentIndex]))
+            if (leftIndex <= lastIndex && priorityQueue[leftIndex].GetDistance(this.transform.position) < priorityQueue[currentIndex].GetDistance(this.transform.position))
             {
                 currentIndex = leftIndex;
                 Swap(currentIndex, leftIndex);
             }
-            else if (rightIndex <= lastIndex && DistanceWithEnemy(priorityQueue[rightIndex]) < DistanceWithEnemy(priorityQueue[currentIndex]))
+            else if (rightIndex <= lastIndex && priorityQueue[rightIndex].GetDistance(this.transform.position) < priorityQueue[currentIndex].GetDistance(this.transform.position))
             {
                 currentIndex = rightIndex;
                 Swap(currentIndex, rightIndex);
@@ -257,7 +246,7 @@ public class TurretObject : MonoBehaviour
 
     private void Swap(int index1, int index2)
     {
-        Enemy temp = priorityQueue[index1];
+        EnemyData temp = priorityQueue[index1];
         priorityQueue[index1] = priorityQueue[index2];
         priorityQueue[index2] = temp;
     }
@@ -266,7 +255,7 @@ public class TurretObject : MonoBehaviour
     {
         for (int i = 0; i < currentQueueCount -1; i++)
         {
-            if (priorityQueue[i] == targetEnemy)
+            if (priorityQueue[i].EnemyDataID == targetEnemy.EnemyID)
             {
                 priorityQueue[i] = priorityQueue[currentQueueCount - 1];
                 currentQueueCount--;
@@ -274,7 +263,7 @@ public class TurretObject : MonoBehaviour
             }
         }
 
-        if (attackTarget == targetEnemy.gameObject)
+        if (attackTarget != null && attackTarget == targetEnemy.gameObject)
         {
             attackTarget = null;
             turretState = TurretState.Idle;
@@ -293,7 +282,6 @@ public class TurretObject : MonoBehaviour
     private void HandleDroneTooFar()
     {
         attackTarget = null;
-        transform.rotation = Quaternion.Slerp(transform.rotation, correctRotation, 0.1f);
         turretState = TurretState.Idle;
     }
 }
