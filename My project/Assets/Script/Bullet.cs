@@ -5,13 +5,13 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     public static event System.Action<Vector3> OnBulletHit;
-    float destroyTime = 5f;
-    float timer;
+   private  float destroyTime = 5f;
+    private float timer;
 
     //[SerializeField] ParticleSystem hitParticle;
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         timer += Time.deltaTime;
         if (timer >= destroyTime) Destroy(this.gameObject);

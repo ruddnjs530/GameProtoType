@@ -6,20 +6,15 @@ public class Mouse : MonoBehaviour
 {
 
     [SerializeField]
-    float mouseSense = 1;
-    float xAxis;
-    float yAxis;
+    private float mouseSense = 1;
+    private float xAxis;
+    private float yAxis;
     [SerializeField]
-    Transform cameraFollowPos;
+    private Transform cameraFollowPos;
 
     public Transform aimPos;
-    [SerializeField] float aimSpeed = 20;
-    [SerializeField] LayerMask aimMask;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
+    [SerializeField] private float aimSpeed = 20;
+    [SerializeField] private LayerMask aimMask;
 
     // Update is called once per frame
     void Update()

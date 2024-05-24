@@ -9,43 +9,43 @@ using UnityEngine.UI;
 public enum BossState { Die, Attack, MoveToPlayer}
 public class BossEnemy : MonoBehaviour
 {
-    BossState bossState;
-    Transform target;
-    float walkSpeed = 2f;
+    private BossState bossState;
+    private Transform target;
+    private float walkSpeed = 2f;
 
-    [SerializeField] Transform shotPos;
-    LineRenderer laserLine;
-    float laserRange = 15f;
-    float laserDuration = 0.5f;
+    [SerializeField] private Transform shotPos;
+    private LineRenderer laserLine;
+    private float laserRange = 15f;
+    private float laserDuration = 0.5f;
 
-    float attackDamage = 10.0f;
+    private float attackDamage = 10.0f;
 
     public GameObject textObject;
-    float currentHP = 450;
-    float maxHP = 10000f;
+    private float currentHP = 450;
+    private float maxHP = 10000f;
 
-    Animator anim;
+    private Animator anim;
 
-    NavMeshAgent agent;
+    private NavMeshAgent agent;
 
-    [SerializeField] AnimationCurve HeightCurve;
-    float jumpSpeed = 2f;
-    int jumpDamage = 5;
+    [SerializeField] private AnimationCurve HeightCurve;
+    private float jumpSpeed = 2f;
+    private int jumpDamage = 5;
 
-    float levitationAttackRange = 20f;
-    [SerializeField] LayerMask playerLayer;
-    float levitationAttackAngle = 90f;
-    [SerializeField] Projector projector;
+    private float levitationAttackRange = 20f;
+    [SerializeField] private LayerMask playerLayer;
+    private float levitationAttackAngle = 90f;
+    [SerializeField] private Projector projector;
 
-    bool isAttacking = false;
+    private bool isAttacking = false;
 
-    List<BossSkill> skills = new List<BossSkill>();
-    BossSkill currentSkill;
+    private List<BossSkill> skills = new List<BossSkill>();
+    private BossSkill currentSkill;
 
-    [SerializeField] Slider hpBar;
-    HealthBar healthBar;
+    [SerializeField] private Slider hpBar;
+    private HealthBar healthBar;
 
-    bool canLaserAttack = false;
+    private bool canLaserAttack = false;
 
     // Start is called before the first frame update
     void Start()
@@ -92,6 +92,7 @@ public class BossEnemy : MonoBehaviour
                     anim.SetBool("isWalking", true);
                     agent.isStopped = false;
                     bossState = BossState.MoveToPlayer;
+                    break;
                 }
 
                 if (isAttacking == false)
@@ -155,7 +156,7 @@ public class BossEnemy : MonoBehaviour
         }
     }
 
-    IEnumerator JumpAttack(Vector3 targetPosition)
+    private IEnumerator JumpAttack(Vector3 targetPosition)
     {
         isAttacking = true;
         anim.SetTrigger("jumpAttack");
@@ -174,7 +175,7 @@ public class BossEnemy : MonoBehaviour
         isAttacking = false;
     }
 
-    IEnumerator LaserAttack(Vector3 targetPosition)
+    private IEnumerator LaserAttack(Vector3 targetPosition)
     {
         isAttacking = true;
 
@@ -210,7 +211,7 @@ public class BossEnemy : MonoBehaviour
         isAttacking = false;
     }
 
-    IEnumerator levitationAttack(Collider player) 
+    private IEnumerator levitationAttack(Collider player) 
     {
         isAttacking = true;
         agent.updateRotation = false;
@@ -244,7 +245,7 @@ public class BossEnemy : MonoBehaviour
         isAttacking = false;
     }
 
-    IEnumerator ApplyKnockback(CharacterController controller)
+    private IEnumerator ApplyKnockback(CharacterController controller)
     {
         Vector3 knockbackForce = new Vector3(0, 10, 0); 
         float timer = 0;
@@ -268,7 +269,7 @@ public class BossEnemy : MonoBehaviour
         bossState = BossState.Attack;
     }
 
-    void UpdateSkill()
+    private void UpdateSkill()
     {
         foreach (var skill in skills)
         {
@@ -278,7 +279,7 @@ public class BossEnemy : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Player")
+        if (other.CompareTag("Player"))
         {
             anim.SetBool("isWalking", false);
             agent.isStopped = true;
@@ -289,7 +290,7 @@ public class BossEnemy : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.tag == "Player")
+        if (other.CompareTag("Player"))
         {
             anim.SetBool("isWalking", false);
             agent.isStopped = true;
@@ -299,7 +300,7 @@ public class BossEnemy : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "Player")
+        if (other.CompareTag("Player"))
         {
             canLaserAttack = false;
             target = other.transform;
@@ -317,7 +318,7 @@ public class BossEnemy : MonoBehaviour
         anim.SetTrigger("isHit");
     }
 
-    Vector3 MakeRandomPosition()
+    private Vector3 MakeRandomPosition()
     {
         Vector3 textPosition;
         float rand = UnityEngine.Random.Range(-0.5f, 0.5f);
@@ -327,7 +328,7 @@ public class BossEnemy : MonoBehaviour
         return textPosition;
     }
 
-    void CheckDeath()
+    private void CheckDeath()
     {
         if (currentHP <= 0)
         {

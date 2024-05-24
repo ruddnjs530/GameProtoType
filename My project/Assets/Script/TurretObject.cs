@@ -7,26 +7,26 @@ public enum TurretState { Idle, Attack, Die }
 public class TurretObject : MonoBehaviour
 {
     public TurretState turretState;
-    [SerializeField] GameObject bulletPrefab;
-    [SerializeField] Transform firePos;
-    float rateOfFire = 1f;
-    float currentRateOfFire = 1f;
+    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private Transform firePos;
+    private float rateOfFire = 1f;
+    private float currentRateOfFire = 1f;
 
-    float hp = 100;
+    private float hp = 100;
 
-    Quaternion originalRotation;
+    private Quaternion originalRotation;
 
-    GameObject attackTarget;
+    private GameObject attackTarget;
 
-    int queueMaxSize = 50;
-    EnemyData[] priorityQueue;
-    int currentQueueCount = 0;
+    private int queueMaxSize = 50;
+    private EnemyData[] priorityQueue;
+    private int currentQueueCount = 0;
 
     public delegate void AttackStateHandler();
     public event AttackStateHandler OnIsAttack;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         priorityQueue = new EnemyData[queueMaxSize];
 
@@ -39,7 +39,7 @@ public class TurretObject : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         switch (turretState)
         {
@@ -82,7 +82,7 @@ public class TurretObject : MonoBehaviour
 
     private void OnTriggerEnter(Collider other) 
     {
-        if (other.gameObject.tag == "Enemy")
+        if (other.CompareTag("Enemy"))
         {
             if (turretState == TurretState.Idle)
             {
@@ -102,7 +102,7 @@ public class TurretObject : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "Enemy")
+        if (other.CompareTag("Enemy"))
         {
             if (other.gameObject == attackTarget)
             {
@@ -122,7 +122,7 @@ public class TurretObject : MonoBehaviour
         //}
     }
 
-    GameObject NearestObj(GameObject obj)
+    private GameObject NearestObj(GameObject obj)
     {
         List<GameObject> objs = new List<GameObject>();
         objs.Add(obj);
@@ -139,7 +139,7 @@ public class TurretObject : MonoBehaviour
         return nearestObj;
     }
 
-    float DistanceWithEnemy2(GameObject enemy)
+    private float DistanceWithEnemy2(GameObject enemy)
     {
         float distance = Vector3.Distance(enemy.transform.position, this.transform.position);
         return distance;
@@ -148,7 +148,8 @@ public class TurretObject : MonoBehaviour
     private void Attack(GameObject target)
     {
         if (target == null) return;
-        Vector3 direction = target.transform.position - transform.position;
+        Enemy enemy = target.GetComponent<Enemy>();
+        Vector3 direction = enemy.EnemyBody.transform.position - transform.position;
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
         currentRateOfFire += Time.deltaTime;

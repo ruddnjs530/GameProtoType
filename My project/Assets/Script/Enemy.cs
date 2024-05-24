@@ -8,7 +8,7 @@ public enum EnemyState { Idle, SimpleMove, Chase, Attack, Die }
 
 public struct EnemyData
 {
-    public Transform Transform { get; set; } // public으로 사용하려면 대문자로
+    public Transform Transform { get; set; }
     public int EnemyDataID { get; set; }
 
     public EnemyData(Transform transform, int enemyID)
@@ -39,21 +39,24 @@ public class Enemy : MonoBehaviour
     public bool canAttack = true;
     protected float attackDelay = 2f;
 
-    [SerializeField] GameObject textObject;
+    [SerializeField] private GameObject textObject;
 
     protected bool isSeePlayer = false;
 
-    Animator anim;
+    private Animator anim;
 
     public delegate void EnemyDied(Enemy enemy);
     public event EnemyDied OnEnemyDied;
 
     [SerializeField] protected Slider hpBar;
-    HealthBar healthBar;
+    private HealthBar healthBar;
 
     private Coroutine currentCoroutine;
 
     public int EnemyID { get; set; }
+
+    [SerializeField] protected Transform enemyBody;
+    public Transform EnemyBody { get { return enemyBody; } }
 
     // Start is called before the first frame update
     protected virtual void Start()
@@ -87,8 +90,6 @@ public class Enemy : MonoBehaviour
                     enemyState = EnemyState.SimpleMove;
                     break;
                 }
-
-                //LookAround();
                 currentTime += Time.deltaTime;
 
                 break;
@@ -177,12 +178,6 @@ public class Enemy : MonoBehaviour
             if (currentCoroutine != null) StopCoroutine(currentCoroutine);
             currentCoroutine = StartCoroutine(healthBar.ShwoAndHide());
         }
-    }
-
-    private void LookAround()
-    {
-        float randomAngle = Random.Range(-180f, 180f);
-        transform.Rotate(Vector3.up * Time.deltaTime * 5f * randomAngle);
     }
 
     private void ReSetDestination() // 목표 재설정.

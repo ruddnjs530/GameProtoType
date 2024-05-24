@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class NomalEnemy : Enemy
 {
-    int nomalPrice = 20;
-    float attackDamage = 3f;
+    private int nomalPrice = 20;
+    private float attackDamage = 3f;
 
     protected override void Start()
     {
@@ -31,7 +31,7 @@ public class NomalEnemy : Enemy
 
     private void OnTriggerEnter(Collider other) // 지금 콜라이더를 오브젝트 앞으로 이동 시켜서 뒤에서 왔을 때는 보지 못하게 함.
     {
-        if (other.gameObject.tag == "Player") // 원래는 여기서 canAttack도 true, false로 해줬는데 콜라이더를 나눠서 enemyCanAttack 스크립트에서 관리하게 함.
+        if (other.CompareTag("Plyaer")) // 원래는 여기서 canAttack도 true, false로 해줬는데 콜라이더를 나눠서 enemyCanAttack 스크립트에서 관리하게 함.
         {
             agentTarget = other.transform;
             isSeePlayer = true;
@@ -41,7 +41,7 @@ public class NomalEnemy : Enemy
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "Player")
+        if (other.CompareTag("Plyaer"))
         {
             canAttack = false;
             isSeePlayer = false;

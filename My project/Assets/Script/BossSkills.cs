@@ -5,8 +5,8 @@ using System;
 
 public class BossSkill
 {
-    string skillName;
-    float coolTime;
+    private string skillName;
+    private float coolTime;
     public float lastUsedTime;
 
     public event Action<BossSkill> OnCooldownFinished;

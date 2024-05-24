@@ -5,12 +5,12 @@ using TMPro;
 
 public class ItemBox : MonoBehaviour
 {
-    bool isPlayerEnter = false;
+    private bool isPlayerEnter = false;
 
-    [SerializeField] TextMeshPro itemPriceUI;
-    [SerializeField] GameObject[] items;
+    [SerializeField] private TextMeshPro itemPriceUI;
+    [SerializeField] private GameObject[] items;
 
-    int itemPrice = 15;
+    private int itemPrice = 15;
     // Start is called before the first frame update
     void Start()
     {
@@ -30,12 +30,12 @@ public class ItemBox : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Player") isPlayerEnter = true;
+        if (other.CompareTag("Plyaer")) isPlayerEnter = true;
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "Player") isPlayerEnter = false;
+        if (other.CompareTag("Plyaer")) isPlayerEnter = false;
     }
 
 }

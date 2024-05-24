@@ -9,48 +9,48 @@ public enum PlayerState { Idle, Move, Attack, Die }
 public class Player : MonoBehaviour
 {
     [SerializeField]
-    float moveSpeed = 5;
-    float hzInput;
-    float vInput;
-    Vector3 dir;
-    CharacterController cc;
+    private float moveSpeed = 5;
+    private float hzInput;
+    private float vInput;
+    private Vector3 dir;
+    private CharacterController cc;
 
     [SerializeField]
-    float groundYOffset;
+    private float groundYOffset;
     [SerializeField]
-    LayerMask groundMask;
+    private LayerMask groundMask;
 
     [SerializeField]
-    float gravity = -9.8f;
-    Vector3 velocity;
+    private float gravity = -9.8f;
+    private Vector3 velocity;
 
-    float jumpSpeed = 5;
+    private float jumpSpeed = 5;
 
     public Animator anim;
 
     PlayerState playerState = PlayerState.Idle;
 
-    float maxHP = 100f;
-    float currentHP = 100f;
-    [SerializeField] Slider hpBar;
-    HealthBar healthBar;
+    private float maxHP = 100f;
+    private float currentHP = 100f;
+    [SerializeField] private Slider hpBar;
+    private HealthBar healthBar;
 
-    [SerializeField] Inventory theInventory;
+    [SerializeField] private Inventory theInventory;
 
     [SerializeField] public Transform characterBody;
-    [SerializeField] Transform cameraArm;
+    [SerializeField] private Transform cameraArm;
     public Transform aimPos;
-    [SerializeField] float aimSpeed = 20;
-    [SerializeField] LayerMask aimMask;
+    [SerializeField] private float aimSpeed = 20;
+    [SerializeField] private LayerMask aimMask;
 
-    bool isDiveRoll = false;
+    private bool isDiveRoll = false;
 
-    float lastInputTime;
-    float inputBufferTime = 0.01f;
+    private float lastInputTime;
+    private float inputBufferTime = 0.01f;
 
-    [SerializeField] Image coolTimeImage;
-    float maxCoolTime = 1.0f;
-    CoolTime coolTime;
+    [SerializeField] private Image coolTimeImage;
+    private float maxCoolTime = 1.0f;
+    private CoolTime coolTime;
 
     // Start is called before the first frame update
     void Start()
@@ -163,7 +163,7 @@ public class Player : MonoBehaviour
         healthBar.SetHealth(currentHP);
     }
 
-    void Move()
+    private void Move()
     {
         if (isDiveRoll) return;
 
@@ -198,7 +198,7 @@ public class Player : MonoBehaviour
         anim.SetFloat("vertical", vInput);
     }
 
-    IEnumerator DiveRoll()
+    private IEnumerator DiveRoll()
     {
         if (Input.GetKeyDown(KeyCode.LeftShift) && !isDiveRoll)
         {
@@ -223,7 +223,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    void Gravity()
+    private void Gravity()
     {
         if (!cc.isGrounded) velocity.y += gravity * Time.deltaTime;
         else velocity.y = 0;
@@ -231,7 +231,7 @@ public class Player : MonoBehaviour
         cc.Move(velocity * Time.deltaTime);
     }
 
-    void Jump()
+    private void Jump()
     {
         if (cc.isGrounded && Input.GetButton("Jump"))
         {
@@ -250,14 +250,14 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "HealthBuff")
+        if (other.CompareTag("HealthBuff"))
         {
             theInventory.AcquireItem(other.gameObject.transform.GetComponent<ItemManager>().healthBuff, 1);
             maxHP += 20;
             currentHP += 20;
             Destroy(other.gameObject);
         }
-        if (other.gameObject.tag == "DamageBuff")
+        if (other.CompareTag("DamageBuff"))
         {
             theInventory.AcquireItem(other.gameObject.transform.GetComponent<ItemManager>().damageBuff, 1);
             GameManager.Instance.bulletDamage += 2;

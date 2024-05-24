@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class CoolTime : MonoBehaviour
 {
-    [SerializeField] Image coolTimeImage;
+    [SerializeField] private Image coolTimeImage;
     private float maxCoolTime;
     private float currentCoolTime;
 

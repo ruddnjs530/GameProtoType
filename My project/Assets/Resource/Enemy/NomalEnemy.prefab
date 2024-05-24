@@ -103,11 +103,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b800f93bab2aa4c47bdee188c52bb2d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 100
   canAttack: 0
   textObject: {fileID: 7442387520519593891, guid: 24c2159eacc3caa4eafc8b88ddadeb13, type: 3}
   hpBar: {fileID: 8201950037486998224}
-  enemyID: 0
+  enemyBody: {fileID: 1598928724108174145}
 --- !u!195 &8409223503964833205
 NavMeshAgent:
   m_ObjectHideFlags: 0

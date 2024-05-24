@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
 
     public bool isMenuOpen = false;
 
-    public int money = 0;
+    public int money = 100;
 
     public bool isEnemyWave = false; // 포탈을 활성화 시켰을 때를 위한 웨이브 변수
 
@@ -23,12 +23,12 @@ public class GameManager : MonoBehaviour
 
     public int bulletDamage = 10;
 
-    [SerializeField] TextMeshProUGUI moneyUI;
+    [SerializeField] private TextMeshProUGUI moneyUI;
 
-    [SerializeField] ParticleSystem hitParticle;
-    [SerializeField] GameObject damageTextPrefab;
+    [SerializeField] private ParticleSystem hitParticle;
+    [SerializeField] private GameObject damageTextPrefab;
 
-    float time = 0f;
+    private float time = 0f;
     private void Awake()
     {
         if (instance == null)
@@ -115,7 +115,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    Vector3 MakeRandomPosition(Vector3 textPosition)
+    private Vector3 MakeRandomPosition(Vector3 textPosition)
     {
         float rand = Random.Range(-0.5f, 0.5f);
         textPosition.x += rand;

@@ -4,21 +4,22 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour
 {
-    [SerializeField] float fireRate = 2.0f;
-    float fireRateTimer;
+    [SerializeField] private float fireRate = 2.0f;
+    private float fireRateTimer;
 
-    [SerializeField] GameObject bullet;
-    [SerializeField] Transform barrelPos;
-    [SerializeField] float bulletVelocity;
-    [SerializeField] int bulletPerShot;
+    [SerializeField] private GameObject bullet;
+    [SerializeField] private Transform barrelPos;
+    [SerializeField] private float bulletVelocity;
+    [SerializeField] private int bulletPerShot;
 
-    Mouse aim;
+    private Mouse aim;
 
-    Light muzzleFlashLight;
-    ParticleSystem muzzleFlashParticles;
-    float lightIntensity;
-    [SerializeField] float lightReturnTime = 20;
-    Player player;
+    private Light muzzleFlashLight;
+    private ParticleSystem muzzleFlashParticles;
+    private float lightIntensity;
+    [SerializeField]
+    private float lightReturnTime = 20;
+    private Player player;
 
     // Start is called before the first frame update
     void Start()
@@ -40,7 +41,7 @@ public class Weapon : MonoBehaviour
         
     }
 
-    bool ShouldFire()
+    private bool ShouldFire()
     {
         fireRateTimer += Time.deltaTime;
         if (!GameManager.Instance.canPlayerMove) return false;
@@ -60,7 +61,7 @@ public class Weapon : MonoBehaviour
         return false;
     }
 
-    void Fire()
+    private void Fire()
     {
         fireRateTimer = 0;
         barrelPos.LookAt(aim.aimPos);
@@ -71,12 +72,10 @@ public class Weapon : MonoBehaviour
             GameObject currentBullet = Instantiate(bullet, barrelPos.position, barrelPos.rotation);
             Rigidbody rb = currentBullet.GetComponent<Rigidbody>();
             rb.AddForce(barrelPos.forward * bulletVelocity, ForceMode.Impulse);
-            //Vector3 aimDir = (aim.aimPos.position - barrelPos.position).normalized;
-            //Instantiate(bullet, barrelPos.position, Quaternion.LookRotation(aimDir, Vector3.up));
         }
     }
 
-    void muzzleFalsh()
+    private void muzzleFalsh()
     {
         muzzleFlashParticles.Play();
         muzzleFlashLight.intensity = lightIntensity;

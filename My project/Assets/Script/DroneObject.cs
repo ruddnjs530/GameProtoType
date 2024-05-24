@@ -5,12 +5,12 @@ using UnityEngine.AI;
 
 public class DroneObject : MonoBehaviour
 {
-    NavMeshAgent agent;
-    Transform agentTarget;
-    Vector3 destination;
+    private NavMeshAgent agent;
+    private Transform agentTarget;
+    private Vector3 destination;
 
     private enum DroneState { MoveToPlayer, Attack }
-    DroneState droneState;
+    private DroneState droneState;
 
     public delegate void DistanceEventHandler();
     public event DistanceEventHandler OnPlayerTooFar;
@@ -52,8 +52,6 @@ public class DroneObject : MonoBehaviour
                 break;
 
         }
-        //destination = agentTarget.position;
-        //agent.SetDestination(destination);
     }
 
     private float DistanceWithPlayer(Transform player)

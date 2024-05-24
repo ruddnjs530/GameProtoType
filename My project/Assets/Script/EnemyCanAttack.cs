@@ -6,7 +6,7 @@ public class EnemyCanAttack : MonoBehaviour
 {
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.tag == "Player")
+        if (other.CompareTag("Player"))
         {
             this.transform.GetComponentInParent<Enemy>().LookAtTarget(other);
 
@@ -16,7 +16,7 @@ public class EnemyCanAttack : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "Player")
+        if (other.CompareTag("Player"))
         {
             this.transform.GetComponentInParent<Enemy>().canAttack = false;
         }

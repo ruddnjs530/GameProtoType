@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class BloodShrine : MonoBehaviour
 {
-    float hp = 30f;
-    int money = 10;
-    GameObject player;
+    private float hp = 30f;
+    private int money = 10;
+    private GameObject player;
 
     private void Update()
     {
@@ -19,13 +19,13 @@ public class BloodShrine : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Player")
+        if (other.CompareTag("Plyaer"))
             player = other.gameObject;
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "Player")
+        if (other.CompareTag("Plyaer"))
             player = null;
     }
 }
