@@ -336,4 +336,11 @@ public class BossEnemy : MonoBehaviour
             bossState = BossState.Die;
         }
     }
+
+    public void SetHealthBar(Slider hpBar)
+    {
+        this.hpBar = hpBar;
+        hpBar.maxValue = maxHP;
+        hpBar.value = currentHP;
+    }
 }

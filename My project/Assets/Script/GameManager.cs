@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -28,13 +29,24 @@ public class GameManager : MonoBehaviour
     [SerializeField] private ParticleSystem hitParticle;
     [SerializeField] private GameObject damageTextPrefab;
 
+    private PlayerStatus playerStatus;
+    public List<GameObject> turrets = new List<GameObject>();
+    public List<GameObject> drones = new List<GameObject>();
+
+    [SerializeField] private GameObject boss;
+
+    [SerializeField] private Canvas canvas;
+
     private float time = 0f;
+
     private void Awake()
     {
         if (instance == null)
         {
             instance = this;
             DontDestroyOnLoad(this.gameObject);
+
+            if (canvas != null) DontDestroyOnLoad(canvas);
         }
         else
             Destroy(this.gameObject);
@@ -91,6 +103,72 @@ public class GameManager : MonoBehaviour
         }    
     }
 
+    public void InitializeBoss()
+    {
+        if (boss != null)
+        {
+            GameObject currentBoss = Instantiate(boss, Vector3.zero, Quaternion.identity);
+            BossEnemy bossComponent = currentBoss.GetComponent<BossEnemy>();
+            if (bossComponent != null)
+            {
+                Slider bossHealthBar = canvas.GetComponentInChildren<Slider>();
+                if (bossHealthBar != null)
+                {
+                    bossComponent.SetHealthBar(bossHealthBar);
+                }
+            }
+        }
+    }
+
+    public void SavePlayerStatus(Player player, Inventory inventory, List<GameObject> turrets, List<GameObject> drones)
+    {
+        List<InventoryItem> inventoryItems = inventory.GetItems();
+        playerStatus = new PlayerStatus(player.GetHP(), player.GetMaxHP(), money, inventoryItems, turrets, drones);
+    }
+
+    public void LoadPlayerStatus(Player player, Inventory inventory, List<GameObject> turrets, List<GameObject> drones)
+    {
+        if (playerStatus != null)
+        {
+            player.SetHP(playerStatus.currentHP);
+            player.SetMaxHP(playerStatus.maxHP);
+            money = playerStatus.money;
+            inventory.SetItems(playerStatus.inventoryItems);
+            turrets = playerStatus.turrets;
+            drones = playerStatus.drones;
+
+            foreach (var turret in playerStatus.turrets)
+            {
+                Instantiate(turret.gameObject, turret.gameObject.transform.position, turret.gameObject.transform.rotation);
+            }
+
+            foreach (var drone in playerStatus.drones)
+            {
+                Instantiate(drone.gameObject, drone.gameObject.transform.position, drone.gameObject.transform.rotation);
+            }
+        }
+    }
+
+    public void AddTurret(GameObject turret)
+    {
+        turrets.Add(turret);
+    }
+
+    public List<GameObject> GetTurrets()
+    {
+        return turrets;
+    }
+
+    public void AddDrone(GameObject drone)
+    {
+        drones.Add(drone);
+    }
+
+    public List<GameObject> GetDrones()
+    {
+        return drones;
+    }
+
     private void HandleBulletHit(Vector3 hitPosition)
     {
         if (hitParticle != null)
@@ -139,5 +217,5 @@ public class GameManager : MonoBehaviour
     public void UpdateMoney()
     {
         moneyUI.text = "$     " + money.ToString();
-    }    
+    }  
 }

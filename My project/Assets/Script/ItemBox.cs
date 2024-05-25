@@ -22,7 +22,29 @@ public class ItemBox : MonoBehaviour
     {
         if (isPlayerEnter && Input.GetKeyDown(KeyCode.E) && GameManager.Instance.money >= itemPrice)
         {
-            Instantiate(items[Random.Range(0,items.Length)], transform.position, Quaternion.identity);
+            GameObject item = Instantiate(items[Random.Range(0,items.Length)], transform.position, Quaternion.identity);
+
+            if (item.GetComponent<TurretObject>() != null)
+            {
+                GameManager.Instance.AddTurret(item);
+            }
+            if (item.GetComponent<DroneObject>() != null)
+            {
+                GameManager.Instance.AddTurret(item);
+            }
+
+            //GameObject turret = item.GetComponent<TurretObject>().gameObject;
+            //if (turret != null)
+            //{
+            //    GameManager.Instance.AddTurret(turret);
+            //}
+
+            //GameObject drone = item.GetComponent<DroneObject>().gameObject;
+            //if (drone != null)
+            //{
+            //    GameManager.Instance.AddDrone(drone);
+            //}
+
             GameManager.Instance.DecreaseMoney(itemPrice);
             Destroy(gameObject);
         }

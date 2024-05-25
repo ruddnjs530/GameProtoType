@@ -281,6 +281,10 @@ public class Player : MonoBehaviour
     public float GetHP() { return currentHP; }
     public void SetHP(float hp) { currentHP = hp; }
 
+    public float GetMaxHP() { return maxHP; }
+
+    public void SetMaxHP(float hp) { maxHP = hp; }
+
 
     private void LookAround()
     {

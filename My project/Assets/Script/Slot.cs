@@ -49,7 +49,7 @@ public class Slot : MonoBehaviour
         if (itemCount <= 0) ClearSlot();
     }
 
-    private void ClearSlot()
+    public void ClearSlot()
     {
         item = null;
         itemCount = 0;

@@ -80,4 +80,56 @@ public class Inventory : MonoBehaviour
                 slots[arrayNum].AddItem(items[i], itemNum);
         }
     }
+
+    public List<InventoryItem> GetItems()
+    {
+        List<InventoryItem> itemList = new List<InventoryItem>();
+        foreach (var slot in slots)
+        {
+            if (slot.item != null)
+            {
+                itemList.Add(new InventoryItem(slot.item.itemName, slot.itemCount));
+            }
+        }
+        return itemList;
+    }
+
+    public void SetItems(List<InventoryItem> itemList)
+    {
+        foreach (var slot in slots)
+        {
+            slot.ClearSlot(); // Clear current slot
+        }
+
+        foreach (var inventoryItem in itemList)
+        {
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (items[i].itemName == inventoryItem.itemName)
+                {
+                    for (int j = 0; j < slots.Length; j++)
+                    {
+                        if (slots[j].item == null)
+                        {
+                            slots[j].AddItem(items[i], inventoryItem.count);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+}
+
+public class InventoryItem
+{
+    public string itemName;
+    public int count;
+
+    public InventoryItem(string itemName, int count)
+    {
+        this.itemName = itemName;
+        this.count = count;
+    }
 }
