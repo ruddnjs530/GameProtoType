@@ -5,8 +5,8 @@ using UnityEngine.EventSystems;
 
 public class Menu : MonoBehaviour
 {
-    [SerializeField] GameObject menuUI;
-    [SerializeField] SaveAndLoad saveAndLoad;
+    [SerializeField] private GameObject menuUI;
+    [SerializeField] private SaveAndLoad saveAndLoad;
     // Update is called once per frame
     void Update()
     {
@@ -23,14 +23,14 @@ public class Menu : MonoBehaviour
         }
     }
 
-    void OpenMenu()
+    private void OpenMenu()
     {
         GameManager.Instance.isMenuOpen = true;
         menuUI.SetActive(true);
         Time.timeScale = 0f;
     }
 
-    void ClosMenu()
+    public void ClosMenu()
     {
         GameManager.Instance.isMenuOpen = false;
         menuUI.SetActive(false);
@@ -42,10 +42,6 @@ public class Menu : MonoBehaviour
         saveAndLoad.SaveData();
     }
 
-    public void ClickLoad()
-    {
-        //saveAndLoad.LoadData();
-    }
 
     public void ClickExit()
     {

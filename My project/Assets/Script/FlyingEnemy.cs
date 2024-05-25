@@ -65,7 +65,7 @@ public class FlyingEnemy : Enemy
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Plyaer"))
+        if (other.CompareTag("Player"))
         {
             agentTarget = other.transform;
             isSeePlayer = true;
@@ -75,7 +75,7 @@ public class FlyingEnemy : Enemy
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Plyaer"))
+        if (other.CompareTag("Player"))
         {
             isSeePlayer = false;
             agentTarget = null;

@@ -30,12 +30,12 @@ public class ItemBox : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Plyaer")) isPlayerEnter = true;
+        if (other.CompareTag("Player")) isPlayerEnter = true;
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Plyaer")) isPlayerEnter = false;
+        if (other.CompareTag("Player")) isPlayerEnter = false;
     }
 
 }
