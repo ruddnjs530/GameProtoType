@@ -46,6 +46,8 @@ public class BossEnemy : MonoBehaviour
 
     private bool canLaserAttack = false;
 
+    public static event System.Action OnBossDeath;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -96,6 +98,7 @@ public class BossEnemy : MonoBehaviour
                 break;
 
             case BossState.Die:
+                OnBossDeath?.Invoke();
                 Destroy(this.gameObject, 3f);
                 break;
         }    
@@ -113,7 +116,7 @@ public class BossEnemy : MonoBehaviour
 
     private void Attack(BossSkill skill)
     {
-        if (skill == null) return;
+        if (skill == null || anim.GetCurrentAnimatorStateInfo(0).IsName("GetHit")) return;
 
         isAttacking = true;
 
@@ -304,22 +307,17 @@ public class BossEnemy : MonoBehaviour
         }
     }
 
-    public void TakeDamageAndInstantiateText(int damage)
+    public void TakeDamage(int damage)
     {
-        currentHP -= damage;
-        GameObject text = Instantiate(textObject, MakeRandomPosition(), Quaternion.identity);
-        text.GetComponent<DamageText>().damage = damage;
-        anim.SetTrigger("isHit");
-    }
+        if (currentHP <= 0)
+        {
+            bossState = BossState.Die;
+            return;
+        }
 
-    private Vector3 MakeRandomPosition()
-    {
-        Vector3 textPosition;
-        float rand = UnityEngine.Random.Range(-0.5f, 0.5f);
-        textPosition.x = transform.position.x + rand;
-        textPosition.y = transform.position.y + 1;
-        textPosition.z = transform.position.z + rand;
-        return textPosition;
+        currentHP -= damage;
+
+        anim.SetTrigger("isHit");
     }
 
     private void CheckDeath()

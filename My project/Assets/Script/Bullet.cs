@@ -33,7 +33,11 @@ public class Bullet : MonoBehaviour
 
         if (collision.gameObject.tag == "BossEnemy")
         {
-            collision.gameObject.GetComponent<BossEnemy>().TakeDamageAndInstantiateText(GameManager.Instance.bulletDamage);
+            ContactPoint cp = collision.contacts[0];
+            collision.gameObject.GetComponent<BossEnemy>().TakeDamage(GameManager.Instance.bulletDamage);
+
+            if (OnBulletHit == null) Debug.Log("null");
+            OnBulletHit?.Invoke(cp.point);
         }
 
 

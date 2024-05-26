@@ -52,6 +52,8 @@ public class Player : MonoBehaviour
     private float maxCoolTime = 1.0f;
     private CoolTime coolTime;
 
+    public static event System.Action OnPlayerDeath;
+
     // Start is called before the first frame update
 
     void Awake()
@@ -155,6 +157,7 @@ public class Player : MonoBehaviour
                 break;
 
             case PlayerState.Die:
+                OnPlayerDeath?.Invoke();
                 Destroy(this.gameObject, 2f);
                 GameManager.Instance.isPlayerAlive = false;
                 break;

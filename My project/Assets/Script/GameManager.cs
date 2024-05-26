@@ -30,8 +30,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject damageTextPrefab;
 
     public PlayerStatus playerStatus;
-    //public List<GameObject> turrets = new List<GameObject>();
     public List<GameObject> drones = new List<GameObject>();
+    [SerializeField] private List<GameObject> dronePrefabs;
 
     [SerializeField] private GameObject boss;
 
@@ -86,6 +86,9 @@ public class GameManager : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;;
         moneyUI.text = "$     " + money.ToString();
+
+        BossEnemy.OnBossDeath += BossDeath;
+        Player.OnPlayerDeath += PlayerDeath;
     }
 
     // Update is called once per frame
@@ -126,13 +129,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void SavePlayerStatus(Player player, Inventory inventory, List<GameObject> turrets)
+    public void SavePlayerStatus(Player player, Inventory inventory, List<GameObject> drones)
     {
         List<InventoryItem> inventoryItems = inventory.GetItems();
-        playerStatus = new PlayerStatus(player.GetHP(), player.GetMaxHP(), money, inventoryItems, turrets);
-        foreach (var turret in turrets)
+        playerStatus = new PlayerStatus(player.GetHP(), player.GetMaxHP(), money, inventoryItems);
+        foreach (var drone in drones)
         {
-            DontDestroyOnLoad(turret);
+            DontDestroyOnLoad(drone);
         }
     }
 
@@ -144,21 +147,6 @@ public class GameManager : MonoBehaviour
             player.SetMaxHP(playerStatus.maxHP);
             money = playerStatus.money;
             inventory.SetItems(playerStatus.inventoryItems);
-
-            foreach (var drone in drones)
-            {
-                Destroy(drone);
-            }
-            drones.Clear();
-
-            foreach (var drone in playerStatus.drones)
-            {
-                if (drone != null)
-                {
-                    Instantiate(drone, drone.transform.position, drone.transform.rotation);
-                    Debug.Log("Instantiating turret: " + drone.name);
-                }
-            }
         }
     }
 
@@ -198,6 +186,16 @@ public class GameManager : MonoBehaviour
         textPosition.y = transform.position.y + 4;
         textPosition.z += rand;
         return textPosition;
+    }
+
+    private void BossDeath()
+    {
+        SceneManager.LoadScene("ClearScene");
+    }
+
+    private void PlayerDeath()
+    {
+        SceneManager.LoadScene("GameOverScene");
     }
 
     public void IncreaseMoney(int price)

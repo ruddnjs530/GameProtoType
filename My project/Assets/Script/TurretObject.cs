@@ -98,6 +98,13 @@ public class TurretObject : MonoBehaviour
             //    attackTarget = NearestObj(other.gameObject);
             //}
         }
+
+        if (other.CompareTag("BossEnemy"))
+        {
+            if (turretState == TurretState.Attack) return;
+            attackTarget = other.gameObject;
+            turretState = TurretState.Attack;
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -120,6 +127,13 @@ public class TurretObject : MonoBehaviour
         //    Debug.Log("enemy out");
         //    return;
         //}
+
+        if (other.CompareTag("BossEnemy"))
+        {
+            attackTarget = null;
+            turretState = TurretState.Idle;
+            return;
+        }
     }
 
     private GameObject NearestObj(GameObject obj)

@@ -239,7 +239,7 @@ MonoBehaviour:
   - {fileID: 836973521763896682, guid: 2479b50191e493640a095e69c13ca16b, type: 3}
   - {fileID: 8164366040853956551, guid: 60fc5c05bdf87214294660297719bf98, type: 3}
   - {fileID: 3620355749042102663, guid: a2ba1e72bb72caa43a054cc192b4ef6a, type: 3}
-  - {fileID: 4406025310544638373, guid: 71c0ff908d42fdb4a8a9007f241fb6ac, type: 3}
+  - {fileID: 622274684497992274, guid: 9cf22ff00236caa4d83b5a9791dc2663, type: 3}
 --- !u!54 &16563490
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1181,7 +1181,7 @@ MonoBehaviour:
   - {fileID: 836973521763896682, guid: 2479b50191e493640a095e69c13ca16b, type: 3}
   - {fileID: 8164366040853956551, guid: 60fc5c05bdf87214294660297719bf98, type: 3}
   - {fileID: 3620355749042102663, guid: a2ba1e72bb72caa43a054cc192b4ef6a, type: 3}
-  - {fileID: 4406025310544638373, guid: 71c0ff908d42fdb4a8a9007f241fb6ac, type: 3}
+  - {fileID: 622274684497992274, guid: 9cf22ff00236caa4d83b5a9791dc2663, type: 3}
 --- !u!54 &207202200
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -6264,7 +6264,7 @@ MonoBehaviour:
   - {fileID: 836973521763896682, guid: 2479b50191e493640a095e69c13ca16b, type: 3}
   - {fileID: 8164366040853956551, guid: 60fc5c05bdf87214294660297719bf98, type: 3}
   - {fileID: 3620355749042102663, guid: a2ba1e72bb72caa43a054cc192b4ef6a, type: 3}
-  - {fileID: 4406025310544638373, guid: 71c0ff908d42fdb4a8a9007f241fb6ac, type: 3}
+  - {fileID: 622274684497992274, guid: 9cf22ff00236caa4d83b5a9791dc2663, type: 3}
 --- !u!54 &1014346090
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -9816,7 +9816,7 @@ MonoBehaviour:
   - {fileID: 836973521763896682, guid: 2479b50191e493640a095e69c13ca16b, type: 3}
   - {fileID: 8164366040853956551, guid: 60fc5c05bdf87214294660297719bf98, type: 3}
   - {fileID: 3620355749042102663, guid: a2ba1e72bb72caa43a054cc192b4ef6a, type: 3}
-  - {fileID: 4406025310544638373, guid: 71c0ff908d42fdb4a8a9007f241fb6ac, type: 3}
+  - {fileID: 622274684497992274, guid: 9cf22ff00236caa4d83b5a9791dc2663, type: 3}
 --- !u!54 &1637441338
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -10758,7 +10758,7 @@ MonoBehaviour:
   - {fileID: 836973521763896682, guid: 2479b50191e493640a095e69c13ca16b, type: 3}
   - {fileID: 8164366040853956551, guid: 60fc5c05bdf87214294660297719bf98, type: 3}
   - {fileID: 3620355749042102663, guid: a2ba1e72bb72caa43a054cc192b4ef6a, type: 3}
-  - {fileID: 4406025310544638373, guid: 71c0ff908d42fdb4a8a9007f241fb6ac, type: 3}
+  - {fileID: 622274684497992274, guid: 9cf22ff00236caa4d83b5a9791dc2663, type: 3}
 --- !u!54 &1817448270
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -11522,8 +11522,8 @@ MonoBehaviour:
   moneyUI: {fileID: 1636939063}
   hitParticle: {fileID: 5024009746357069192, guid: ec3f674830402cc45bce805cf6493db7, type: 3}
   damageTextPrefab: {fileID: 7442387520519593891, guid: 24c2159eacc3caa4eafc8b88ddadeb13, type: 3}
-  turrets: []
   drones: []
+  dronePrefabs: []
   boss: {fileID: 2304967744816238605, guid: f20ab87ba1af65243adc8ac91d3a876e, type: 3}
   canvas: {fileID: 1044466022}
   bossHPBar: {fileID: 1071220836}
@@ -11561,7 +11561,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1854756345}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 99b3b46d76b239e46801f1dae371952b, type: 3}
   m_Name: 
