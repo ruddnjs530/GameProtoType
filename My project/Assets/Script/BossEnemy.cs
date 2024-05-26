@@ -62,6 +62,7 @@ public class BossEnemy : MonoBehaviour
         target = GameObject.FindGameObjectWithTag("Player").transform;
         projector.enabled = false;
         transform.LookAt(target);
+        agent.isStopped = false;
 
         skills.Add(new BossSkill("laserAttack", 3f));
         skills.Add(new BossSkill("jumpAttack", 15f));
@@ -85,7 +86,7 @@ public class BossEnemy : MonoBehaviour
 
             case BossState.Attack:
                 CheckDeath();
-                if (currentSkill == null)
+                if (currentSkill == null && isAttacking == false)
                 {
                     anim.SetBool("isWalking", true);
                     agent.isStopped = false;
@@ -94,7 +95,11 @@ public class BossEnemy : MonoBehaviour
                 }
 
                 if (isAttacking == false)
+                {
                     Attack(currentSkill);
+                    currentSkill = null;
+                }
+
                 break;
 
             case BossState.Die:
@@ -104,6 +109,8 @@ public class BossEnemy : MonoBehaviour
         }    
         healthBar.SetHealth(currentHP);
         UpdateSkill();
+
+        Debug.Log("bossState : " + bossState);
     }
 
     private void Move()
