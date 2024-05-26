@@ -81,6 +81,7 @@ public class BossEnemy : MonoBehaviour
         {
             case BossState.MoveToPlayer:
                 CheckDeath();
+                UpdateSkill();
                 Move();
                 break;
 
@@ -108,7 +109,6 @@ public class BossEnemy : MonoBehaviour
                 break;
         }    
         healthBar.SetHealth(currentHP);
-        UpdateSkill();
 
         Debug.Log("bossState : " + bossState);
     }
@@ -237,6 +237,7 @@ public class BossEnemy : MonoBehaviour
                 angleBetween = Vector3.Angle(transform.forward, direction);
                 if (angleBetween < levitationAttackAngle / 2)
                 {
+                    GameManager.Instance.canPlayerMove = false;
                     playerController.transform.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
                     playerController.transform.GetComponent<Player>().anim.SetTrigger("levitation");
                     StartCoroutine(ApplyKnockback(playerController));
@@ -247,6 +248,7 @@ public class BossEnemy : MonoBehaviour
         agent.updateRotation = true;
         currentSkill = null;
         isAttacking = false;
+        GameManager.Instance.canPlayerMove = true;
     }
 
     private IEnumerator ApplyKnockback(CharacterController controller)
