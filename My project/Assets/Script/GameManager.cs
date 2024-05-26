@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject damageTextPrefab;
 
     public PlayerStatus playerStatus;
-    public List<GameObject> turrets = new List<GameObject>();
+    //public List<GameObject> turrets = new List<GameObject>();
     public List<GameObject> drones = new List<GameObject>();
 
     [SerializeField] private GameObject boss;
@@ -48,6 +48,12 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(this.gameObject);
 
             if (canvas != null) DontDestroyOnLoad(canvas);
+
+            Inventory inventory = FindObjectOfType<Inventory>();
+            if (inventory != null)
+            {
+                DontDestroyOnLoad(inventory.gameObject);
+            }
         }
         else
             Destroy(this.gameObject);
@@ -120,11 +126,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void SavePlayerStatus(Player player, Inventory inventory, List<GameObject> turrets, List<GameObject> drones)
+    public void SavePlayerStatus(Player player, Inventory inventory, List<GameObject> turrets)
     {
         List<InventoryItem> inventoryItems = inventory.GetItems();
-        playerStatus = new PlayerStatus(player.GetHP(), player.GetMaxHP(), money, inventoryItems, turrets, drones);
-        Debug.Log("Player status saved: HP " + player.GetHP() + ", Money " + money);
+        playerStatus = new PlayerStatus(player.GetHP(), player.GetMaxHP(), money, inventoryItems, turrets);
+        foreach (var turret in turrets)
+        {
+            DontDestroyOnLoad(turret);
+        }
     }
 
     public void LoadPlayerStatus(Player player, Inventory inventory, PlayerStatus playerStatus)
@@ -136,15 +145,9 @@ public class GameManager : MonoBehaviour
             money = playerStatus.money;
             inventory.SetItems(playerStatus.inventoryItems);
 
-            foreach (var turret in turrets)
-            {
-                Destroy(turret);
-            }
-            turrets.Clear();
-
             foreach (var drone in drones)
             {
-                Destroy(drone.gameObject);
+                Destroy(drone);
             }
             drones.Clear();
 
@@ -152,50 +155,16 @@ public class GameManager : MonoBehaviour
             {
                 if (drone != null)
                 {
-                    Debug.Log("Instantiating drone: " + drone.name);
-                    var newDrone = Instantiate(drone, drone.transform.position, drone.transform.rotation);
-                    drones.Add(newDrone);
-                }
-                else
-                {
-                    Debug.LogError("Drone is null in playerState");
-                }
-            }
-
-            foreach (var turret in playerStatus.turrets)
-            {
-                if (turret != null)
-                {
-                    Debug.Log("Instantiating turret: " + turret.name);
-                    var newTurret = Instantiate(turret, turret.transform.position, turret.transform.rotation);
-                    turrets.Add(newTurret);
-                }
-                else
-                {
-                    Debug.LogError("Turret is null in playerState");
+                    Instantiate(drone, drone.transform.position, drone.transform.rotation);
+                    Debug.Log("Instantiating turret: " + drone.name);
                 }
             }
         }
     }
 
-    public void AddTurret(GameObject turret)
-    {
-        turrets.Add(turret);
-    }
-
-    public List<GameObject> GetTurrets()
-    {
-        return turrets;
-    }
-
     public void AddDrone(GameObject drone)
     {
         drones.Add(drone);
-    }
-
-    public List<GameObject> GetDrones()
-    {
-        return drones;
     }
 
     private void HandleBulletHit(Vector3 hitPosition)

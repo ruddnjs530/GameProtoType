@@ -15,6 +15,11 @@ public class Inventory : MonoBehaviour
 
     [SerializeField] private Item[] items;
 
+    private void Awake()
+    {
+        DontDestroyOnLoad(this.gameObject);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -98,7 +103,7 @@ public class Inventory : MonoBehaviour
     {
         foreach (var slot in slots)
         {
-            slot.ClearSlot(); // Clear current slot
+            slot.ClearSlot();
         }
 
         foreach (var inventoryItem in itemList)

@@ -24,26 +24,10 @@ public class ItemBox : MonoBehaviour
         {
             GameObject item = Instantiate(items[Random.Range(0,items.Length)], transform.position, Quaternion.identity);
 
-            if (item.GetComponent<TurretObject>() != null)
-            {
-                GameManager.Instance.AddTurret(item);
-            }
             if (item.GetComponent<DroneObject>() != null)
             {
-                GameManager.Instance.AddTurret(item);
+                GameManager.Instance.AddDrone(item);
             }
-
-            //GameObject turret = item.GetComponent<TurretObject>().gameObject;
-            //if (turret != null)
-            //{
-            //    GameManager.Instance.AddTurret(turret);
-            //}
-
-            //GameObject drone = item.GetComponent<DroneObject>().gameObject;
-            //if (drone != null)
-            //{
-            //    GameManager.Instance.AddDrone(drone);
-            //}
 
             GameManager.Instance.DecreaseMoney(itemPrice);
             Destroy(gameObject);

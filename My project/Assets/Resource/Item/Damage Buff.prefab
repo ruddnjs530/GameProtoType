@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5703123946886434235}
   - component: {fileID: 7934440912445094965}
   m_Layer: 0
-  m_Name: DamageBuffItem
+  m_Name: Damage Buff
   m_TagString: DamageBuff
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

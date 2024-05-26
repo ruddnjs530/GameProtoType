@@ -287,15 +287,11 @@ public class Player : MonoBehaviour
 
     public float GetHP() { return currentHP; }
     public void SetHP(float hp) { currentHP = hp;
-        healthBar.SetHealth(currentHP);
-        Debug.Log("Player HP set to: " + currentHP);
-    }
+        healthBar.SetHealth(currentHP);  }
 
     public float GetMaxHP() { return maxHP; }
 
-    public void SetMaxHP(float hp) { maxHP = hp;
-        Debug.Log("Player Max HP set to: " + maxHP);
-    }
+    public void SetMaxHP(float hp) { maxHP = hp;  }
 
 
     private void LookAround()
