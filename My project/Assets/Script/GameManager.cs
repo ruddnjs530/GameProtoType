@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
 
     public int money = 100;
 
-    public bool isEnemyWave = false; // 포탈을 활성화 시켰을 때를 위한 웨이브 변수
+    public bool isEnemyWave = false; 
 
     public bool isPlayerAlive = true;
 
@@ -29,13 +29,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private ParticleSystem hitParticle;
     [SerializeField] private GameObject damageTextPrefab;
 
-    private PlayerStatus playerStatus;
+    public PlayerStatus playerStatus;
     public List<GameObject> turrets = new List<GameObject>();
     public List<GameObject> drones = new List<GameObject>();
 
     [SerializeField] private GameObject boss;
 
     [SerializeField] private Canvas canvas;
+    [SerializeField] private GameObject bossHPBar;
 
     private float time = 0f;
 
@@ -58,7 +59,7 @@ public class GameManager : MonoBehaviour
         {
             if (instance == null)
             {
-                return null;
+                Debug.LogError("GameManager instance is null");
             }
             return instance;
         }
@@ -105,17 +106,16 @@ public class GameManager : MonoBehaviour
 
     public void InitializeBoss()
     {
+        bossHPBar.SetActive(true);
         if (boss != null)
         {
-            GameObject currentBoss = Instantiate(boss, Vector3.zero, Quaternion.identity);
+            Vector3 pos = new Vector3(0, 0, 0);
+            GameObject currentBoss = Instantiate(boss, pos, boss.transform.rotation);
+            Debug.Log(currentBoss);
             BossEnemy bossComponent = currentBoss.GetComponent<BossEnemy>();
             if (bossComponent != null)
             {
-                Slider bossHealthBar = canvas.GetComponentInChildren<Slider>();
-                if (bossHealthBar != null)
-                {
-                    bossComponent.SetHealthBar(bossHealthBar);
-                }
+                bossComponent.SetHealthBar(bossHPBar.GetComponent<Slider>());
             }
         }
     }
@@ -124,9 +124,10 @@ public class GameManager : MonoBehaviour
     {
         List<InventoryItem> inventoryItems = inventory.GetItems();
         playerStatus = new PlayerStatus(player.GetHP(), player.GetMaxHP(), money, inventoryItems, turrets, drones);
+        Debug.Log("Player status saved: HP " + player.GetHP() + ", Money " + money);
     }
 
-    public void LoadPlayerStatus(Player player, Inventory inventory, List<GameObject> turrets, List<GameObject> drones)
+    public void LoadPlayerStatus(Player player, Inventory inventory, PlayerStatus playerStatus)
     {
         if (playerStatus != null)
         {
@@ -134,17 +135,45 @@ public class GameManager : MonoBehaviour
             player.SetMaxHP(playerStatus.maxHP);
             money = playerStatus.money;
             inventory.SetItems(playerStatus.inventoryItems);
-            turrets = playerStatus.turrets;
-            drones = playerStatus.drones;
 
-            foreach (var turret in playerStatus.turrets)
+            foreach (var turret in turrets)
             {
-                Instantiate(turret.gameObject, turret.gameObject.transform.position, turret.gameObject.transform.rotation);
+                Destroy(turret);
             }
+            turrets.Clear();
+
+            foreach (var drone in drones)
+            {
+                Destroy(drone.gameObject);
+            }
+            drones.Clear();
 
             foreach (var drone in playerStatus.drones)
             {
-                Instantiate(drone.gameObject, drone.gameObject.transform.position, drone.gameObject.transform.rotation);
+                if (drone != null)
+                {
+                    Debug.Log("Instantiating drone: " + drone.name);
+                    var newDrone = Instantiate(drone, drone.transform.position, drone.transform.rotation);
+                    drones.Add(newDrone);
+                }
+                else
+                {
+                    Debug.LogError("Drone is null in playerState");
+                }
+            }
+
+            foreach (var turret in playerStatus.turrets)
+            {
+                if (turret != null)
+                {
+                    Debug.Log("Instantiating turret: " + turret.name);
+                    var newTurret = Instantiate(turret, turret.transform.position, turret.transform.rotation);
+                    turrets.Add(newTurret);
+                }
+                else
+                {
+                    Debug.LogError("Turret is null in playerState");
+                }
             }
         }
     }

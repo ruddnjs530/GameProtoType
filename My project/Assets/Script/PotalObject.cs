@@ -5,33 +5,34 @@ using UnityEngine.SceneManagement;
 
 public class PotalObject : MonoBehaviour
 {
-    [SerializeField] GameObject e;
+    [SerializeField] private GameObject e;
+    private bool isTransitioning = false;
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("Player") && Input.GetKey(KeyCode.E))
+        if (other.CompareTag("Player") && Input.GetKey(KeyCode.E) && !isTransitioning)
         {
+            isTransitioning = true;
             Player player = other.GetComponent<Player>();
-            Inventory inventory = player.GetComponent<Inventory>();
+            GameObject canvas = GameObject.Find("Canvas");
+            Inventory inventory = canvas.GetComponentInChildren<Inventory>();
             List<GameObject> turrets = GameManager.Instance.turrets;
             List<GameObject> drones = GameManager.Instance.drones;
 
             GameManager.Instance.SavePlayerStatus(player, inventory, turrets, drones);
 
-            SceneManager.LoadScene("BossScene");
             SceneManager.sceneLoaded += OnSceneLoaded;
+            SceneManager.LoadScene("BossScene");
         }
     }
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Player player = FindObjectOfType<Player>();
-        Inventory inventory = player.GetComponent<Inventory>();
-        List<GameObject> turrets = GameManager.Instance.turrets;
-        List<GameObject> drones = GameManager.Instance.drones;
+        Debug.Log("BossScene loaded");
+        Player player = GameObject.Find("Player").GetComponent<Player>();
 
+        GameObject canvas = GameObject.Find("Canvas");
+        Inventory inventory = canvas.GetComponentInChildren<Inventory>();
         GameManager.Instance.InitializeBoss();
-        GameManager.Instance.LoadPlayerStatus(player, inventory, turrets, drones);
-
-        SceneManager.sceneLoaded -= OnSceneLoaded;
+        GameManager.Instance.LoadPlayerStatus(player, inventory, GameManager.Instance.playerStatus);
     }
 }

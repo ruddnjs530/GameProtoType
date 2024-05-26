@@ -21,7 +21,7 @@ public class BossEnemy : MonoBehaviour
     private float attackDamage = 10.0f;
 
     public GameObject textObject;
-    private float currentHP = 450;
+    private float currentHP = 10000f;
     private float maxHP = 10000f;
 
     private Animator anim;
@@ -42,7 +42,6 @@ public class BossEnemy : MonoBehaviour
     private List<BossSkill> skills = new List<BossSkill>();
     private BossSkill currentSkill;
 
-    [SerializeField] private Slider hpBar;
     private HealthBar healthBar;
 
     private bool canLaserAttack = false;
@@ -62,17 +61,14 @@ public class BossEnemy : MonoBehaviour
         projector.enabled = false;
         transform.LookAt(target);
 
-        skills.Add(new BossSkill("laserAttack", 2f));
+        skills.Add(new BossSkill("laserAttack", 3f));
         skills.Add(new BossSkill("jumpAttack", 15f));
         skills.Add(new BossSkill("levitationAttack", 12f));
 
         foreach (var skill in skills)
         {
             skill.OnCooldownFinished += HandleSkillReady;
-        }
-
-        healthBar = new HealthBar(hpBar, maxHP, false, new Vector2(0.5f, 0.9f));
-        healthBar.Show();
+        }    
     }
 
     // Update is called once per frame
@@ -119,46 +115,46 @@ public class BossEnemy : MonoBehaviour
     {
         if (skill == null) return;
 
+        isAttacking = true;
+
         if (currentHP > 500)
         {
-            if (canLaserAttack)
-            {
-                StartCoroutine(LaserAttack(target.position));
-                skill.SetSkillTime();
-            }
+            if (canLaserAttack) StartCoroutine(LaserAttack(target.position));
+            else isAttacking = false;
+            skill.SetSkillTime();
+            return;
         }
-        else
+
+        switch (skill.GetSkillName())
         {
-            switch (skill.GetSkillName())
-            {
-                case "laserAttack":
-                    if (canLaserAttack)
-                    {
-                        StartCoroutine(LaserAttack(target.position));
-                        skill.SetSkillTime();
-                    }
-                    break;
-
-                case "levitationAttack":
-                    Collider player = Physics.OverlapSphere(transform.position, levitationAttackRange, playerLayer).FirstOrDefault();
-                    if (player != null)
-                    {
-                        StartCoroutine(levitationAttack(player));
-                        skill.SetSkillTime();
-                    }
-                    break;
-
-                case "jumpAttack":
-                    StartCoroutine(JumpAttack(target.position));
+            case "laserAttack":
+                if (canLaserAttack)
+                {
+                    StartCoroutine(LaserAttack(target.position));
                     skill.SetSkillTime();
-                    break;
-            }
+                }
+                else isAttacking = false;
+                break;
+
+            case "levitationAttack":
+                Collider player = Physics.OverlapSphere(transform.position, levitationAttackRange, playerLayer).FirstOrDefault();
+                if (player != null)
+                {
+                    StartCoroutine(levitationAttack(player));
+                    skill.SetSkillTime();
+                }
+                else isAttacking = false;
+                break;
+
+            case "jumpAttack":
+                StartCoroutine(JumpAttack(target.position));
+                skill.SetSkillTime();
+                break;
         }
     }
 
     private IEnumerator JumpAttack(Vector3 targetPosition)
     {
-        isAttacking = true;
         anim.SetTrigger("jumpAttack");
         yield return new WaitForSeconds(0.5f);     
         Vector3 startingPos = transform.position;
@@ -171,14 +167,13 @@ public class BossEnemy : MonoBehaviour
 
         float distance = Vector3.Distance(this.transform.position, target.position);
         if (distance <= 10f) target.GetComponent<Player>().TakeDamage(jumpDamage);
+        yield return new WaitForSeconds(1.0f);
         currentSkill = null;
         isAttacking = false;
     }
 
     private IEnumerator LaserAttack(Vector3 targetPosition)
     {
-        isAttacking = true;
-
         Vector3 directionToPlayer = (target.position - transform.position).normalized;
 
         if (Vector3.Angle(transform.forward, directionToPlayer) < levitationAttackAngle / 2)
@@ -213,7 +208,6 @@ public class BossEnemy : MonoBehaviour
 
     private IEnumerator levitationAttack(Collider player) 
     {
-        isAttacking = true;
         agent.updateRotation = false;
 
         Vector3 direction = (player.transform.position - transform.position).normalized;
@@ -260,7 +254,7 @@ public class BossEnemy : MonoBehaviour
 
     private void HandleSkillReady(BossSkill skill)
     {
-        if (currentSkill != null) return;
+        if (isAttacking) return;
 
         currentSkill = skill;
 
@@ -339,8 +333,6 @@ public class BossEnemy : MonoBehaviour
 
     public void SetHealthBar(Slider hpBar)
     {
-        this.hpBar = hpBar;
-        hpBar.maxValue = maxHP;
-        hpBar.value = currentHP;
+        healthBar = new HealthBar(hpBar, maxHP, false, new Vector2(0.5f, 0.9f));
     }
 }

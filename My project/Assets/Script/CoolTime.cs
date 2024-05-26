@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CoolTime : MonoBehaviour
+public class CoolTime
 {
     [SerializeField] private Image coolTimeImage;
     private float maxCoolTime;

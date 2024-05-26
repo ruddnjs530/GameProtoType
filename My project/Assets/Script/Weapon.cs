@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class Weapon : MonoBehaviour
 {
@@ -21,6 +22,9 @@ public class Weapon : MonoBehaviour
     private float lightReturnTime = 20;
     private Player player;
 
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip fireSound;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -31,6 +35,8 @@ public class Weapon : MonoBehaviour
         muzzleFlashLight.intensity = 0;
         muzzleFlashParticles = GetComponentInChildren<ParticleSystem>();
         player = GetComponentInParent<Player>();
+
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -66,6 +72,7 @@ public class Weapon : MonoBehaviour
         fireRateTimer = 0;
         barrelPos.LookAt(aim.aimPos);
         muzzleFalsh();
+        audioSource.PlayOneShot(fireSound);
 
         for (int i = 0; i < bulletPerShot; i++)
         {

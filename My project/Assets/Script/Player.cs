@@ -53,6 +53,13 @@ public class Player : MonoBehaviour
     private CoolTime coolTime;
 
     // Start is called before the first frame update
+
+    void Awake()
+    {
+        DontDestroyOnLoad(gameObject);
+        DontDestroyOnLoad(aimPos.gameObject);
+    }
+
     void Start()
     {
         cc = GetComponent<CharacterController>();
@@ -279,11 +286,16 @@ public class Player : MonoBehaviour
     }
 
     public float GetHP() { return currentHP; }
-    public void SetHP(float hp) { currentHP = hp; }
+    public void SetHP(float hp) { currentHP = hp;
+        healthBar.SetHealth(currentHP);
+        Debug.Log("Player HP set to: " + currentHP);
+    }
 
     public float GetMaxHP() { return maxHP; }
 
-    public void SetMaxHP(float hp) { maxHP = hp; }
+    public void SetMaxHP(float hp) { maxHP = hp;
+        Debug.Log("Player Max HP set to: " + maxHP);
+    }
 
 
     private void LookAround()
@@ -310,8 +322,3 @@ public class Player : MonoBehaviour
             aimPos.position = Vector3.Lerp(aimPos.position, hit.point, aimSpeed * Time.deltaTime);
     }
 }
-
-
-
-
-
