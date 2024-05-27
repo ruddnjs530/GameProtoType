@@ -28,7 +28,7 @@ public class Enemy : MonoBehaviour
     protected NavMeshAgent agent;
     protected Transform agentTarget;
     protected Vector3 destination;
-    protected float walkSpeed = 3f;
+    protected float walkSpeed = 1f;
     protected float chaseSpeed = 6f;
     public float MaxHP { get; set; } = 100;
     protected float currentHP = 100;
@@ -122,6 +122,7 @@ public class Enemy : MonoBehaviour
                 else if (canAttack)
                 {
                     anim.SetBool("Chase", false);
+                    agent.isStopped = true;
                     enemyState = EnemyState.Attack;
                     break;
                 }
@@ -145,6 +146,7 @@ public class Enemy : MonoBehaviour
                 else if (!canAttack)
                 {
                     anim.SetBool("Attack", false);
+                    agent.isStopped = false;
                     enemyState = EnemyState.Idle;
                     break;
                 }

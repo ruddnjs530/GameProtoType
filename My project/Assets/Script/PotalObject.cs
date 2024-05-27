@@ -19,7 +19,7 @@ public class PotalObject : MonoBehaviour
             Inventory inventory = canvas.GetComponentInChildren<Inventory>();
             drones = GameManager.Instance.drones;
 
-            GameManager.Instance.SavePlayerStatus(player, inventory, drones);
+            GameManager.Instance.SavePlayerStatus(player, FindObjectOfType<Inventory>(), drones);
 
             SceneManager.sceneLoaded += OnSceneLoaded;
             SceneManager.LoadScene("BossScene");

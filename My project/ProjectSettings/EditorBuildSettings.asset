@@ -12,12 +12,12 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
+    path: Assets/Scenes/BossScene.unity
+    guid: 3f62a5ca414801e4594406bc998f49c8
+  - enabled: 1
     path: Assets/Scenes/ClearScene.unity
     guid: 15b2c08abf33315448b2c33187498649
   - enabled: 1
     path: Assets/Scenes/GameOverScene.unity
     guid: 54a7f1cfa80e90740a226ebf73f8ec63
-  - enabled: 1
-    path: Assets/Scenes/BossScene.unity
-    guid: 3f62a5ca414801e4594406bc998f49c8
   m_configObjects: {}

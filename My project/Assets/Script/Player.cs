@@ -30,8 +30,8 @@ public class Player : MonoBehaviour
 
     PlayerState playerState = PlayerState.Idle;
 
-    private float maxHP = 100f;
-    private float currentHP = 100f;
+    private float maxHP = 100;
+    private float currentHP = 100;
     [SerializeField] private Slider hpBar;
     private HealthBar healthBar;
 
@@ -119,7 +119,7 @@ public class Player : MonoBehaviour
                 }
 
                 Move();
-                if (dir.magnitude < 0.5f && (Time.time - lastInputTime > inputBufferTime))
+                if (dir.magnitude < 0.5f) //  && (Time.time - lastInputTime > inputBufferTime)
                 {
                     anim.SetBool("Running", false);
                     playerState = PlayerState.Idle;

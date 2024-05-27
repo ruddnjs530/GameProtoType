@@ -60,7 +60,7 @@ public class FlyingEnemy : Enemy
     {
         Vector3 direction = target.position - enemyBody.position;
         Quaternion lookRotation = Quaternion.LookRotation(direction.normalized);
-        enemyBody.rotation = Quaternion.Slerp(enemyBody.rotation, lookRotation, Time.deltaTime);
+        enemyBody.rotation = Quaternion.Slerp(enemyBody.rotation, lookRotation, Time.deltaTime * 3f);
     }
 
     private void OnTriggerEnter(Collider other)

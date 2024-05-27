@@ -21,8 +21,8 @@ public class BossEnemy : MonoBehaviour
     private float attackDamage = 10.0f;
 
     public GameObject textObject;
-    private float currentHP = 10000f;
-    private float maxHP = 10000f;
+    private float currentHP = 5000;
+    private float maxHP = 5000;
 
     private Animator anim;
 
@@ -65,8 +65,8 @@ public class BossEnemy : MonoBehaviour
         agent.isStopped = false;
 
         skills.Add(new BossSkill("laserAttack", 3f));
-        skills.Add(new BossSkill("jumpAttack", 15f));
-        skills.Add(new BossSkill("levitationAttack", 12f));
+        skills.Add(new BossSkill("jumpAttack", 7f));
+        skills.Add(new BossSkill("levitationAttack", 5f));
 
         foreach (var skill in skills)
         {
@@ -123,11 +123,11 @@ public class BossEnemy : MonoBehaviour
 
     private void Attack(BossSkill skill)
     {
-        if (skill == null || anim.GetCurrentAnimatorStateInfo(0).IsName("GetHit")) return;
+        if (skill == null) return; //  || anim.GetCurrentAnimatorStateInfo(0).IsName("GetHit")
 
         isAttacking = true;
 
-        if (currentHP > 500)
+        if (currentHP > 2500)
         {
             if (canLaserAttack) StartCoroutine(LaserAttack(target.position));
             else isAttacking = false;
@@ -326,7 +326,7 @@ public class BossEnemy : MonoBehaviour
 
         currentHP -= damage;
 
-        anim.SetTrigger("isHit");
+        //anim.SetTrigger("isHit");
     }
 
     private void CheckDeath()

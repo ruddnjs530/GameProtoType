@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class NomalEnemy : Enemy
 {
-    private int nomalPrice = 20;
+    private int nomalPrice = 10;
     private float attackDamage = 3f;
 
     protected override void Start()
@@ -24,6 +24,7 @@ public class NomalEnemy : Enemy
         if (attackDelay < 0) attackDelay = 0;
         if (attackDelay == 0)
         {
+            Debug.Log("enemy attack");
             agentTarget.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
             attackDelay = 1f;
         }

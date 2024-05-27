@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
 
     public bool isMenuOpen = false;
 
-    public int money = 100;
+    public int money = 0;
 
     public bool isEnemyWave = false; 
 
@@ -38,6 +38,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Canvas canvas;
     [SerializeField] private GameObject bossHPBar;
 
+    [SerializeField] private GameObject clear;
+    [SerializeField] private GameObject gameOver;
+
     private float time = 0f;
 
     private void Awake()
@@ -48,12 +51,7 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(this.gameObject);
 
             if (canvas != null) DontDestroyOnLoad(canvas);
-
-            Inventory inventory = FindObjectOfType<Inventory>();
-            if (inventory != null)
-            {
-                DontDestroyOnLoad(inventory.gameObject);
-            }
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
             Destroy(this.gameObject);
@@ -63,11 +61,15 @@ public class GameManager : MonoBehaviour
     {
         get
         {
-            if (instance == null)
-            {
-                Debug.LogError("GameManager instance is null");
-            }
             return instance;
+        }
+    }
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Inventory inventory = FindObjectOfType<Inventory>();
+        if (inventory != null)
+        {
+            DontDestroyOnLoad(inventory.gameObject);
         }
     }
 
@@ -191,11 +193,13 @@ public class GameManager : MonoBehaviour
     private void BossDeath()
     {
         SceneManager.LoadScene("ClearScene");
+        clear.SetActive(true);
     }
 
     private void PlayerDeath()
     {
         SceneManager.LoadScene("GameOverScene");
+        gameOver.SetActive(true);
     }
 
     public void IncreaseMoney(int price)

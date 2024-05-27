@@ -162,18 +162,37 @@ public class TurretObject : MonoBehaviour
     private void Attack(GameObject target)
     {
         if (target == null) return;
-        Enemy enemy = target.GetComponent<Enemy>();
-        Vector3 direction = enemy.EnemyBody.transform.position - transform.position;
-        Quaternion lookRotation = Quaternion.LookRotation(direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
-        currentRateOfFire += Time.deltaTime;
-
-        if (currentRateOfFire >= rateOfFire)
+        if (target.CompareTag("BossEnemy"))
         {
-            GameObject currentBullet = Instantiate(bulletPrefab, firePos.position, firePos.rotation);
-            Rigidbody rb = currentBullet.GetComponent<Rigidbody>();
-            rb.AddForce(firePos.forward * 2f, ForceMode.Impulse);
-            currentRateOfFire = 0;
+            Vector3 direction = target.transform.position - transform.position;
+            Quaternion lookRotation2 = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation2, Time.deltaTime * 5f);
+            currentRateOfFire += Time.deltaTime;
+
+            if (currentRateOfFire >= rateOfFire)
+            {
+                GameObject currentBullet = Instantiate(bulletPrefab, firePos.position, firePos.rotation);
+                Rigidbody rb = currentBullet.GetComponent<Rigidbody>();
+                rb.AddForce(firePos.forward * 2f, ForceMode.Impulse);
+                currentRateOfFire = 0;
+            }
+        }
+
+        if (target.CompareTag("Enemy"))
+        {
+            Enemy enemy = target.GetComponent<Enemy>();
+            Vector3 direction = enemy.EnemyBody.transform.position - transform.position;
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+            currentRateOfFire += Time.deltaTime;
+
+            if (currentRateOfFire >= rateOfFire)
+            {
+                GameObject currentBullet = Instantiate(bulletPrefab, firePos.position, firePos.rotation);
+                Rigidbody rb = currentBullet.GetComponent<Rigidbody>();
+                rb.AddForce(firePos.forward * 2f, ForceMode.Impulse);
+                currentRateOfFire = 0;
+            }
         }
     }
 
