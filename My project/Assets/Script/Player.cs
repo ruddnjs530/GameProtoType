@@ -119,7 +119,7 @@ public class Player : MonoBehaviour
                 }
 
                 Move();
-                if (dir.magnitude < 0.5f) //  && (Time.time - lastInputTime > inputBufferTime)
+                if (dir.magnitude < 0.5f && (Time.time - lastInputTime > inputBufferTime))
                 {
                     anim.SetBool("Running", false);
                     playerState = PlayerState.Idle;
