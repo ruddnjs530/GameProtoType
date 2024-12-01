@@ -122,7 +122,6 @@ public class GameManager : MonoBehaviour
         {
             Vector3 pos = new Vector3(0, 0, -40);
             GameObject currentBoss = Instantiate(boss, pos, boss.transform.rotation);
-            Debug.Log(currentBoss);
             BossEnemy bossComponent = currentBoss.GetComponent<BossEnemy>();
             if (bossComponent != null)
             {

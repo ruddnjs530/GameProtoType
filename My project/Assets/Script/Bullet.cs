@@ -8,8 +8,6 @@ public class Bullet : MonoBehaviour
    private  float destroyTime = 5f;
     private float timer;
 
-    //[SerializeField] ParticleSystem hitParticle;
-
     // Update is called once per frame
     private void Update()
     {

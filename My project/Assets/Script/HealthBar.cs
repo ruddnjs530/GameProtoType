@@ -39,7 +39,7 @@ public class HealthBar
         healthBar.transform.position = healthBar.transform.parent.position + attachmentLocation;
     }
 
-    public void Show() // enemy의 경우 보이게 안보이게 하기 위함. 또한 보스의 경우에도 생성될 때만 체력바가 보이게 하기 위함
+    public void Show()
     {
         healthBar.gameObject.SetActive(true);
     }

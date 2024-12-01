@@ -70,15 +70,16 @@ public class Weapon : MonoBehaviour
     private void Fire()
     {
         fireRateTimer = 0;
-        barrelPos.LookAt(aim.aimPos);
+        Vector3 aimDirection = (aim.aimPos.position - barrelPos.position).normalized;
+
         muzzleFalsh();
         audioSource.PlayOneShot(fireSound);
 
         for (int i = 0; i < bulletPerShot; i++)
         {
-            GameObject currentBullet = Instantiate(bullet, barrelPos.position, barrelPos.rotation);
+            GameObject currentBullet = Instantiate(bullet, barrelPos.position, Quaternion.LookRotation(aimDirection));
             Rigidbody rb = currentBullet.GetComponent<Rigidbody>();
-            rb.AddForce(barrelPos.forward * bulletVelocity, ForceMode.Impulse);
+            rb.AddForce(aimDirection * bulletVelocity, ForceMode.Impulse);
         }
     }
 

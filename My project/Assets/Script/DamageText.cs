@@ -6,7 +6,7 @@ using TMPro;
 public class DamageText : MonoBehaviour
 {
     float upSpeed;
-    float alphaSpeed; // 투명해지게
+    float alphaSpeed;
     float destroyTime;
     TextMeshPro text;
     Color alpha;

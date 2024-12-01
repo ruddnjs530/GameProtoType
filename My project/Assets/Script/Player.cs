@@ -43,7 +43,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float aimSpeed = 20;
     [SerializeField] private LayerMask aimMask;
 
-    private bool isDiveRoll = false;
+    private bool isDash = false;
 
     private float lastInputTime;
     private float inputBufferTime = 0.01f;
@@ -86,11 +86,15 @@ public class Player : MonoBehaviour
                     break;
                 }
                 else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D)
-                    || Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.Space))
+                    || Input.GetKey(KeyCode.LeftShift))
                 {
                     anim.SetBool("Running", true);
                     playerState = PlayerState.Move;
                     break;
+                }
+                else if (Input.GetKey(KeyCode.Space))
+                {
+                    playerState = PlayerState.Move;
                 }
                 else if (Input.GetMouseButton(0))
                 {
@@ -119,14 +123,14 @@ public class Player : MonoBehaviour
                 }
 
                 Move();
+                Jump();
                 if (dir.magnitude < 0.5f && (Time.time - lastInputTime > inputBufferTime))
                 {
                     anim.SetBool("Running", false);
                     playerState = PlayerState.Idle;
                     break;
                 }
-                StartCoroutine(DiveRoll());
-                Jump();
+                StartCoroutine(Dash());
                 break;
 
             case PlayerState.Attack:
@@ -135,7 +139,7 @@ public class Player : MonoBehaviour
                     playerState = PlayerState.Die;
                     break;
                 }
-                if (Input.GetMouseButtonUp(0))
+                else if (Input.GetMouseButtonUp(0))
                 {
                     anim.SetLayerWeight(1, 0);
                     anim.SetBool("Shooting", false);
@@ -150,10 +154,10 @@ public class Player : MonoBehaviour
 
                     break;
                 }
-
+                AttackMovement();
                 Move();
                 Jump();
-                StartCoroutine(DiveRoll());
+                StartCoroutine(Dash());
                 break;
 
             case PlayerState.Die:
@@ -175,7 +179,7 @@ public class Player : MonoBehaviour
 
     private void Move()
     {
-        if (isDiveRoll) return;
+        if (isDash) return;
 
         hzInput = Input.GetAxis("Horizontal");
         vInput = Input.GetAxis("Vertical");
@@ -208,12 +212,12 @@ public class Player : MonoBehaviour
         anim.SetFloat("vertical", vInput);
     }
 
-    private IEnumerator DiveRoll()
+    private IEnumerator Dash()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift) && !isDiveRoll)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && !isDash)
         {
-            isDiveRoll = true;
-            anim.SetTrigger("DiveRoll");
+            isDash = true;
+            anim.SetTrigger("Dash");
             //StartCoroutine(coolTime.ShowCoolTime());
 
             Vector3 horizontalMove = cameraArm.right * hzInput;
@@ -229,7 +233,7 @@ public class Player : MonoBehaviour
                 cc.Move(moveDirection * rollSpeed * Time.deltaTime);
                 yield return null;
             }
-            isDiveRoll = false;
+            isDash = false;
         }
     }
 
@@ -250,6 +254,13 @@ public class Player : MonoBehaviour
         }
 
         cc.Move(velocity * Time.deltaTime);
+    }
+
+    private void AttackMovement()
+    {
+        Vector3 lookForward = new Vector3(cameraArm.forward.x, 0f, cameraArm.forward.z).normalized;
+        Quaternion targetRotation = Quaternion.LookRotation(lookForward);
+        characterBody.rotation = Quaternion.RotateTowards(characterBody.rotation, targetRotation, Time.deltaTime * 1000.0f);
     }
 
     public void TakeDamage(float damage)

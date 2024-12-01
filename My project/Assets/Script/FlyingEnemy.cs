@@ -7,8 +7,8 @@ public class FlyingEnemy : Enemy
     private int flyingPrice = 15;
 
     [SerializeField] private Transform shotPos;
-    [SerializeField] private GameObject bulletPrefab; // ÃÑ¾Ë ÇÁ¸®ÆÕ
-    private float bulletSpeed = 10f; // ÃÑ¾Ë ¹ß»ç ¼Óµµ
+    [SerializeField] private GameObject bulletPrefab;
+    private float bulletSpeed = 10f;
 
     private float fireRate = 1.0f;
     private float timer = 0.0f;

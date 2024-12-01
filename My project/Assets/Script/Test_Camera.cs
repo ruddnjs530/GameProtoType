@@ -9,29 +9,29 @@ public class Test_Camera : MonoBehaviour
 
     public Transform target;//Player
 
-    private float rotSensitive = 3f;//Ä«¸Þ¶ó È¸Àü °¨µµ
-    private float dis = 2f;//Ä«¸Þ¶ó¿Í ÇÃ·¹ÀÌ¾î»çÀÌÀÇ °Å¸®
-    private float RotationMin = -10f;//Ä«¸Þ¶ó È¸Àü°¢µµ ÃÖ¼Ò
-    private float RotationMax = 80f;//Ä«¸Þ¶ó È¸Àü°¢µµ ÃÖ´ë
-    private float smoothTime = 0.12f;//Ä«¸Þ¶ó°¡ È¸ÀüÇÏ´Âµ¥ °É¸®´Â ½Ã°£
-    //À§ 5°³ÀÇ value´Â °³¹ßÀÚÀÇ ÃëÇâ²¯ ¾Ë¾Æ¼­ ¼³Á¤ÇØÁÖÀÚ
+    private float rotSensitive = 3f;//Ä«ï¿½Þ¶ï¿½ È¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    private float dis = 2f;//Ä«ï¿½Þ¶ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½
+    private float RotationMin = -10f;//Ä«ï¿½Þ¶ï¿½ È¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½
+    private float RotationMax = 80f;//Ä«ï¿½Þ¶ï¿½ È¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½
+    private float smoothTime = 0.12f;//Ä«ï¿½Þ¶ï¿½ È¸ï¿½ï¿½ï¿½Ï´Âµï¿½ ï¿½É¸ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
+    //ï¿½ï¿½ 5ï¿½ï¿½ï¿½ï¿½ valueï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½â²¯ ï¿½Ë¾Æ¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private Vector3 targetRotation;
     private Vector3 currentVel;
 
-    void LateUpdate()//Player°¡ ¿òÁ÷ÀÌ°í ±× ÈÄ Ä«¸Þ¶ó°¡ µû¶ó°¡¾ß ÇÏ¹Ç·Î LateUpdate
+    void LateUpdate()//Playerï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì°ï¿½ ï¿½ï¿½ ï¿½ï¿½ Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ó°¡¾ï¿½ ï¿½Ï¹Ç·ï¿½ LateUpdate
     {
-        Yaxis = Yaxis + Input.GetAxis("Mouse X") * rotSensitive;//¸¶¿ì½º ÁÂ¿ì¿òÁ÷ÀÓÀ» ÀÔ·Â¹Þ¾Æ¼­ Ä«¸Þ¶óÀÇ YÃàÀ» È¸Àü½ÃÅ²´Ù
-        Xaxis = Xaxis - Input.GetAxis("Mouse Y") * rotSensitive;//¸¶¿ì½º »óÇÏ¿òÁ÷ÀÓÀ» ÀÔ·Â¹Þ¾Æ¼­ Ä«¸Þ¶óÀÇ XÃàÀ» È¸Àü½ÃÅ²´Ù
-        //Xaxis´Â ¸¶¿ì½º¸¦ ¾Æ·¡·Î ÇßÀ»¶§(À½¼ö°ªÀÌ ÀÔ·Â ¹Þ¾ÆÁú¶§) °ªÀÌ ´õÇØÁ®¾ß Ä«¸Þ¶ó°¡ ¾Æ·¡·Î È¸ÀüÇÑ´Ù 
+        Yaxis = Yaxis + Input.GetAxis("Mouse X") * rotSensitive;//ï¿½ï¿½ï¿½ì½º ï¿½Â¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·Â¹Þ¾Æ¼ï¿½ Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ Yï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ï¿½ï¿½Å²ï¿½ï¿½
+        Xaxis = Xaxis - Input.GetAxis("Mouse Y") * rotSensitive;//ï¿½ï¿½ï¿½ì½º ï¿½ï¿½ï¿½Ï¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·Â¹Þ¾Æ¼ï¿½ Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ Xï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ï¿½ï¿½Å²ï¿½ï¿½
+        //Xaxisï¿½ï¿½ ï¿½ï¿½ï¿½ì½ºï¿½ï¿½ ï¿½Æ·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ ï¿½Þ¾ï¿½ï¿½ï¿½ï¿½ï¿½) ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½Þ¶ï¿½ ï¿½Æ·ï¿½ï¿½ï¿½ È¸ï¿½ï¿½ï¿½Ñ´ï¿½ 
 
         Xaxis = Mathf.Clamp(Xaxis, RotationMin, RotationMax);
-        //XÃàÈ¸ÀüÀÌ ÇÑ°èÄ¡¸¦ ³ÑÁö¾Ê°Ô Á¦ÇÑÇØÁØ´Ù.
+        //Xï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ°ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ê°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø´ï¿½.
 
         targetRotation = Vector3.SmoothDamp(targetRotation, new Vector3(Xaxis, Yaxis), ref currentVel, smoothTime);
         this.transform.eulerAngles = targetRotation;
-        //SmoothDamp¸¦ ÅëÇØ ºÎµå·¯¿î Ä«¸Þ¶ó È¸Àü
+        //SmoothDampï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Îµå·¯ï¿½ï¿½ Ä«ï¿½Þ¶ï¿½ È¸ï¿½ï¿½
 
         transform.position = target.position - transform.forward * dis;
-        //Ä«¸Þ¶óÀÇ À§Ä¡´Â ÇÃ·¹ÀÌ¾îº¸´Ù ¼³Á¤ÇÑ °ª¸¸Å­ ¶³¾îÁ®ÀÖ°Ô °è¼Ó º¯°æµÈ´Ù.
+        //Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾îº¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö°ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È´ï¿½.
     }
 }

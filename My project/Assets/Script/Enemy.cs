@@ -182,14 +182,14 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void ReSetDestination() // 목표 재설정.
+    private void ReSetDestination()
     {
         float randomX = Random.Range(-180.0f, 180.0f);
         float randomZ = Random.Range(-1.0f, 180.0f);
         destination = new Vector3(randomX, 0f, randomZ);
     }
 
-    private void SimpleMove() // destination으로 이동.
+    private void SimpleMove()
     {
         agent.SetDestination(destination);
         agent.speed = walkSpeed;
