@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum TurretState { Idle, Attack, Die }
+public enum TurretState { Idle, Attack}
 
 public class TurretObject : MonoBehaviour
 {
@@ -11,8 +11,6 @@ public class TurretObject : MonoBehaviour
     [SerializeField] private Transform firePos;
     private float rateOfFire = 1f;
     private float currentRateOfFire = 1f;
-
-    private float hp = 100;
 
     private Quaternion originalRotation;
 
@@ -44,27 +42,34 @@ public class TurretObject : MonoBehaviour
         switch (turretState)
         {
             case TurretState.Idle:
-                if (hp <= 0)
-                {
-                    turretState = TurretState.Die;
-                    break;
-                }
-                else if (currentQueueCount > 0)
+                if (currentQueueCount > 0)
                 {
                     turretState = TurretState.Attack;
                     break;
                 }
 
-                if (Mathf.Abs(Mathf.DeltaAngle(transform.rotation.x, originalRotation.x)) > 0.1f)
-                {
-                    transform.rotation = Quaternion.Slerp(transform.rotation, originalRotation, Time.deltaTime);
-                }
 
-                transform.Rotate(new Vector3(0, 45, 0) * Time.deltaTime);
+                if (Quaternion.Angle(transform.rotation, originalRotation) > 0.1f)
+                    transform.rotation = Quaternion.Slerp(transform.rotation, originalRotation, 100 * Time.deltaTime);
+
+                transform.Rotate(new Vector3(0, 45f * Time.deltaTime, 0));
+
+                //if (Mathf.Abs(Mathf.DeltaAngle(transform.rotation.x, originalRotation.x)) > 0.1f)
+                //{
+                //    transform.rotation = Quaternion.Slerp(transform.rotation, originalRotation, Time.deltaTime);
+                //}
+
+                //transform.Rotate(new Vector3(0, 45, 0) * Time.deltaTime);
                 break;
 
             case TurretState.Attack:
-                if (attackTarget == null) attackTarget = priorityQueueDequeue();
+                if (currentQueueCount == 0)
+                {
+                    turretState = TurretState.Idle;
+                    break;
+                }
+
+                if (attackTarget == null) attackTarget = PriorityQueueDequeue();
                 else
                 {
                     Attack(attackTarget);
@@ -72,10 +77,6 @@ public class TurretObject : MonoBehaviour
                 }
                 //Attack(attackTarget);
                 //OnIsAttack?.Invoke();
-                break;
-
-            case TurretState.Die:
-                Die();
                 break;
         }
     }
@@ -86,17 +87,9 @@ public class TurretObject : MonoBehaviour
         {
             if (turretState == TurretState.Idle)
             {
-                priorityQueueEnqueue(new EnemyData(other.transform, other.GetComponent<Enemy>().EnemyID));
+                PriorityQueueEnqueue(new EnemyData(other.transform, other.GetComponent<Enemy>().EnemyID));
             }
 
-            //if (turretState == TurretState.Idle)
-            //{
-            //    turretState = TurretState.Attack;
-            //}
-            //else if (turretState == TurretState.Attack && attackTarget == null)
-            //{
-            //    attackTarget = NearestObj(other.gameObject);
-            //}
         }
 
         if (other.CompareTag("BossEnemy"))
@@ -118,15 +111,8 @@ public class TurretObject : MonoBehaviour
                 return;
             }
 
-            RemovepriorityQueueElements(other.gameObject.GetComponent<Enemy>());
+            RemovePriorityQueueElements(other.gameObject.GetComponent<Enemy>());
         }
-        //if (other.gameObject.tag == "Enemy" && other.gameObject == attackTarget)
-        //{
-        //    attackTarget = null;
-        //    turretState = TurretState.Idle;
-        //    Debug.Log("enemy out");
-        //    return;
-        //}
 
         if (other.CompareTag("BossEnemy"))
         {
@@ -134,29 +120,6 @@ public class TurretObject : MonoBehaviour
             turretState = TurretState.Idle;
             return;
         }
-    }
-
-    private GameObject NearestObj(GameObject obj)
-    {
-        List<GameObject> objs = new List<GameObject>();
-        objs.Add(obj);
-
-        GameObject nearestObj = objs[0];
-        foreach (GameObject objInList in objs)
-        {
-            if (DistanceWithEnemy2(nearestObj) > DistanceWithEnemy2(objInList))
-            {
-                nearestObj = objInList;
-            }
-        }
-
-        return nearestObj;
-    }
-
-    private float DistanceWithEnemy2(GameObject enemy)
-    {
-        float distance = Vector3.Distance(enemy.transform.position, this.transform.position);
-        return distance;
     }
 
     private void Attack(GameObject target)
@@ -196,12 +159,7 @@ public class TurretObject : MonoBehaviour
         }
     }
 
-    private void Die()
-    {
-        Destroy(gameObject);
-    }
-
-    private void priorityQueueEnqueue(EnemyData enemyData)
+    private void PriorityQueueEnqueue(EnemyData enemyData)
     {
         for (int i = 0; i < currentQueueCount; i++)
         {
@@ -236,9 +194,13 @@ public class TurretObject : MonoBehaviour
         }
     }
 
-    private GameObject priorityQueueDequeue()
+    private GameObject PriorityQueueDequeue()
     {
-        if (currentQueueCount == 0) return null;
+        if (currentQueueCount == 0 || priorityQueue[0].Transform == null)
+        {
+            currentQueueCount = 0;                     ////// ???????????????????????????????? 이렇게 하는게 맞나? 0번째 있는게 삭제가 됐는데 최신화가 안됐을경우임. 이 코드가.
+            return null;
+        }
 
         GameObject target = priorityQueue[0].Transform.gameObject;
 
@@ -249,11 +211,10 @@ public class TurretObject : MonoBehaviour
 
         if (target == null && currentQueueCount > 0)
         {
-            return priorityQueueDequeue();
+            return PriorityQueueDequeue();
         }
 
         return target;
-
     }
 
     private void Heapify(int currentIndex)
@@ -285,7 +246,7 @@ public class TurretObject : MonoBehaviour
         priorityQueue[index2] = temp;
     }
 
-    private void RemovepriorityQueueElements(Enemy targetEnemy)
+    private void RemovePriorityQueueElements(Enemy targetEnemy)
     {
         for (int i = 0; i < currentQueueCount -1; i++)
         {
