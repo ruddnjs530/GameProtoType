@@ -11,12 +11,13 @@ public class LaserAttack : DefaultBossSkill
     private float warningLineEndWidth = 0f;
     private float rotationSpeed = 5f;
 
-    public LaserAttack() : base("LaserAttack", 7f) { }
+    public LaserAttack() : base("LaserAttack", 8f) { }
 
     public override IEnumerator Execute(BossEnemy boss)
     {
         SetSkillUsedTime();
-        boss.PrepareForAttack("laserAttack");
+        boss.PrepareForAttack("LaserAttack");
+        Debug.Log("laserAttack");
 
         boss.WarningLine.enabled = true;
 

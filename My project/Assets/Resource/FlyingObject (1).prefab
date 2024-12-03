@@ -97,7 +97,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 6
+  m_Radius: 8
   m_Center: {x: 0, y: -0.5, z: 0}
 --- !u!114 &3327691189229092166
 MonoBehaviour:
@@ -111,6 +111,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ad2a6930e46c964298c7147af6e0f84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  turretState: 0
   bulletPrefab: {fileID: 6638930534329082773, guid: 09a6628244e458044959f82f9e42349e, type: 3}
   firePos: {fileID: 8804411169353268970}
 --- !u!1 &3620355749042102663

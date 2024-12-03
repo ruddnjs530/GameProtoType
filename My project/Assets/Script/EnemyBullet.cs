@@ -7,7 +7,7 @@ public class EnemyBullet : MonoBehaviour
     float destroyTime = 5f;
     float timer;
 
-    int bulletDamage = 11;
+    float bulletDamage = 5.5f;
 
     // Update is called once per frame
     void Update()

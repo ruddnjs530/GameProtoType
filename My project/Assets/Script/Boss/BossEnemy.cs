@@ -20,8 +20,8 @@ public class BossEnemy : MonoBehaviour
     private LineRenderer laser;
 
     public GameObject textObject;
-    private float currentHP = 1000;
-    private float maxHP = 5000;
+    private float currentHP = 2000;
+    private float maxHP = 2000;
 
     [SerializeField] private AnimationCurve heightCurve;
 
@@ -88,7 +88,7 @@ public class BossEnemy : MonoBehaviour
 
         bossSkills = new List<IBossSkill>
         {
-            //new LaserAttack(),
+            new LaserAttack(),
             new LevitationAttack(),
         };
 
@@ -109,7 +109,7 @@ public class BossEnemy : MonoBehaviour
             case BossState.Attack:
                 CheckDeath();
 
-                if (isAttacking == false)
+                if (isAttacking == false && currentBossSkill != null)
                 {
                     BossAttack(currentBossSkill);
                     currentBossSkill = null;
@@ -154,88 +154,86 @@ public class BossEnemy : MonoBehaviour
         return Physics.CheckSphere(transform.position, levitationAttackRange, playerLayer);
     }
 
-    private IEnumerator JumpAttack(Vector3 targetPosition)
-    {
-        anim.SetTrigger("jumpAttack");
-        yield return new WaitForSeconds(0.5f);
-        Vector3 startingPos = transform.position;
-        for (float time = 0; time < 1; time += Time.deltaTime * jumpSpeed)
-        {
-            transform.position = Vector3.Lerp(startingPos, targetPosition, time) + Vector3.up * heightCurve.Evaluate(time);
+    //private IEnumerator JumpAttack(Vector3 targetPosition)
+    //{
+    //    anim.SetTrigger("jumpAttack");
+    //    yield return new WaitForSeconds(0.5f);
+    //    Vector3 startingPos = transform.position;
+    //    for (float time = 0; time < 1; time += Time.deltaTime * jumpSpeed)
+    //    {
+    //        transform.position = Vector3.Lerp(startingPos, targetPosition, time) + Vector3.up * heightCurve.Evaluate(time);
 
-            yield return null;
-        }
+    //        yield return null;
+    //    }
 
-        float distance = Vector3.Distance(this.transform.position, target.position);
-        if (distance <= 10f) target.GetComponent<Player>().TakeDamage(jumpDamage);
-        yield return new WaitForSeconds(2.0f);
-        currentBossSkill = null;
-        isAttacking = false;
-    }
+    //    float distance = Vector3.Distance(this.transform.position, target.position);
+    //    if (distance <= 10f) target.GetComponent<Player>().TakeDamage(jumpDamage);
+    //    yield return new WaitForSeconds(2.0f);
+    //    currentBossSkill = null;
+    //    isAttacking = false;
+    //}
 
-    private IEnumerator levitationAttack(Collider player)
-    {
-        agent.updateRotation = false;
+    //private IEnumerator levitationAttack(Collider player)
+    //{
+    //    agent.updateRotation = false;
 
-        Vector3 direction = (player.transform.position - transform.position).normalized;
-        float angleBetween = Vector3.Angle(transform.forward, direction);
+    //    Vector3 direction = (player.transform.position - transform.position).normalized;
+    //    float angleBetween = Vector3.Angle(transform.forward, direction);
 
-        if (angleBetween < attackAngle / 2)
-        {
-            CharacterController playerController = player.GetComponent<CharacterController>();
-            if (playerController != null)
-            {
-                anim.SetTrigger("levitation");
-                projector.enabled = true;
-                yield return new WaitForSeconds(2);
-                projector.enabled = false;
+    //    if (angleBetween < attackAngle / 2)
+    //    {
+    //        CharacterController playerController = player.GetComponent<CharacterController>();
+    //        if (playerController != null)
+    //        {
+    //            anim.SetTrigger("levitation");
+    //            projector.enabled = true;
+    //            yield return new WaitForSeconds(2);
+    //            projector.enabled = false;
 
-                direction = (player.transform.position - transform.position).normalized;
-                angleBetween = Vector3.Angle(transform.forward, direction);
-                if (angleBetween < attackAngle / 2)
-                {
-                    GameManager.Instance.canPlayerMove = false;
-                    playerController.transform.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
-                    playerController.transform.GetComponent<Player>().anim.SetTrigger("levitation");
-                    StartCoroutine(ApplyKnockback(playerController));
-                }
-            }
-        }
-        yield return new WaitForSeconds(3);
+    //            direction = (player.transform.position - transform.position).normalized;
+    //            angleBetween = Vector3.Angle(transform.forward, direction);
+    //            if (angleBetween < attackAngle / 2)
+    //            {
+    //                GameManager.Instance.canPlayerMove = false;
+    //                playerController.transform.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
+    //                playerController.transform.GetComponent<Player>().anim.SetTrigger("levitation");
+    //                StartCoroutine(ApplyKnockback(playerController));
+    //            }
+    //        }
+    //    }
+    //    yield return new WaitForSeconds(3);
 
-        currentBossSkill = null;
-        isAttacking = false;
-        GameManager.Instance.canPlayerMove = true;
-    }
+    //    currentBossSkill = null;
+    //    isAttacking = false;
+    //    GameManager.Instance.canPlayerMove = true;
+    //}
 
-    private IEnumerator ApplyKnockback(CharacterController controller)
-    {
-        Vector3 knockbackForce = new Vector3(0, 10, 0);
-        float timer = 0;
-        while (timer < 0.5f)
-        {
-            controller.Move(knockbackForce * Time.deltaTime);
-            timer += Time.deltaTime;
-            yield return null;
-        }
-    }
+    //private IEnumerator ApplyKnockback(CharacterController controller)
+    //{
+    //    Vector3 knockbackForce = new Vector3(0, 10, 0);
+    //    float timer = 0;
+    //    while (timer < 0.5f)
+    //    {
+    //        controller.Move(knockbackForce * Time.deltaTime);
+    //        timer += Time.deltaTime;
+    //        yield return null;
+    //    }
+    //}
 
     public void ChangeToMoveToPlayerState()
     {
-        if (currentBossSkill != null && isAttacking != false) return;
-
-        currentBossSkill = null;
+        //currentBossSkill = null;
         isAttacking = false;
-        agent.SetDestination(target.position);
-        agent.speed = walkSpeed;
+        //agent.SetDestination(target.position);
+       // agent.speed = walkSpeed;
         agent.isStopped = false;
-        anim.SetBool("isWalking", true);
+        //anim.SetBool("isWalking", true);
         bossState = BossState.MoveToPlayer;
     }
 
     private void UpdateSkill()
     {
-        if (bossState == BossState.Attack || currentBossSkill != null)
+        if (bossState == BossState.Attack || currentBossSkill != null || isAttacking)
         {
             return;
         }
@@ -253,9 +251,13 @@ public class BossEnemy : MonoBehaviour
 
     public void PrepareForAttack(string animationName)
     {
-        anim.SetBool("isWalking", false);
+        if (anim.GetCurrentAnimatorStateInfo(0).IsName(animationName))
+            return;
+
+        //anim.SetBool("isWalking", false);
         agent.isStopped = true;
         anim.SetTrigger(animationName);
+        Debug.Log("PrepareForAttack " + anim.GetCurrentAnimatorStateInfo(0).IsName(animationName));
     }
 
     private void OnTriggerEnter(Collider other)

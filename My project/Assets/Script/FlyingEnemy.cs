@@ -10,9 +10,6 @@ public class FlyingEnemy : Enemy
     [SerializeField] private GameObject bulletPrefab;
     private float bulletSpeed = 10f;
 
-    private float fireRate = 1.0f;
-    private float timer = 0.0f;
-
     private Quaternion originalRotation;
 
     protected override void Start()
@@ -26,15 +23,15 @@ public class FlyingEnemy : Enemy
     {
         base.Update();
 
-        if (enemyState != EnemyState.Attack && Mathf.Abs(Mathf.DeltaAngle(enemyBody.rotation.x, originalRotation.x)) > 0.1f)
+        if (enemyState != EnemyState.Attack && Mathf.Abs(Mathf.DeltaAngle(enemyBody.rotation.y, originalRotation.y)) > 0.1f)
         {
             Vector3 currentEulerAngles = enemyBody.rotation.eulerAngles;
             Vector3 originalEulerAngles = originalRotation.eulerAngles;
 
-            float newX = Mathf.LerpAngle(currentEulerAngles.x, originalEulerAngles.x, 0.1f);
+            float newY = Mathf.LerpAngle(currentEulerAngles.y, originalEulerAngles.y, 0.1f);
 
-            Quaternion newRotation = Quaternion.Euler(newX, currentEulerAngles.y, currentEulerAngles.z);
-            enemyBody.rotation = Quaternion.Slerp(transform.rotation, newRotation, Time.deltaTime * 0.3f);
+            Quaternion newRotation = Quaternion.Euler(currentEulerAngles.x, newY, currentEulerAngles.z);
+            enemyBody.rotation = Quaternion.Slerp(transform.rotation, newRotation, Time.deltaTime * 0.03f);
         }
     }
 
@@ -42,25 +39,23 @@ public class FlyingEnemy : Enemy
     {
         base.Attack();
 
-        if (agentTarget)
-            LookAt(agentTarget);
+        if (!agentTarget) return;
 
-        timer += Time.deltaTime;
-        if (timer > fireRate)
+        LookAt(agentTarget);
+
+        attackTimer += Time.deltaTime;
+        if (attackTimer > attackRate)
         {
-            Quaternion bulletRotation = Quaternion.Euler(0f, 0f, -45f);
-            GameObject currentBullet = Instantiate(bulletPrefab, shotPos.position, bulletRotation);
-            Rigidbody rb = currentBullet.GetComponent<Rigidbody>();
-            rb.AddForce(shotPos.forward * bulletSpeed, ForceMode.Impulse);
-            timer = 0.0f;
+            animatorStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+            if (animatorStateInfo.IsName("Attack01") || animatorStateInfo.normalizedTime > 0.95f)
+            {
+                Quaternion bulletRotation = Quaternion.Euler(0f, 0f, -45f);
+                GameObject currentBullet = Instantiate(bulletPrefab, shotPos.position, bulletRotation);
+                Rigidbody rb = currentBullet.GetComponent<Rigidbody>();
+                rb.AddForce(shotPos.forward * bulletSpeed, ForceMode.Impulse);
+                attackTimer = 0f;
+            }
         }
-    }
-
-    void LookAt(Transform target)
-    {
-        Vector3 direction = target.position - enemyBody.position;
-        Quaternion lookRotation = Quaternion.LookRotation(direction.normalized);
-        enemyBody.rotation = Quaternion.Slerp(enemyBody.rotation, lookRotation, Time.deltaTime * 3f);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -69,7 +64,6 @@ public class FlyingEnemy : Enemy
         {
             agentTarget = other.transform;
             isSeePlayer = true;
-            canAttack = true;
         }
     }
 
@@ -79,7 +73,6 @@ public class FlyingEnemy : Enemy
         {
             isSeePlayer = false;
             agentTarget = null;
-            canAttack = false;
         }
     }
 

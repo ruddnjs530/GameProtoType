@@ -12,7 +12,7 @@ public abstract class DefaultBossSkill : IBossSkill
     {
         Name = name;
         CoolTime = coolTime;
-        LastUsedTime = -coolTime; // 초기화 시 바로 사용할 수 있도록 설정
+        LastUsedTime = Time.time;
     }
 
     public bool IsCoolDownComplete()

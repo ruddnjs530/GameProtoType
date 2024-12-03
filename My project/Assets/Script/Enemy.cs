@@ -37,13 +37,17 @@ public class Enemy : MonoBehaviour
     float currentTime = 0f;
 
     public bool canAttack = true;
-    protected float attackDelay = 2f;
+    public float attackTimer = 0.0f;
+    protected float attackRate = 2.0f;
+    protected AnimatorStateInfo animatorStateInfo;
+
+    protected Coroutine attackCoroutine = null;
 
     [SerializeField] private GameObject textObject;
 
     protected bool isSeePlayer = false;
 
-    private Animator anim;
+    protected Animator anim;
 
     public delegate void EnemyDied(Enemy enemy);
     public event EnemyDied OnEnemyDied;
@@ -139,18 +143,24 @@ public class Enemy : MonoBehaviour
             case EnemyState.Attack:
                 if (currentHP <= 0)
                 {
-                    anim.SetBool("Attack", false);
                     enemyState = EnemyState.Die;
                     break;
                 }
                 else if (!canAttack)
                 {
-                    anim.SetBool("Attack", false);
                     agent.isStopped = false;
                     enemyState = EnemyState.Idle;
                     break;
                 }
                 Attack();
+                //if (attackCoroutine == null)
+                //{
+                //    anim.SetTrigger("Attack");
+                //    LookAt(agentTarget);
+
+                //    attackCoroutine = StartCoroutine(Attack());
+                //}
+
                 break;
 
             case EnemyState.Die:
@@ -185,7 +195,7 @@ public class Enemy : MonoBehaviour
     private void ReSetDestination()
     {
         float randomX = Random.Range(-180.0f, 180.0f);
-        float randomZ = Random.Range(-1.0f, 180.0f);
+        float randomZ = Random.Range(-180.0f, 180.0f);
         destination = new Vector3(randomX, 0f, randomZ);
     }
 
@@ -204,9 +214,18 @@ public class Enemy : MonoBehaviour
         anim.SetBool("Chase", true);
     }
 
+    //protected abstract IEnumerator Attack();
+
     protected virtual void Attack()
     {
-        anim.SetBool("Attack", true);
+        anim.SetTrigger("Attack");
+    }
+
+    protected void LookAt(Transform target)
+    {
+        Vector3 direction = target.position - enemyBody.position;
+        Quaternion lookRotation = Quaternion.LookRotation(direction.normalized);
+        enemyBody.rotation = Quaternion.Slerp(enemyBody.rotation, lookRotation, Time.deltaTime * 3f);
     }
 
     protected virtual void Die()
@@ -215,13 +234,6 @@ public class Enemy : MonoBehaviour
 
         OnEnemyDied?.Invoke(this);
         Destroy(gameObject);
-    }
-
-    public void LookAtTarget(Collider col)
-    {
-        Vector3 direction = col.transform.position - transform.position;
-        Quaternion lookRotation = Quaternion.LookRotation(direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
     }
 
     public void LookAtDirection(Vector3 direction)

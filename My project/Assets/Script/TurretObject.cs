@@ -47,19 +47,17 @@ public class TurretObject : MonoBehaviour
                     turretState = TurretState.Attack;
                     break;
                 }
+                SmoothRotateToZeroXZ();
+                RotateAroundYAxis();
+                //float newYRotation = Mathf.LerpAngle(transform.rotation.eulerAngles.y, originalRotation.eulerAngles.y, 100 * Time.deltaTime);
+                //transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, newYRotation, transform.rotation.eulerAngles.z);
 
-
-                if (Quaternion.Angle(transform.rotation, originalRotation) > 0.1f)
-                    transform.rotation = Quaternion.Slerp(transform.rotation, originalRotation, 100 * Time.deltaTime);
-
-                transform.Rotate(new Vector3(0, 45f * Time.deltaTime, 0));
-
-                //if (Mathf.Abs(Mathf.DeltaAngle(transform.rotation.x, originalRotation.x)) > 0.1f)
+                //if (Quaternion.Angle(transform.rotation, Quaternion.Euler(0, newYRotation, 0)) < 0.1f)
                 //{
-                //    transform.rotation = Quaternion.Slerp(transform.rotation, originalRotation, Time.deltaTime);
+                //    transform.Rotate(0, 50f * Time.deltaTime, 0);
+                //    Debug.Log("조정중");    
                 //}
 
-                //transform.Rotate(new Vector3(0, 45, 0) * Time.deltaTime);
                 break;
 
             case TurretState.Attack:
@@ -91,13 +89,6 @@ public class TurretObject : MonoBehaviour
             }
 
         }
-
-        if (other.CompareTag("BossEnemy"))
-        {
-            if (turretState == TurretState.Attack) return;
-            attackTarget = other.gameObject;
-            turretState = TurretState.Attack;
-        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -112,13 +103,6 @@ public class TurretObject : MonoBehaviour
             }
 
             RemovePriorityQueueElements(other.gameObject.GetComponent<Enemy>());
-        }
-
-        if (other.CompareTag("BossEnemy"))
-        {
-            attackTarget = null;
-            turretState = TurretState.Idle;
-            return;
         }
     }
 
@@ -272,6 +256,18 @@ public class TurretObject : MonoBehaviour
         {
             Heapify(i);
         }
+    }
+
+    void SmoothRotateToZeroXZ()
+    {
+        Quaternion currentRotation = transform.rotation;
+        Quaternion targetRotation = Quaternion.Euler(0, currentRotation.eulerAngles.y, 0);
+        transform.rotation = Quaternion.Lerp(currentRotation, targetRotation, Time.deltaTime * 300f);
+    }
+
+    void RotateAroundYAxis()
+    {
+        transform.Rotate(0, 50f * Time.deltaTime, 0, Space.World);
     }
 
     private void HandleDroneTooFar()

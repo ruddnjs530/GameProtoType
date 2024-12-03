@@ -4,22 +4,23 @@ using UnityEngine;
 
 public class LevitationAttack : DefaultBossSkill
 {
-    public LevitationAttack() : base("LevitationAttack", 5f) { }
+    public LevitationAttack() : base("LevitationAttack", 14f) { }
 
     public override IEnumerator Execute(BossEnemy boss)
     {
         SetSkillUsedTime();
-        boss.PrepareForAttack("levitation");
+        boss.PrepareForAttack("LevitationAttack");
+
+        Debug.Log("levitationAttack");
 
         Vector3 direction = (boss.Target.transform.position - boss.transform.position).normalized;
         float angleBetween = Vector3.Angle(boss.transform.forward, direction);
-
+        boss.Projector.enabled = true;
         if (angleBetween < boss.AttackAngle / 2)
         {
             CharacterController playerController = boss.Target.GetComponent<CharacterController>();
             if (playerController != null)
             {
-                boss.Projector.enabled = true;
                 yield return new WaitForSeconds(2);
 
                 direction = (boss.Target.transform.position - boss.transform.position).normalized;

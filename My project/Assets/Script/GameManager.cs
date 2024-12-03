@@ -134,10 +134,10 @@ public class GameManager : MonoBehaviour
     {
         List<InventoryItem> inventoryItems = inventory.GetItems();
         playerStatus = new PlayerStatus(player.GetHP(), player.GetMaxHP(), money, inventoryItems);
-        foreach (var drone in drones)
-        {
-            DontDestroyOnLoad(drone);
-        }
+        //foreach (var drone in drones)
+        //{
+        //    DontDestroyOnLoad(drone);
+        //}
     }
 
     public void LoadPlayerStatus(Player player, Inventory inventory, PlayerStatus playerStatus)
@@ -151,10 +151,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void AddDrone(GameObject drone)
-    {
-        drones.Add(drone);
-    }
+    //public void AddDrone(GameObject drone)
+    //{
+    //    drones.Add(drone);
+    //}
 
     private void HandleBulletHit(Vector3 hitPosition)
     {

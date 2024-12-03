@@ -8,8 +8,6 @@ public class EnemyCanAttack : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            this.transform.GetComponentInParent<Enemy>().LookAtTarget(other);
-
             this.transform.GetComponentInParent<Enemy>().canAttack= true;
         }
     }

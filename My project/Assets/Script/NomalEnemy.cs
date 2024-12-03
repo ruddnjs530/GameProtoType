@@ -20,13 +20,17 @@ public class NomalEnemy : Enemy
     {
         base.Attack();
         if (agentTarget == null) return;
-        attackDelay -= Time.deltaTime;
-        if (attackDelay < 0) attackDelay = 0;
-        if (attackDelay == 0)
+        LookAt(agentTarget);
+
+        attackTimer += Time.deltaTime;
+        if (attackTimer >= attackRate)
         {
-            Debug.Log("enemy attack");
-            agentTarget.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
-            attackDelay = 1f;
+            animatorStateInfo = anim.GetCurrentAnimatorStateInfo(0);
+            if (animatorStateInfo.IsName("Attack01") || animatorStateInfo.normalizedTime > 0.95f)
+            {
+                agentTarget.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
+                attackTimer = 0f;
+            }
         }
     }
 
@@ -36,7 +40,6 @@ public class NomalEnemy : Enemy
         {
             agentTarget = other.transform;
             isSeePlayer = true;
-            LookAtTarget(other);
         }
     }
 
@@ -44,7 +47,6 @@ public class NomalEnemy : Enemy
     {
         if (other.CompareTag("Player"))
         {
-            canAttack = false;
             isSeePlayer = false;
             agentTarget = null;
         }
