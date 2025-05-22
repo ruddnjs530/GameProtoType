@@ -6,10 +6,10 @@ using System.IO;
 [System.Serializable]
 public class SaveData
 {
-    public Vector3 playerPos;
-    public Vector3 playerRot;
     public int money;
     public float hp;
+    public float maxHp;
+    public int droneCount;
     public List<int> inventoryArrayNumber = new List<int>();
     public List<string> inventoryItemName = new List<string>();
     public List<int> inventoryItemNumber = new List<int>();
@@ -25,10 +25,10 @@ public class SaveAndLoad : MonoBehaviour
         player = FindObjectOfType<Player>();
         inventory = FindObjectOfType<Inventory>();
 
-        saveData.playerPos = player.transform.position;
-        saveData.playerRot = player.transform.rotation.eulerAngles;
         saveData.hp = player.GetHP();
+        saveData.maxHp = player.GetMaxHP();
         saveData.money = GameManager.Instance.money;
+        saveData.droneCount = GameManager.Instance.GetDroneCount();
 
         Slot[] slots = inventory.GetSlots();
         for (int i = 0; i < slots.Length; i++)
@@ -45,12 +45,12 @@ public class SaveAndLoad : MonoBehaviour
 
         File.WriteAllText(Application.dataPath + "/SaveFile.json", content);
 
-        Debug.Log("ÀúÀå¿Ï·á " + content);
+        Debug.Log("ë°ì´í„° ì €ìž¥ " + content);
     }
 
     public void LoadData()
     {
-        if (File.Exists(Application.dataPath + "/SaveFile.json"))   // ÆÄÀÏÀÌ ÀÖÀ» °æ¿ì¸¸ ½ÇÇà
+        if (File.Exists(Application.dataPath + "/SaveFile.json")) 
         {
             string content = File.ReadAllText(Application.dataPath + "/SaveFile.json");
 
@@ -59,18 +59,18 @@ public class SaveAndLoad : MonoBehaviour
             player = FindObjectOfType<Player>();
             inventory = FindObjectOfType<Inventory>();
 
-            player.transform.position = saveData.playerPos;
-            player.transform.eulerAngles = saveData.playerRot;
             player.SetHP(saveData.hp);
+            player.SetMaxHP(saveData.maxHp);
             GameManager.Instance.money = saveData.money;
             GameManager.Instance.UpdateMoney();
+            GameManager.Instance.SetDrone(saveData.droneCount, player);
 
             for (int i = 0; i < saveData.inventoryItemName.Count; i++)
             {
                 inventory.LoadToInven(saveData.inventoryArrayNumber[i], saveData.inventoryItemName[i], saveData.inventoryItemNumber[i]);
             }
         }
-        else Debug.Log("ÀúÀåµÈ ÆÄÀÏÀÌ ¾ø½À´Ï´Ù.");
+        else Debug.Log("ë°ì´í„°ê°€ ë¡œë“œ ë˜ì§€ ì•ŠìŒ");
         
     }
 }

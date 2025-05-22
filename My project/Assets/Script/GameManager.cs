@@ -31,7 +31,8 @@ public class GameManager : MonoBehaviour
 
     public PlayerStatus playerStatus;
     public List<GameObject> drones = new List<GameObject>();
-    [SerializeField] private List<GameObject> dronePrefabs;
+    [SerializeField] GameObject dronePrefabs;
+    private int droneCount = 0;
 
     [SerializeField] private GameObject boss;
 
@@ -151,10 +152,21 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    //public void AddDrone(GameObject drone)
-    //{
-    //    drones.Add(drone);
-    //}
+    public void AddDrone() // itemBox.cs 에 있음. (GameObject drone)
+    {
+        // drones.Add(drone);
+        droneCount += 1;
+    }
+
+    public int GetDroneCount() { return droneCount; }
+    public void SetDrone(int _droneCount, Player player) 
+    { 
+        droneCount = _droneCount; 
+        for (int i = 0; i < _droneCount; i++)
+        {
+            Instantiate(dronePrefabs, player.transform.position, player.transform.rotation);
+        }
+    }
 
     private void HandleBulletHit(Vector3 hitPosition)
     {

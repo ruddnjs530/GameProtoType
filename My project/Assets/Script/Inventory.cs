@@ -34,7 +34,7 @@ public class Inventory : MonoBehaviour
 
     void OpenInventory()
     {
-        if (Input.GetKeyDown(KeyCode.I))
+        if (Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.Tab))
         {
             inventoryActivated = !inventoryActivated;
 
@@ -77,6 +77,7 @@ public class Inventory : MonoBehaviour
             }
         }
     }
+
     public void LoadToInven(int arrayNum, string itemName, int itemNum)
     {
         for (int i = 0; i < items.Length; i++)
@@ -99,7 +100,7 @@ public class Inventory : MonoBehaviour
         return itemList;
     }
 
-    public void SetItems(List<InventoryItem> itemList)
+    public void SetItems(List<InventoryItem> itemList) // 지금은 인벤토리에 저장하는 것만 들어가 있음. set items 를 하면서 player 에 아이템 효과도 적용시켜줘야함.
     {
         foreach (var slot in slots)
         {

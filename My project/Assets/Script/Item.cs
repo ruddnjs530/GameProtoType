@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Item", menuName = "New Item/item")]
 public class Item : ScriptableObject
 {
-   public enum ItemType  // 아이템 유형
+   public enum ItemType
     {
         Buff,
         Equipment,
@@ -14,5 +14,5 @@ public class Item : ScriptableObject
     public string itemName; 
     public ItemType itemType; 
     public Sprite itemImage;
-    public GameObject itemPrefab;
+    //public GameObject itemPrefab;
 }

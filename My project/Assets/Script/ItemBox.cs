@@ -24,10 +24,11 @@ public class ItemBox : MonoBehaviour
         {
             GameObject item = Instantiate(items[Random.Range(0,items.Length)], transform.position, Quaternion.identity);
 
-            //if (item.GetComponent<DroneObject>() != null)
-            //{
-            //    GameManager.Instance.AddDrone(item);
-            //}
+            if (item.GetComponent<DroneObject>() != null)
+            {
+                // GameManager.Instance.AddDrone(item);
+                GameManager.Instance.AddDrone();
+            }
 
             GameManager.Instance.DecreaseMoney(itemPrice);
             Destroy(gameObject);
