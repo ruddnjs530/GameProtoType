@@ -34,6 +34,8 @@ public class TurretObject : MonoBehaviour
         attackTarget = null;
         var drone = GetComponentInParent<DroneObject>();
         if (drone != null) drone.OnPlayerTooFar += HandleDroneTooFar;
+
+        originalRotation = transform.rotation;
     }
 
     // Update is called once per frame
@@ -61,14 +63,17 @@ public class TurretObject : MonoBehaviour
                 break;
 
             case TurretState.Attack:
-                if (currentQueueCount == 0)
+                if (currentQueueCount == 0 && attackTarget == null)
                 {
+                    Debug.Log("Queue count 0");
                     turretState = TurretState.Idle;
                     break;
                 }
 
+
                 if (attackTarget == null) attackTarget = PriorityQueueDequeue();
-                else
+
+                if (attackTarget != null)
                 {
                     Attack(attackTarget);
                     OnIsAttack?.Invoke();
@@ -85,6 +90,7 @@ public class TurretObject : MonoBehaviour
         {
             if (turretState == TurretState.Idle)
             {
+                Debug.Log("Enemy in area");
                 PriorityQueueEnqueue(new EnemyData(other.transform, other.GetComponent<Enemy>().EnemyID));
             }
 
@@ -101,7 +107,7 @@ public class TurretObject : MonoBehaviour
                 turretState = TurretState.Idle;
                 return;
             }
-
+            Debug.Log("out");
             RemovePriorityQueueElements(other.gameObject.GetComponent<Enemy>());
         }
     }
@@ -160,7 +166,7 @@ public class TurretObject : MonoBehaviour
 
         priorityQueue[currentQueueCount] = enemyData;
         currentQueueCount++;
-
+        Debug.Log("currentQueueCount is " + currentQueueCount);
         int currentIndex = currentQueueCount - 1;
 
         while (currentIndex > 0)
@@ -182,6 +188,7 @@ public class TurretObject : MonoBehaviour
     {
         if (currentQueueCount == 0 || priorityQueue[0].Transform == null)
         {
+            Debug.Log("priorityQueue[0].Transform is null");
             currentQueueCount = 0;                     ////// ???????????????????????????????? 이렇게 하는게 맞나? 0번째 있는게 삭제가 됐는데 최신화가 안됐을경우임. 이 코드가.
             return null;
         }
@@ -263,6 +270,14 @@ public class TurretObject : MonoBehaviour
         Quaternion currentRotation = transform.rotation;
         Quaternion targetRotation = Quaternion.Euler(0, currentRotation.eulerAngles.y, 0);
         transform.rotation = Quaternion.Lerp(currentRotation, targetRotation, Time.deltaTime * 300f);
+
+        //float currentY = transform.rotation.eulerAngles.y;
+        //float targetY = originalRotation.eulerAngles.y;
+
+        //Quaternion current = transform.rotation;
+        //Quaternion target = Quaternion.Euler(0f, targetY, 0f); // y축만 맞추기
+
+        //transform.rotation = Quaternion.RotateTowards(current, target, Time.deltaTime * 100f);
     }
 
     void RotateAroundYAxis()
