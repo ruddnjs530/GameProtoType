@@ -149,6 +149,7 @@ public class Enemy : MonoBehaviour
                 else if (!canAttack)
                 {
                     agent.isStopped = false;
+                    anim.ResetTrigger("Attack");
                     enemyState = EnemyState.Idle;
                     break;
                 }
