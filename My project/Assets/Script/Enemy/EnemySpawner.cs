@@ -12,7 +12,7 @@ public class EnemySpawner : MonoBehaviour
 
     int enemyCount = 20; 
 
-    [SerializeField] Transform potal;
+    [SerializeField] Transform portal;
     [SerializeField] BossEnemy boss;
 
     int enemyIdCounter = 0;
@@ -55,8 +55,8 @@ public class EnemySpawner : MonoBehaviour
 
     void SpawnBoss()
     {
-        Vector3 bossSpawnPoints = potal.position;
+        Vector3 bossSpawnPoints = portal.position;
         bossSpawnPoints.y += 5;
-        Instantiate(boss, bossSpawnPoints, potal.rotation);
+        Instantiate(boss, bossSpawnPoints, portal.rotation);
     }
 }

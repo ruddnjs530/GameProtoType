@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PotalObject : MonoBehaviour
+public class PortalObject : MonoBehaviour
 {
     [SerializeField] private GameObject e;
     private bool isTransitioning = false;

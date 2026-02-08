@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class TImeCountDown : MonoBehaviour
+public class TimeCountDown : MonoBehaviour
 {
     TMP_Text text;
 

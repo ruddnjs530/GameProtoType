@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NomalEnemy : Enemy
+public class NormalEnemy : Enemy
 {
-    private int nomalPrice = 10;
+    private int normalPrice = 10;
     private float attackDamage = 3f;
 
     protected override void Start()
@@ -54,7 +54,7 @@ public class NomalEnemy : Enemy
 
     protected override void Die()
     {
-        GameManager.Instance.IncreaseMoney(nomalPrice);
+        GameManager.Instance.IncreaseMoney(normalPrice);
         base.Die();
     }
 }
