@@ -5,25 +5,29 @@ using UnityEngine.Audio;
 
 public class Weapon : MonoBehaviour
 {
-    [SerializeField] private float fireRate = 2.0f;
+    [Header("Firing Settings")]
+    [SerializeField] private float fireRate = 2.0f; // 발사 속도 (초 단위)
     private float fireRateTimer;
 
-    [SerializeField] private GameObject bullet;
-    [SerializeField] private Transform barrelPos;
-    [SerializeField] private float bulletVelocity;
-    [SerializeField] private int bulletPerShot;
+    [SerializeField] private GameObject bullet; // 총알 프리팹
+    [SerializeField] private Transform barrelPos; // 총구 위치
+    [SerializeField] private float bulletVelocity; // 총알 속도
+    [SerializeField] private int bulletPerShot; // 발사 당 총알 수
+    [SerializeField] private float fireAlignmentThreshold = 0.95f; // 발사 허용 정렬 임계값 (0~1)
 
-    private Mouse aim;
+    [Header("References")]
+    private Mouse aim; // 마우스 조준 참조
+    private Player player; // 플레이어 참조
 
-    private Light muzzleFlashLight;
-    private ParticleSystem muzzleFlashParticles;
+    [Header("Effects")]
+    private Light muzzleFlashLight; // 총구 섬광 라이트
+    private ParticleSystem muzzleFlashParticles; // 총구 섬광 파티클
     private float lightIntensity;
-    [SerializeField]
-    private float lightReturnTime = 20;
-    private Player player;
+    [SerializeField] private float lightReturnTime = 20; // 라이트 복귀 속도
 
-    [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip fireSound;
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource; // 오디오 소스
+    [SerializeField] private AudioClip fireSound; // 발사 사운드
 
     // Start is called before the first frame update
     void Start()
@@ -59,7 +63,7 @@ public class Weapon : MonoBehaviour
             Vector3 bodyDirection = player.characterBody.forward;
 
             float alignment = Vector3.Dot(lookDirection, bodyDirection);
-            if (alignment > 0.95f)
+            if (alignment > fireAlignmentThreshold)
             {
                 return true;
             }
@@ -72,7 +76,7 @@ public class Weapon : MonoBehaviour
         fireRateTimer = 0;
         Vector3 aimDirection = (aim.aimPos.position - barrelPos.position).normalized;
 
-        muzzleFalsh();
+        MuzzleFlash();
         audioSource.PlayOneShot(fireSound);
 
         for (int i = 0; i < bulletPerShot; i++)
@@ -83,7 +87,7 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    private void muzzleFalsh()
+    private void MuzzleFlash()
     {
         muzzleFlashParticles.Play();
         muzzleFlashLight.intensity = lightIntensity;
