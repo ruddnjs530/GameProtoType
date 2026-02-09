@@ -56,8 +56,8 @@ public class Weapon : MonoBehaviour
         fireRateTimer += Time.deltaTime;
         if (!GameManager.Instance.canPlayerMove) return false;
         if (fireRateTimer < fireRate) return false;
-        if (Input.GetKey(KeyCode.LeftShift)) return false;
-        if (Input.GetMouseButton(0))
+        if (InputManager.Instance.IsRun) return false;
+        if (InputManager.Instance.IsFire)
         {
             Vector3 lookDirection = new Vector3(Camera.main.transform.forward.x, 0, Camera.main.transform.forward.z).normalized;
             Vector3 bodyDirection = player.characterBody.forward;

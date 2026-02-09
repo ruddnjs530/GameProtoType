@@ -36,14 +36,14 @@ public class Enemy : MonoBehaviour
     protected Transform agentTarget;
     protected Vector3 destination;
 
-    [Header("Stats")]
     public float MaxHP { get; set; } = 100; // 최대 체력
-    protected float currentHP = 100; // 현재 체력
+    [Header("Stats")]
+    [SerializeField] protected float currentHP = 100; // 현재 체력
     public int EnemyID { get; set; } // 적 ID
 
     [Header("Combat Settings")]
     public bool canAttack = true; // 공격 가능 여부
-    public float attackTimer = 0.0f;
+    [SerializeField] public float attackTimer = 0.0f;
     protected float attackRate = 2.0f; // 공격 주기
 
     protected EnemyState enemyState; // 적 상태

@@ -85,18 +85,17 @@ public class Player : MonoBehaviour
                     playerState = PlayerState.Die;
                     break;
                 }
-                else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D)
-                    || Input.GetKey(KeyCode.LeftShift))
+                else if (InputManager.Instance.IsMoveKey || InputManager.Instance.IsRun)
                 {
                     anim.SetBool("Running", true);
                     playerState = PlayerState.Move;
                     break;
                 }
-                else if (Input.GetKey(KeyCode.Space))
+                else if (InputManager.Instance.IsJump)
                 {
                     playerState = PlayerState.Move;
                 }
-                else if (Input.GetMouseButton(0))
+                else if (InputManager.Instance.IsFire)
                 {
                     Vector3 lookForward = new Vector3(cameraArm.forward.x, 0f, cameraArm.forward.z).normalized;
                     characterBody.forward = lookForward;
@@ -114,7 +113,7 @@ public class Player : MonoBehaviour
                     playerState = PlayerState.Die;
                     break;
                 }
-                else if (Input.GetMouseButton(0))
+                else if (InputManager.Instance.IsFire)
                 {
                     anim.SetLayerWeight(1, 1);
                     anim.SetBool("Shooting", true);
@@ -139,7 +138,7 @@ public class Player : MonoBehaviour
                     playerState = PlayerState.Die;
                     break;
                 }
-                else if (Input.GetMouseButtonUp(0))
+                else if (InputManager.Instance.IsFireUp)
                 {
                     anim.SetLayerWeight(1, 0);
                     anim.SetBool("Shooting", false);
@@ -181,8 +180,8 @@ public class Player : MonoBehaviour
     {
         if (isDash) return;
 
-        hzInput = Input.GetAxis("Horizontal");
-        vInput = Input.GetAxis("Vertical");
+        hzInput = InputManager.Instance.Horizontal;
+        vInput = InputManager.Instance.Vertical;
 
         dir = new Vector3(hzInput, 0, vInput);
 
@@ -194,7 +193,7 @@ public class Player : MonoBehaviour
 
             Quaternion targetRotation;
 
-            if (Input.GetMouseButton(0))
+            if (InputManager.Instance.IsFire)
             {
                 targetRotation = Quaternion.LookRotation(lookForward);
             }
@@ -214,7 +213,7 @@ public class Player : MonoBehaviour
 
     private IEnumerator Dash()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift) && !isDash)
+        if (InputManager.Instance.IsDash && !isDash)
         {
             isDash = true;
             anim.SetTrigger("Dash");
@@ -246,7 +245,7 @@ public class Player : MonoBehaviour
 
     private void Jump()
     {
-        if (cc.isGrounded && Input.GetButton("Jump"))
+        if (cc.isGrounded && InputManager.Instance.IsJump)
         {
             anim.SetTrigger("Jump");
             velocity.y = jumpSpeed;
@@ -309,7 +308,7 @@ public class Player : MonoBehaviour
 
     private void LookAround()
     {
-        Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+        Vector2 mouseDelta = new Vector2(InputManager.Instance.MouseX, InputManager.Instance.MouseY);
         Vector3 camAngle = cameraArm.rotation.eulerAngles;
 
         float x = camAngle.x - mouseDelta.y;

@@ -21,7 +21,7 @@ public class PortalObject : MonoBehaviour
 
             //GameManager.Instance.SavePlayerStatus(player, FindObjectOfType<Inventory>(), drones);
 
-            GameObject gameManager = GameObject.Find("GameManager");
+            GameObject gameManager = GameObject.Find("Manager");
             SaveAndLoad save = gameManager.GetComponent<SaveAndLoad>();
             save.SaveData();
 
@@ -34,10 +34,10 @@ public class PortalObject : MonoBehaviour
         if (scene.name != "BossScene") return;
         Player player = GameObject.Find("Player").GetComponent<Player>();
         Inventory inventory = FindObjectOfType<Inventory>();
-        GameManager.Instance.InitializeBoss();
+        SpawnManager.Instance.InitializeBoss();
         //GameManager.Instance.LoadPlayerStatus(player, inventory, GameManager.Instance.playerStatus);
 
-        GameObject gameManager = GameObject.Find("GameManager");
+        GameObject gameManager = GameObject.Find("Manager");
         SaveAndLoad save = gameManager.GetComponent<SaveAndLoad>();
         save.LoadData();
     }

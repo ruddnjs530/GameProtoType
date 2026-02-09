@@ -21,24 +21,10 @@ public class GameManager : MonoBehaviour
     public int money = 0; // 보유 자금
     public int bulletDamage = 10; // 총알 데미지
 
-    [Header("UI References")]
-    [SerializeField] private TextMeshProUGUI moneyUI; // 돈 표시 UI
-    [SerializeField] private Canvas canvas; // 메인 캔버스
-    [SerializeField] private GameObject clear; // 클리어 화면
-    [SerializeField] private GameObject gameOver; // 게임 오버 화면
-
     [Header("Effects")]
     [SerializeField] private ParticleSystem hitParticle; // 피격 효과
-    [SerializeField] private GameObject damageTextPrefab; // 데미지 텍스트 프리팹
 
-    [Header("Boss & Enemies")]
     public PlayerStatus playerStatus;
-    public List<GameObject> drones = new List<GameObject>();
-    [SerializeField] GameObject dronePrefab; // 드론 프리팹
-    private int droneCount = 0;
-
-    [SerializeField] private GameObject boss; // 보스 프리팹
-    [SerializeField] private GameObject bossHPBar; // 보스 체력바
 
     private float time = 0f;
     [SerializeField] private float gameOverDelay = 6.0f; // 게임 오버 후 씬 전환 지연 시간
@@ -50,10 +36,9 @@ public class GameManager : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(this.gameObject);
 
-            if (canvas != null) DontDestroyOnLoad(canvas);
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
-        else
+        else if (instance != this) // 인스턴스 중복 확인 로직 강화
             Destroy(this.gameObject);
     }
 
@@ -87,7 +72,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;;
-        moneyUI.text = "$     " + money.ToString();
+        UIManager.Instance.UpdateMoneyText(money);
 
         BossEnemy.OnBossDeath += BossDeath;
         Player.OnPlayerDeath += PlayerDeath;
@@ -115,29 +100,10 @@ public class GameManager : MonoBehaviour
         }    
     }
 
-    public void InitializeBoss()
-    {
-        bossHPBar.SetActive(true);
-        if (boss != null)
-        {
-            Vector3 pos = new Vector3(0, 0, -40);
-            GameObject currentBoss = Instantiate(boss, pos, boss.transform.rotation);
-            BossEnemy bossComponent = currentBoss.GetComponent<BossEnemy>();
-            if (bossComponent != null)
-            {
-                bossComponent.SetHealthBar(bossHPBar.GetComponent<Slider>());
-            }
-        }
-    }
-
-    public void SavePlayerStatus(Player player, Inventory inventory, List<GameObject> drones)
+    public void SavePlayerStatus(Player player, Inventory inventory)
     {
         List<InventoryItem> inventoryItems = inventory.GetItems();
         playerStatus = new PlayerStatus(player.GetHP(), player.GetMaxHP(), money, inventoryItems);
-        //foreach (var drone in drones)
-        //{
-        //    DontDestroyOnLoad(drone);
-        //}
     }
 
     public void LoadPlayerStatus(Player player, Inventory inventory, PlayerStatus playerStatus)
@@ -148,22 +114,6 @@ public class GameManager : MonoBehaviour
             player.SetMaxHP(playerStatus.maxHP);
             money = playerStatus.money;
             inventory.SetItems(playerStatus.inventoryItems);
-        }
-    }
-
-    public void AddDrone() // itemBox.cs 에 있음. (GameObject drone)
-    {
-        // drones.Add(drone);
-        droneCount += 1;
-    }
-
-    public int GetDroneCount() { return droneCount; }
-    public void SetDrone(int _droneCount, Player player) 
-    { 
-        droneCount = _droneCount; 
-        for (int i = 0; i < _droneCount; i++)
-        {
-            Instantiate(dronePrefab, player.transform.position, player.transform.rotation); // dronePrefabs -> dronePrefab 변경 적용
         }
     }
 
@@ -180,52 +130,38 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        if (damageTextPrefab != null)
-        {
-            GameObject textInstance = Instantiate(damageTextPrefab, MakeRandomPosition(hitPosition), Quaternion.identity);
-            DamageText damageText = textInstance.GetComponent<DamageText>();
-            if (damageText != null)
-            {
-                damageText.damage = bulletDamage;
-            }
-        }
+        UIManager.Instance.ShowDamageText(hitPosition, bulletDamage);
     }
 
-    private Vector3 MakeRandomPosition(Vector3 textPosition)
-    {
-        float rand = Random.Range(-0.5f, 0.5f);
-        textPosition.x += rand;
-        textPosition.y = transform.position.y + 4;
-        textPosition.z += rand;
-        return textPosition;
-    }
+    // MakeRandomPosition 함수는 UIManager로 이동됨 -> 제거
+    // private Vector3 MakeRandomPosition(Vector3 textPosition) ...
 
     private void BossDeath()
     {
         SceneManager.LoadScene("ClearScene");
-        clear.SetActive(true);
+        UIManager.Instance.ShowClearPanel();
     }
 
     private void PlayerDeath()
     {
         SceneManager.LoadScene("GameOverScene");
-        gameOver.SetActive(true);
+        UIManager.Instance.ShowGameOverPanel();
     }
 
     public void IncreaseMoney(int price)
     {
         money += price;
-        moneyUI.text = "$     " + money.ToString();
+        UIManager.Instance.UpdateMoneyText(money);
     }
 
     public void DecreaseMoney(int price)
     {
         money -= price;
-        moneyUI.text = "$     " + money.ToString();
+        UIManager.Instance.UpdateMoneyText(money);
     }
 
     public void UpdateMoney()
     {
-        moneyUI.text = "$     " + money.ToString();
+        UIManager.Instance.UpdateMoneyText(money);
     }  
 }
