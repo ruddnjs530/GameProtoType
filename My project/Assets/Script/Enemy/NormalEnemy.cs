@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class NormalEnemy : Enemy
 {
-    private int normalPrice = 10;
-    private float attackDamage = 3f;
+    [Header("Normal Enemy Settings")]
+    [SerializeField] private int rewardMoney = 10; // 처치 시 보상금
+    [SerializeField] private float attackDamage = 3f; // 공격 데미지
+    [SerializeField] private float attackTiming = 0.95f; // 공격 판정 시점 (애니메이션 진행도)
 
     protected override void Start()
     {
@@ -26,7 +28,7 @@ public class NormalEnemy : Enemy
         if (attackTimer >= attackRate)
         {
             animatorStateInfo = anim.GetCurrentAnimatorStateInfo(0);
-            if (animatorStateInfo.IsName("Attack01") || animatorStateInfo.normalizedTime > 0.95f)
+            if (animatorStateInfo.IsName("Attack01") || animatorStateInfo.normalizedTime > attackTiming)
             {
                 agentTarget.gameObject.GetComponent<Player>().TakeDamage(attackDamage);
                 attackTimer = 0f;
@@ -54,7 +56,7 @@ public class NormalEnemy : Enemy
 
     protected override void Die()
     {
-        GameManager.Instance.IncreaseMoney(normalPrice);
+        GameManager.Instance.IncreaseMoney(rewardMoney);
         base.Die();
     }
 }

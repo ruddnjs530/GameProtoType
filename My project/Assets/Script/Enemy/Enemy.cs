@@ -25,42 +25,47 @@ public struct EnemyData
 
 public class Enemy : MonoBehaviour
 { 
+    [Header("Movement Settings")]
+    [SerializeField] protected float walkSpeed = 1f; // 걷기 속도
+    [SerializeField] protected float chaseSpeed = 6f; // 추격 속도
+    [SerializeField] protected float roamRange = 180.0f; // 배회 범위
+    [SerializeField] protected float moveInterval = 1.0f; // 이동 간격
+    [SerializeField] protected float rotationSpeed = 3f; // 회전 속도
+
     protected NavMeshAgent agent;
     protected Transform agentTarget;
     protected Vector3 destination;
-    protected float walkSpeed = 1f;
-    protected float chaseSpeed = 6f;
-    public float MaxHP { get; set; } = 100;
-    protected float currentHP = 100;
 
-    protected EnemyState enemyState;
+    [Header("Stats")]
+    public float MaxHP { get; set; } = 100; // 최대 체력
+    protected float currentHP = 100; // 현재 체력
+    public int EnemyID { get; set; } // 적 ID
+
+    [Header("Combat Settings")]
+    public bool canAttack = true; // 공격 가능 여부
+    public float attackTimer = 0.0f;
+    protected float attackRate = 2.0f; // 공격 주기
+
+    protected EnemyState enemyState; // 적 상태
     float currentTime = 0f;
 
-    public bool canAttack = true;
-    public float attackTimer = 0.0f;
-    protected float attackRate = 2.0f;
     protected AnimatorStateInfo animatorStateInfo;
-
     protected Coroutine attackCoroutine = null;
 
-    [SerializeField] private GameObject textObject;
+    [Header("References")]
+    [SerializeField] private GameObject textObject; // 텍스트 오브젝트 (용도 확인 필요)
+    [SerializeField] protected Slider hpBar; // 체력바 UI
+    [SerializeField] protected Transform enemyBody; // 적 모델
+    public Transform EnemyBody { get { return enemyBody; } }
 
-    protected bool isSeePlayer = false;
-
-    protected Animator anim;
+    protected bool isSeePlayer = false; // 플레이어 발견 여부
+    protected Animator anim; // 애니메이터
 
     public delegate void EnemyDied(Enemy enemy);
-    public event EnemyDied OnEnemyDied;
+    public event EnemyDied OnEnemyDied; // 사망 이벤트
 
-    [SerializeField] protected Slider hpBar;
-    private HealthBar healthBar;
-
+    private HealthBar healthBar; // 체력바 스크립트
     private Coroutine currentCoroutine;
-
-    public int EnemyID { get; set; }
-
-    [SerializeField] protected Transform enemyBody;
-    public Transform EnemyBody { get { return enemyBody; } }
 
     // Start is called before the first frame update
     protected virtual void Start()
@@ -89,7 +94,7 @@ public class Enemy : MonoBehaviour
                     enemyState = EnemyState.Chase;
                     break;
                 }
-                else if (currentTime >= 1f)
+                else if (currentTime >= moveInterval)
                 {
                     enemyState = EnemyState.SimpleMove;
                     break;
@@ -189,14 +194,14 @@ public class Enemy : MonoBehaviour
         if (hpBar != null)
         {
             if (currentCoroutine != null) StopCoroutine(currentCoroutine);
-            currentCoroutine = StartCoroutine(healthBar.ShwoAndHide());
+            currentCoroutine = StartCoroutine(healthBar.ShowAndHide()); // 오타 수정: ShwoAndHide -> ShowAndHide
         }
     }
 
     private void ReSetDestination()
     {
-        float randomX = Random.Range(-180.0f, 180.0f);
-        float randomZ = Random.Range(-180.0f, 180.0f);
+        float randomX = Random.Range(-roamRange, roamRange);
+        float randomZ = Random.Range(-roamRange, roamRange);
         destination = new Vector3(randomX, 0f, randomZ);
     }
 
@@ -226,7 +231,7 @@ public class Enemy : MonoBehaviour
     {
         Vector3 direction = target.position - enemyBody.position;
         Quaternion lookRotation = Quaternion.LookRotation(direction.normalized);
-        enemyBody.rotation = Quaternion.Slerp(enemyBody.rotation, lookRotation, Time.deltaTime * 3f);
+        enemyBody.rotation = Quaternion.Slerp(enemyBody.rotation, lookRotation, Time.deltaTime * rotationSpeed);
     }
 
     protected virtual void Die()

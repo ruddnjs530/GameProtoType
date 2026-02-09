@@ -8,48 +8,48 @@ public enum PlayerState { Idle, Move, Attack, Die }
 
 public class Player : MonoBehaviour
 {
-    [SerializeField]
-    private float moveSpeed = 5;
-    private float hzInput;
-    private float vInput;
-    private Vector3 dir;
-    private CharacterController cc;
+    [Header("Movement Settings")]
+    [SerializeField] private float moveSpeed = 5; // 이동 속도
+    [SerializeField] private float rotationSpeed = 6.0f; // 회전 속도
+    [SerializeField] private float jumpSpeed = 5; // 점프력
+    [SerializeField] private float gravity = -9.8f; // 중력
+    
+    [Header("Dash Settings")]
+    [SerializeField] private float rollSpeedMultiplier = 2.0f; // 구르기 속도 배율
+    [SerializeField] private float rollDuration = 1.0f; // 구르기 지속 시간
 
-    [SerializeField]
-    private float groundYOffset;
-    [SerializeField]
-    private LayerMask groundMask;
+    [Header("Combat Settings")]
+    [SerializeField] private float attackRotationSpeed = 1000.0f; // 공격 시 회전 속도
+    [SerializeField] private float maxHP = 100; // 최대 체력
+    private float currentHP = 100; // 현재 체력
 
-    [SerializeField]
-    private float gravity = -9.8f;
-    private Vector3 velocity;
+    [Header("References")]
+    [SerializeField] private Slider hpBar; // 체력바 UI
+    [SerializeField] private Inventory theInventory; // 인벤토리 참조
+    [SerializeField] public Transform characterBody; // 캐릭터 모델
+    [SerializeField] private Transform cameraArm; // 카메라 암
+    public Transform aimPos; // 조준점
+    [SerializeField] private float aimSpeed = 20; // 조준점 이동 속도
+    [SerializeField] private LayerMask aimMask; // 조준 레이어 마스크
+    [SerializeField] private Image coolTimeImage; // 쿨타임 이미지
 
-    private float jumpSpeed = 5;
+    // State Variables
+    private float hzInput; // 수평 입력
+    private float vInput; // 수직 입력
+    private Vector3 dir; // 이동 방향
+    private CharacterController cc; // 캐릭터 컨트롤러
+    private Vector3 velocity; // 현재 속도 (중력 포함)
+    public Animator anim; // 애니메이터
 
-    public Animator anim;
+    PlayerState playerState = PlayerState.Idle; // 현재 플레이어 상태
+    private HealthBar healthBar; // 체력바 스크립트
 
-    PlayerState playerState = PlayerState.Idle;
-
-    private float maxHP = 100;
-    private float currentHP = 100;
-    [SerializeField] private Slider hpBar;
-    private HealthBar healthBar;
-
-    [SerializeField] private Inventory theInventory;
-
-    [SerializeField] public Transform characterBody;
-    [SerializeField] private Transform cameraArm;
-    public Transform aimPos;
-    [SerializeField] private float aimSpeed = 20;
-    [SerializeField] private LayerMask aimMask;
-
-    private bool isDash = false;
+    private bool isDash = false; // 대시 중 여부
 
     private float lastInputTime;
     private float inputBufferTime = 0.01f;
 
-    [SerializeField] private Image coolTimeImage;
-    private float maxCoolTime = 1.0f;
+    private float maxCoolTime = 1.0f; // 스킬 쿨타임
     private CoolTime coolTime;
 
     public static event System.Action OnPlayerDeath;
@@ -203,7 +203,7 @@ public class Player : MonoBehaviour
                 targetRotation = Quaternion.LookRotation(moveDir);
             }
 
-            characterBody.rotation = Quaternion.Slerp(characterBody.rotation, targetRotation, Time.deltaTime * 6.0f);
+            characterBody.rotation = Quaternion.Slerp(characterBody.rotation, targetRotation, Time.deltaTime * rotationSpeed);
             cc.Move(moveDir.normalized * moveSpeed * Time.deltaTime);
 
             lastInputTime = Time.time;
@@ -224,10 +224,9 @@ public class Player : MonoBehaviour
             Vector3 verticalMove = cameraArm.forward * vInput;
             Vector3 moveDirection = (horizontalMove + verticalMove).normalized;
 
-            float rollSpeed = moveSpeed * 2;
+            float rollSpeed = moveSpeed * rollSpeedMultiplier;
 
             float startTime = Time.time;
-            float rollDuration = 1.0f;
             while (Time.time - startTime < rollDuration)
             {
                 cc.Move(moveDirection * rollSpeed * Time.deltaTime);
@@ -260,7 +259,7 @@ public class Player : MonoBehaviour
     {
         Vector3 lookForward = new Vector3(cameraArm.forward.x, 0f, cameraArm.forward.z).normalized;
         Quaternion targetRotation = Quaternion.LookRotation(lookForward);
-        characterBody.rotation = Quaternion.RotateTowards(characterBody.rotation, targetRotation, Time.deltaTime * 1000.0f);
+        characterBody.rotation = Quaternion.RotateTowards(characterBody.rotation, targetRotation, Time.deltaTime * attackRotationSpeed);
     }
 
     public void TakeDamage(float damage)

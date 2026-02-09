@@ -9,40 +9,39 @@ public class GameManager : MonoBehaviour
 {
     private static GameManager instance = null;
 
-    public bool canPlayerMove = true;
-    public bool isOpenInventory = false;
+    [Header("Game Settings")]
+    public bool canPlayerMove = true; // 플레이어 이동 가능 여부
+    public bool isOpenInventory = false; // 인벤토리 열림 상태
+    public bool isMenuOpen = false; // 메뉴 열림 상태
+    public bool isEnemyWave = false; // 적 웨이브 진행 중 여부
+    public bool isPlayerAlive = true; // 플레이어 생존 여부
+    public bool isGameClear = false; // 게임 클리어 여부
 
-    public bool isMenuOpen = false;
+    [Header("Player Stats")]
+    public int money = 0; // 보유 자금
+    public int bulletDamage = 10; // 총알 데미지
 
-    public int money = 0;
+    [Header("UI References")]
+    [SerializeField] private TextMeshProUGUI moneyUI; // 돈 표시 UI
+    [SerializeField] private Canvas canvas; // 메인 캔버스
+    [SerializeField] private GameObject clear; // 클리어 화면
+    [SerializeField] private GameObject gameOver; // 게임 오버 화면
 
-    public bool isEnemyWave = false; 
+    [Header("Effects")]
+    [SerializeField] private ParticleSystem hitParticle; // 피격 효과
+    [SerializeField] private GameObject damageTextPrefab; // 데미지 텍스트 프리팹
 
-    public bool isPlayerAlive = true;
-
-    public bool isGameClear = false;
-
-    public int bulletDamage = 10;
-
-    [SerializeField] private TextMeshProUGUI moneyUI;
-
-    [SerializeField] private ParticleSystem hitParticle;
-    [SerializeField] private GameObject damageTextPrefab;
-
+    [Header("Boss & Enemies")]
     public PlayerStatus playerStatus;
     public List<GameObject> drones = new List<GameObject>();
-    [SerializeField] GameObject dronePrefabs;
+    [SerializeField] GameObject dronePrefab; // 드론 프리팹
     private int droneCount = 0;
 
-    [SerializeField] private GameObject boss;
-
-    [SerializeField] private Canvas canvas;
-    [SerializeField] private GameObject bossHPBar;
-
-    [SerializeField] private GameObject clear;
-    [SerializeField] private GameObject gameOver;
+    [SerializeField] private GameObject boss; // 보스 프리팹
+    [SerializeField] private GameObject bossHPBar; // 보스 체력바
 
     private float time = 0f;
+    [SerializeField] private float gameOverDelay = 6.0f; // 게임 오버 후 씬 전환 지연 시간
 
     private void Awake()
     {
@@ -111,7 +110,7 @@ public class GameManager : MonoBehaviour
         if (!isPlayerAlive)
         {
             time += Time.deltaTime;
-            if (time >= 6.0f)
+            if (time >= gameOverDelay) // 매직 넘버(6.0f) 제거
                 SceneManager.LoadScene("GameOverScene");
         }    
     }
@@ -164,7 +163,7 @@ public class GameManager : MonoBehaviour
         droneCount = _droneCount; 
         for (int i = 0; i < _droneCount; i++)
         {
-            Instantiate(dronePrefabs, player.transform.position, player.transform.rotation);
+            Instantiate(dronePrefab, player.transform.position, player.transform.rotation); // dronePrefabs -> dronePrefab 변경 적용
         }
     }
 
