@@ -744,12 +744,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  groundYOffset: 0.7
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 65
+  rotationSpeed: 6
+  jumpSpeed: 5
   gravity: -9.8
-  anim: {fileID: 0}
+  rollSpeedMultiplier: 2
+  rollDuration: 1
+  attackRotationSpeed: 1000
+  maxHP: 100
   hpBar: {fileID: 2077122823}
   theInventory: {fileID: 842146042}
   characterBody: {fileID: 1379702776}
@@ -760,6 +761,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 65
   coolTimeImage: {fileID: 1016488664}
+  anim: {fileID: 0}
 --- !u!143 &122299318
 CharacterController:
   m_ObjectHideFlags: 0
@@ -8464,6 +8466,7 @@ MonoBehaviour:
   barrelPos: {fileID: 1450252596}
   bulletVelocity: 100
   bulletPerShot: 1
+  fireAlignmentThreshold: 0.95
   lightReturnTime: 20
   audioSource: {fileID: 1319634776}
   fireSound: {fileID: 8300000, guid: fd3895a2d40b7c0438eb055779a0f92a, type: 3}
@@ -12492,6 +12495,7 @@ MonoBehaviour:
   barrelPos: {fileID: 1450252596}
   bulletVelocity: 100
   bulletPerShot: 1
+  fireAlignmentThreshold: 0.95
   lightReturnTime: 20
   audioSource: {fileID: 1787987379}
   fireSound: {fileID: 8300000, guid: fd3895a2d40b7c0438eb055779a0f92a, type: 3}
@@ -13422,8 +13426,11 @@ GameObject:
   - component: {fileID: 1854756348}
   - component: {fileID: 1854756349}
   - component: {fileID: 1854756350}
+  - component: {fileID: 1854756353}
+  - component: {fileID: 1854756352}
+  - component: {fileID: 1854756351}
   m_Layer: 0
-  m_Name: GameManager
+  m_Name: Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13444,21 +13451,13 @@ MonoBehaviour:
   canPlayerMove: 1
   isOpenInventory: 0
   isMenuOpen: 0
-  money: 0
   isEnemyWave: 0
   isPlayerAlive: 1
   isGameClear: 0
+  money: 0
   bulletDamage: 10
-  moneyUI: {fileID: 1636939063}
   hitParticle: {fileID: 5024009746357069192, guid: ec3f674830402cc45bce805cf6493db7, type: 3}
-  damageTextPrefab: {fileID: 7442387520519593891, guid: 24c2159eacc3caa4eafc8b88ddadeb13, type: 3}
-  drones: []
-  dronePrefabs: {fileID: 3620355749042102663, guid: a2ba1e72bb72caa43a054cc192b4ef6a, type: 3}
-  boss: {fileID: 2304967744816238605, guid: f20ab87ba1af65243adc8ac91d3a876e, type: 3}
-  canvas: {fileID: 1044466022}
-  bossHPBar: {fileID: 1071220836}
-  clear: {fileID: 1771493643}
-  gameOver: {fileID: 51391842}
+  gameOverDelay: 6
 --- !u!4 &1854756347
 Transform:
   m_ObjectHideFlags: 0
@@ -13505,7 +13504,7 @@ MonoBehaviour:
   - {fileID: 1301658438}
   enemyWaveSpawnPoints:
   - {fileID: 1301658438}
-  potal: {fileID: 377873463}
+  portal: {fileID: 0}
   boss: {fileID: 1346016339888485516, guid: 2be38c51601500640b008d69dec21a1a, type: 3}
 --- !u!82 &1854756350
 AudioSource:
@@ -13603,6 +13602,51 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1854756351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1854756345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df69c005dcfdc78408a61a855ae62bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moneyUI: {fileID: 1636939063}
+  bossHPBar: {fileID: 1071220836}
+  clearPanel: {fileID: 1771493643}
+  gameOverPanel: {fileID: 51391842}
+  mainCanvas: {fileID: 1044466022}
+  damageTextPrefab: {fileID: 7442387520519593891, guid: 24c2159eacc3caa4eafc8b88ddadeb13, type: 3}
+--- !u!114 &1854756352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1854756345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c80e1f9cdbbda441bde55aa2626f692, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1854756353
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1854756345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 171b528e33fb6f043afa860bd6449bab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dronePrefab: {fileID: 3620355749042102663, guid: a2ba1e72bb72caa43a054cc192b4ef6a, type: 3}
+  drones: []
+  bossPrefab: {fileID: 2304967744816238605, guid: f20ab87ba1af65243adc8ac91d3a876e, type: 3}
 --- !u!1 &1885782810
 GameObject:
   m_ObjectHideFlags: 0

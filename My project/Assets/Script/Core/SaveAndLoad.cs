@@ -28,7 +28,7 @@ public class SaveAndLoad : MonoBehaviour
         saveData.hp = player.GetHP();
         saveData.maxHp = player.GetMaxHP();
         saveData.money = GameManager.Instance.money;
-        saveData.droneCount = GameManager.Instance.GetDroneCount();
+        saveData.droneCount = SpawnManager.Instance.GetDroneCount();
 
         Slot[] slots = inventory.GetSlots();
         for (int i = 0; i < slots.Length; i++)
@@ -62,8 +62,8 @@ public class SaveAndLoad : MonoBehaviour
             player.SetHP(saveData.hp);
             player.SetMaxHP(saveData.maxHp);
             GameManager.Instance.money = saveData.money;
-            GameManager.Instance.UpdateMoney();
-            GameManager.Instance.SetDrone(saveData.droneCount, player);
+            UIManager.Instance.UpdateMoneyText(GameManager.Instance.money);
+            SpawnManager.Instance.SetDrone(saveData.droneCount, player);
 
             for (int i = 0; i < saveData.inventoryItemName.Count; i++)
             {

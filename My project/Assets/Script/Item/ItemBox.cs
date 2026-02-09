@@ -26,8 +26,7 @@ public class ItemBox : MonoBehaviour
 
             if (item.GetComponent<DroneObject>() != null)
             {
-                // GameManager.Instance.AddDrone(item);
-                GameManager.Instance.AddDrone();
+                SpawnManager.Instance.AddDrone();
             }
 
             GameManager.Instance.DecreaseMoney(itemPrice);
