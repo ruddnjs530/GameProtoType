@@ -1,0 +1,5 @@
+{
+    "name": "TurretTargeting.Tests",
+    "includePlatforms": ["Editor"],
+    "optionalUnityReferences": ["TestAssemblies"]
+}

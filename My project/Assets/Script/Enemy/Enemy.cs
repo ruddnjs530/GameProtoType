@@ -40,6 +40,7 @@ public class Enemy : MonoBehaviour
     [Header("Stats")]
     [SerializeField] protected float currentHP = 100; // 현재 체력
     public int EnemyID { get; set; } // 적 ID
+    public bool IsDead => currentHP <= 0 || enemyState == EnemyState.Die;
 
     [Header("Combat Settings")]
     public bool canAttack = true; // 공격 가능 여부

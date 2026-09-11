@@ -17,8 +17,11 @@ public class TurretObject : MonoBehaviour
     private GameObject attackTarget;
 
     private int queueMaxSize = 50;
-    private EnemyData[] priorityQueue;
+    private Enemy[] priorityQueue = new Enemy[50];
     private int currentQueueCount = 0;
+    private readonly Dictionary<Enemy, HashSet<Collider>> detectedColliders =
+        new Dictionary<Enemy, HashSet<Collider>>();
+    private DroneObject drone;
 
     public delegate void AttackStateHandler();
     public event AttackStateHandler OnIsAttack;
@@ -26,13 +29,11 @@ public class TurretObject : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        priorityQueue = new EnemyData[queueMaxSize];
-
         turretState = TurretState.Idle;
         originalRotation = transform.rotation;
 
         attackTarget = null;
-        var drone = GetComponentInParent<DroneObject>();
+        drone = GetComponentInParent<DroneObject>();
         if (drone != null) drone.OnPlayerTooFar += HandleDroneTooFar;
 
         originalRotation = transform.rotation;
@@ -41,6 +42,9 @@ public class TurretObject : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        // Moving enemies (and the drone) change priorities. Refresh before selecting.
+        RefreshPriorityQueue();
+        attackTarget = currentQueueCount > 0 ? priorityQueue[0].gameObject : null;
         switch (turretState)
         {
             case TurretState.Idle:
@@ -63,15 +67,13 @@ public class TurretObject : MonoBehaviour
                 break;
 
             case TurretState.Attack:
-                if (currentQueueCount == 0 && attackTarget == null)
+                if (attackTarget == null)
                 {
                     Debug.Log("Queue count 0");
                     turretState = TurretState.Idle;
                     break;
                 }
 
-
-                if (attackTarget == null) attackTarget = PriorityQueueDequeue();
 
                 if (attackTarget != null)
                 {
@@ -86,30 +88,38 @@ public class TurretObject : MonoBehaviour
 
     private void OnTriggerEnter(Collider other) 
     {
-        if (other.CompareTag("Enemy"))
-        {
-            if (turretState == TurretState.Idle)
-            {
-                Debug.Log("Enemy in area");
-                PriorityQueueEnqueue(new EnemyData(other.transform, other.GetComponent<Enemy>().EnemyID));
-            }
+        RegisterCandidate(other);
+    }
 
+    private void OnTriggerStay(Collider other)
+    {
+        // Recover overlaps after this component or a collider is re-enabled.
+        RegisterCandidate(other);
+    }
+
+    private void RegisterCandidate(Collider other)
+    {
+        if (!isActiveAndEnabled) return;
+        Enemy enemy = other.GetComponentInParent<Enemy>();
+        if (enemy == null || !enemy.CompareTag("Enemy") || enemy.IsDead ||
+            !enemy.isActiveAndEnabled) return;
+
+        if (!detectedColliders.TryGetValue(enemy, out HashSet<Collider> colliders))
+        {
+            colliders = new HashSet<Collider>();
+            detectedColliders.Add(enemy, colliders);
+            enemy.OnEnemyDied += RemovePriorityQueueElements;
+            PriorityQueueEnqueue(enemy);
         }
+        colliders.Add(other);
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Enemy"))
-        {
-            if (other.gameObject == attackTarget)
-            {
-                attackTarget = null;
-                turretState = TurretState.Idle;
-                return;
-            }
-            Debug.Log("out");
-            RemovePriorityQueueElements(other.gameObject.GetComponent<Enemy>());
-        }
+        Enemy enemy = other.GetComponentInParent<Enemy>();
+        if (enemy == null || !detectedColliders.TryGetValue(enemy, out HashSet<Collider> colliders)) return;
+        colliders.Remove(other);
+        if (colliders.Count == 0) RemovePriorityQueueElements(enemy);
     }
 
     private void Attack(GameObject target)
@@ -149,30 +159,29 @@ public class TurretObject : MonoBehaviour
         }
     }
 
-    private void PriorityQueueEnqueue(EnemyData enemyData)
+    private void PriorityQueueEnqueue(Enemy enemy)
     {
         for (int i = 0; i < currentQueueCount; i++)
         {
-            if (priorityQueue[i].EnemyDataID == enemyData.EnemyDataID) return;
+            if (priorityQueue[i] == enemy) return;
         }
 
         if (currentQueueCount >= queueMaxSize)
         {
             queueMaxSize *= 2;
-            EnemyData[] newQueue = new EnemyData[queueMaxSize];
+            Enemy[] newQueue = new Enemy[queueMaxSize];
             System.Array.Copy(priorityQueue, newQueue, currentQueueCount);
             priorityQueue = newQueue;
         }
 
-        priorityQueue[currentQueueCount] = enemyData;
+        priorityQueue[currentQueueCount] = enemy;
         currentQueueCount++;
-        Debug.Log("currentQueueCount is " + currentQueueCount);
         int currentIndex = currentQueueCount - 1;
 
         while (currentIndex > 0)
         {
             int parentIndex = (currentIndex - 1) / 2;
-            if (priorityQueue[parentIndex].GetDistance(this.transform.position) > priorityQueue[currentIndex].GetDistance(this.transform.position))
+            if (GetSquaredDistance(priorityQueue[parentIndex]) > GetSquaredDistance(priorityQueue[currentIndex]))
             {
                 Swap(currentIndex, parentIndex);
                 currentIndex = parentIndex;
@@ -184,28 +193,10 @@ public class TurretObject : MonoBehaviour
         }
     }
 
-    private GameObject PriorityQueueDequeue()
+    private float GetSquaredDistance(Enemy enemy)
     {
-        if (currentQueueCount == 0 || priorityQueue[0].Transform == null)
-        {
-            Debug.Log("priorityQueue[0].Transform is null");
-            currentQueueCount = 0;                     ////// ???????????????????????????????? 이렇게 하는게 맞나? 0번째 있는게 삭제가 됐는데 최신화가 안됐을경우임. 이 코드가.
-            return null;
-        }
-
-        GameObject target = priorityQueue[0].Transform.gameObject;
-
-        priorityQueue[0] = priorityQueue[currentQueueCount - 1];
-        currentQueueCount--;
-
-        if (currentQueueCount > 0) Heapify(0);
-
-        if (target == null && currentQueueCount > 0)
-        {
-            return PriorityQueueDequeue();
-        }
-
-        return target;
+        return enemy == null ? float.PositiveInfinity :
+            (enemy.transform.position - transform.position).sqrMagnitude;
     }
 
     private void Heapify(int currentIndex)
@@ -215,54 +206,94 @@ public class TurretObject : MonoBehaviour
         {
             int leftIndex = 2 * currentIndex + 1;
             int rightIndex = 2 * currentIndex + 2;
-
-            if (leftIndex <= lastIndex && priorityQueue[leftIndex].GetDistance(this.transform.position) < priorityQueue[currentIndex].GetDistance(this.transform.position))
-            {
-                currentIndex = leftIndex;
-                Swap(currentIndex, leftIndex);
-            }
-            else if (rightIndex <= lastIndex && priorityQueue[rightIndex].GetDistance(this.transform.position) < priorityQueue[currentIndex].GetDistance(this.transform.position))
-            {
-                currentIndex = rightIndex;
-                Swap(currentIndex, rightIndex);
-            }
-            else break;
+            int smallestIndex = currentIndex;
+            if (leftIndex <= lastIndex && GetSquaredDistance(priorityQueue[leftIndex]) < GetSquaredDistance(priorityQueue[smallestIndex]))
+                smallestIndex = leftIndex;
+            if (rightIndex <= lastIndex && GetSquaredDistance(priorityQueue[rightIndex]) < GetSquaredDistance(priorityQueue[smallestIndex]))
+                smallestIndex = rightIndex;
+            if (smallestIndex == currentIndex) break;
+            Swap(currentIndex, smallestIndex);
+            currentIndex = smallestIndex;
         }
     }
 
     private void Swap(int index1, int index2)
     {
-        EnemyData temp = priorityQueue[index1];
+        Enemy temp = priorityQueue[index1];
         priorityQueue[index1] = priorityQueue[index2];
         priorityQueue[index2] = temp;
     }
 
     private void RemovePriorityQueueElements(Enemy targetEnemy)
     {
-        for (int i = 0; i < currentQueueCount -1; i++)
+        for (int i = 0; i < currentQueueCount; i++)
         {
-            if (priorityQueue[i].EnemyDataID == targetEnemy.EnemyID)
+            if (ReferenceEquals(priorityQueue[i], targetEnemy))
             {
-                priorityQueue[i] = priorityQueue[currentQueueCount - 1];
-                currentQueueCount--;
-                RebuildHeap();
+                RemoveCandidateAt(i);
+                RefreshPriorityQueue();
+                break;
             }
         }
+    }
 
-        if (attackTarget != null && attackTarget == targetEnemy.gameObject)
+    private void RemoveCandidateAt(int index)
+    {
+        Enemy enemy = priorityQueue[index];
+        if (enemy != null)
         {
-            attackTarget = null;
-            turretState = TurretState.Idle;
+            enemy.OnEnemyDied -= RemovePriorityQueueElements;
         }
+        detectedColliders.Remove(enemy);
+        if (enemy == null || attackTarget == enemy.gameObject)
+            attackTarget = null;
+        currentQueueCount--;
+        priorityQueue[index] = priorityQueue[currentQueueCount];
+        priorityQueue[currentQueueCount] = null;
+    }
+
+    private void RefreshPriorityQueue()
+    {
+        for (int i = 0; i < currentQueueCount;)
+        {
+            Enemy enemy = priorityQueue[i];
+            if (enemy == null || enemy.IsDead || !enemy.isActiveAndEnabled)
+            {
+                RemoveCandidateAt(i);
+                continue;
+            }
+            HashSet<Collider> colliders = detectedColliders[enemy];
+            colliders.RemoveWhere(collider => collider == null || !collider.enabled ||
+                !collider.gameObject.activeInHierarchy);
+            if (colliders.Count == 0)
+            {
+                RemoveCandidateAt(i);
+                continue;
+            }
+            i++;
+        }
+        RebuildHeap();
     }
 
     private void RebuildHeap()
     {
-        int lastParentIndex = (currentQueueCount - 2) / 2;
+        int lastParentIndex = currentQueueCount / 2 - 1;
         for (int i = lastParentIndex; i >= 0; i--)
         {
             Heapify(i);
         }
+    }
+
+    private void OnDisable()
+    {
+        while (currentQueueCount > 0) RemoveCandidateAt(currentQueueCount - 1);
+        attackTarget = null;
+        turretState = TurretState.Idle;
+    }
+
+    private void OnDestroy()
+    {
+        if (drone != null) drone.OnPlayerTooFar -= HandleDroneTooFar;
     }
 
     void SmoothRotateToZeroXZ()
