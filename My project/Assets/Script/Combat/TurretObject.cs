@@ -19,6 +19,9 @@ public class TurretObject : MonoBehaviour
     private int queueMaxSize = 50;
     private Enemy[] priorityQueue = new Enemy[50];
     private int currentQueueCount = 0;
+    private readonly Dictionary<Enemy, int> heapIndex = new Dictionary<Enemy, int>();
+    [SerializeField, Min(0.01f)] private float priorityRefreshInterval = 0.5f;
+    private float priorityRefreshElapsed;
     private readonly Dictionary<Enemy, HashSet<Collider>> detectedColliders =
         new Dictionary<Enemy, HashSet<Collider>>();
     private DroneObject drone;
@@ -42,13 +45,11 @@ public class TurretObject : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        // Moving enemies (and the drone) change priorities. Refresh before selecting.
-        RefreshPriorityQueue();
-        attackTarget = currentQueueCount > 0 ? priorityQueue[0].gameObject : null;
+        UpdateTargeting(Time.deltaTime);
         switch (turretState)
         {
             case TurretState.Idle:
-                if (currentQueueCount > 0)
+                if (attackTarget != null)
                 {
                     turretState = TurretState.Attack;
                     break;
@@ -84,6 +85,40 @@ public class TurretObject : MonoBehaviour
                 //OnIsAttack?.Invoke();
                 break;
         }
+    }
+
+    private void UpdateTargeting(float deltaTime)
+    {
+        priorityRefreshElapsed += deltaTime;
+        bool refreshed = priorityRefreshElapsed >= Mathf.Max(0.01f, priorityRefreshInterval);
+        if (refreshed)
+        {
+            priorityRefreshElapsed = 0f;
+            RefreshPriorityQueue();
+        }
+
+        if (attackTarget != null)
+        {
+            Enemy target = attackTarget.GetComponent<Enemy>();
+            if (target == null || target.IsDead || !target.isActiveAndEnabled)
+            {
+                if (!ReferenceEquals(target, null)) RemovePriorityQueueElements(target);
+                attackTarget = null;
+            }
+        }
+
+        // Keep a valid target between refreshes, even when a closer enemy arrives.
+        if (!refreshed && attackTarget != null) return;
+        attackTarget = null;
+        if (currentQueueCount == 0) return;
+        Enemy candidate = priorityQueue[0];
+        if (candidate == null || candidate.IsDead || !candidate.isActiveAndEnabled)
+        {
+            // Bound cleanup to one stale root per frame; periodic cleanup handles the rest.
+            RemovePriorityQueueElements(candidate);
+            return;
+        }
+        attackTarget = candidate.gameObject;
     }
 
     private void OnTriggerEnter(Collider other) 
@@ -161,10 +196,7 @@ public class TurretObject : MonoBehaviour
 
     private void PriorityQueueEnqueue(Enemy enemy)
     {
-        for (int i = 0; i < currentQueueCount; i++)
-        {
-            if (priorityQueue[i] == enemy) return;
-        }
+        if (heapIndex.ContainsKey(enemy)) return;
 
         if (currentQueueCount >= queueMaxSize)
         {
@@ -175,9 +207,13 @@ public class TurretObject : MonoBehaviour
         }
 
         priorityQueue[currentQueueCount] = enemy;
+        heapIndex.Add(enemy, currentQueueCount);
         currentQueueCount++;
-        int currentIndex = currentQueueCount - 1;
+        SiftUp(currentQueueCount - 1);
+    }
 
+    private void SiftUp(int currentIndex)
+    {
         while (currentIndex > 0)
         {
             int parentIndex = (currentIndex - 1) / 2;
@@ -222,19 +258,21 @@ public class TurretObject : MonoBehaviour
         Enemy temp = priorityQueue[index1];
         priorityQueue[index1] = priorityQueue[index2];
         priorityQueue[index2] = temp;
+        heapIndex[priorityQueue[index1]] = index1;
+        heapIndex[priorityQueue[index2]] = index2;
     }
 
     private void RemovePriorityQueueElements(Enemy targetEnemy)
     {
-        for (int i = 0; i < currentQueueCount; i++)
-        {
-            if (ReferenceEquals(priorityQueue[i], targetEnemy))
-            {
-                RemoveCandidateAt(i);
-                RefreshPriorityQueue();
-                break;
-            }
-        }
+        // Unity's destroyed objects still have managed references usable as dictionary keys.
+        if (ReferenceEquals(targetEnemy, null) || !heapIndex.TryGetValue(targetEnemy, out int index)) return;
+        RemoveCandidateAt(index);
+        if (index >= currentQueueCount) return;
+        int parentIndex = (index - 1) / 2;
+        if (index > 0 && GetSquaredDistance(priorityQueue[index]) < GetSquaredDistance(priorityQueue[parentIndex]))
+            SiftUp(index);
+        else
+            Heapify(index);
     }
 
     private void RemoveCandidateAt(int index)
@@ -245,15 +283,18 @@ public class TurretObject : MonoBehaviour
             enemy.OnEnemyDied -= RemovePriorityQueueElements;
         }
         detectedColliders.Remove(enemy);
+        heapIndex.Remove(enemy);
         if (enemy == null || attackTarget == enemy.gameObject)
             attackTarget = null;
         currentQueueCount--;
         priorityQueue[index] = priorityQueue[currentQueueCount];
         priorityQueue[currentQueueCount] = null;
+        if (index < currentQueueCount) heapIndex[priorityQueue[index]] = index;
     }
 
     private void RefreshPriorityQueue()
     {
+        // Compact without per-removal sifting, then rebuild once: O(n + collider count).
         for (int i = 0; i < currentQueueCount;)
         {
             Enemy enemy = priorityQueue[i];
@@ -277,6 +318,8 @@ public class TurretObject : MonoBehaviour
 
     private void RebuildHeap()
     {
+        // Movement can invalidate ordering between refreshes. Local edits compare live
+        // distances but only this bottom-up rebuild restores the entire minimum heap.
         int lastParentIndex = currentQueueCount / 2 - 1;
         for (int i = lastParentIndex; i >= 0; i--)
         {
@@ -287,6 +330,7 @@ public class TurretObject : MonoBehaviour
     private void OnDisable()
     {
         while (currentQueueCount > 0) RemoveCandidateAt(currentQueueCount - 1);
+        priorityRefreshElapsed = 0f;
         attackTarget = null;
         turretState = TurretState.Idle;
     }

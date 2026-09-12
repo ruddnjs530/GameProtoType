@@ -61,6 +61,7 @@ public class TurretTargetingTests
 
     private void AssertHeap()
     {
+        AssertIndices();
         Array queue = (Array)Get("priorityQueue");
         for (int i = 1; i < Count; i++)
         {
@@ -71,13 +72,23 @@ public class TurretTargetingTests
         }
     }
 
-    [Test]
-    public void AttackIncludesNewArrivalsAndSwitchesToNearestWithoutDequeuing()
+    private void AssertIndices()
     {
-        CreateEnemy(5);
-        Call("Update"); // Idle -> Attack
+        var indices = (System.Collections.IDictionary)Get("heapIndex");
+        Array queue = (Array)Get("priorityQueue");
+        Assert.AreEqual(Count, indices.Count);
+        for (int i = 0; i < Count; i++) Assert.AreEqual(i, indices[queue.GetValue(i)]);
+    }
+
+    [Test]
+    public void AttackKeepsTargetUntilRefreshThenSwitchesWithoutDequeuing()
+    {
+        Component first = CreateEnemy(5);
+        Call("UpdateTargeting", 0f);
         Component closer = CreateEnemy(2);
-        Call("Update");
+        Call("UpdateTargeting", 0.49f);
+        Assert.AreEqual(first.gameObject, Get("attackTarget"));
+        Call("UpdateTargeting", 0.02f);
         Assert.AreEqual(2, Count);
         Assert.AreEqual(closer.gameObject, Get("attackTarget"));
     }
@@ -89,9 +100,98 @@ public class TurretTargetingTests
         Call("Update");
         Set(turret, "currentRateOfFire", 0.25f);
         Component closer = CreateEnemy(2);
+        Set(turret, "priorityRefreshElapsed", 0.5f);
         Call("Update");
         Assert.AreEqual(closer.gameObject, Get("attackTarget"));
         Assert.AreEqual(0.25f + Time.deltaTime, (float)Get("currentRateOfFire"), 0.00001f);
+    }
+
+    [Test]
+    public void MovementOnlyRebuildsAtRefreshInterval()
+    {
+        Component first = CreateEnemy(1);
+        Component next = CreateEnemy(3);
+        Call("UpdateTargeting", 0f);
+        first.transform.position = new Vector3(10, 0, 0);
+        Call("UpdateTargeting", 0.49f);
+        Assert.AreEqual(first, Top);
+        Assert.AreEqual(first.gameObject, Get("attackTarget"));
+        Call("UpdateTargeting", 0.02f);
+        Assert.AreEqual(next.gameObject, Get("attackTarget"));
+        AssertHeap();
+    }
+
+    [Test]
+    public void TargetExitSelectsReplacementBeforeRefresh()
+    {
+        Component first = CreateEnemy(1);
+        Component next = CreateEnemy(2);
+        Call("UpdateTargeting", 0f);
+        Call("OnTriggerExit", first.GetComponent<Collider>());
+        Call("UpdateTargeting", 0f);
+        Assert.AreEqual(next.gameObject, Get("attackTarget"));
+        AssertHeap();
+    }
+
+    [Test]
+    public void DisabledTargetIsReplacedWithoutWaitingForRefresh()
+    {
+        Component first = CreateEnemy(1);
+        Component next = CreateEnemy(2);
+        Call("UpdateTargeting", 0f);
+        ((Behaviour)first).enabled = false;
+        Call("UpdateTargeting", 0f);
+        Assert.AreEqual(next.gameObject, Get("attackTarget"));
+        Assert.AreEqual(1, Count);
+        AssertHeap();
+    }
+
+    [Test]
+    public void DestroyedRootIsRemovedWithoutAttackingAndIndicesStayValid()
+    {
+        Component first = CreateEnemy(1);
+        Component next = CreateEnemy(2);
+        Call("UpdateTargeting", 0f);
+        Object.DestroyImmediate(first.gameObject);
+        Call("UpdateTargeting", 0f);
+        Assert.IsNull(Get("attackTarget"));
+        Assert.AreEqual(1, Count);
+        AssertHeap();
+        Call("UpdateTargeting", 0f);
+        Assert.AreEqual(next.gameObject, Get("attackTarget"));
+    }
+
+    [Test]
+    public void ArbitraryRemovalsRepairUpwardAndDownwardAndKeepIndices()
+    {
+        var enemies = new List<Component>();
+        foreach (float distance in new float[] { 1, 10, 2, 11, 12, 3, 4 })
+            enemies.Add(CreateEnemy(distance));
+        Call("OnTriggerExit", enemies[3].GetComponent<Collider>()); // Last element moves upward.
+        AssertHeap();
+        Call("OnTriggerExit", enemies[0].GetComponent<Collider>()); // Root moves downward.
+        AssertHeap();
+        Call("OnTriggerExit", enemies[0].GetComponent<Collider>()); // Repeated removal is harmless.
+        Assert.AreEqual(5, Count);
+        AssertHeap();
+    }
+
+    [Test]
+    public void RandomInsertionsAndRemovalsKeepHeapAndIndicesAcrossGrowth()
+    {
+        var enemies = new List<Component>();
+        var random = new System.Random(17);
+        for (int i = 0; i < 80; i++) enemies.Add(CreateEnemy((float)random.NextDouble() * 100 + 1));
+        AssertHeap();
+        while (enemies.Count > 0)
+        {
+            int index = random.Next(enemies.Count);
+            Component enemy = enemies[index];
+            Call("OnTriggerExit", enemy.GetComponent<Collider>());
+            enemies.RemoveAt(index);
+            Assert.AreEqual(enemies.Count, Count);
+            AssertHeap();
+        }
     }
 
     [Test]
@@ -159,6 +259,7 @@ public class TurretTargetingTests
         Call("RefreshPriorityQueue");
         Assert.AreEqual(1, Count);
         Assert.AreEqual(survivor, Top);
+        AssertHeap();
         Enter(dead.GetComponent<Collider>());
         Assert.AreEqual(1, Count);
     }
@@ -189,6 +290,7 @@ public class TurretTargetingTests
         Call("OnDisable");
         Assert.AreEqual(0, Count);
         Assert.IsNull(enemyType.GetField("OnEnemyDied", Fields).GetValue(enemy));
+        AssertIndices();
     }
 
     [Test]
