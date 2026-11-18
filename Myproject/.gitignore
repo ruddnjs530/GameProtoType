@@ -74,3 +74,8 @@ crashlytics-build.properties
 # 로컬 작업 문서 — 개인 개발 규칙과 진단 문서는 저장소에 올리지 않는다
 /CLAUDE.md
 /docs/
+
+# MCP 접속 정보 — 개인 인증 토큰이 들어 있으므로 절대 커밋하지 않는다
+/.mcp.json
+# Claude Code 개인 설정
+/.claude/settings.local.json
