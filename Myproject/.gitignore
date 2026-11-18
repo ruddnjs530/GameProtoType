@@ -70,3 +70,7 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# 로컬 작업 문서 — 개인 개발 규칙과 진단 문서는 저장소에 올리지 않는다
+/CLAUDE.md
+/docs/
