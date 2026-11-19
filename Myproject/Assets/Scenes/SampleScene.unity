@@ -13508,7 +13508,7 @@ MonoBehaviour:
   money: 0
   bulletDamage: 10
   hitParticle: {fileID: 5024009746357069192, guid: ec3f674830402cc45bce805cf6493db7, type: 3}
-  gameOverDelay: 6
+  gameOverDelay: 3
   clearDelay: 3
 --- !u!4 &1854756347
 Transform:
