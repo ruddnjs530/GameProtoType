@@ -59,13 +59,15 @@ public class HealthBar
         Hide();
     }
 
-    // 화면 좌표에 체력바 설정
+    // 화면 비율 좌표(position)에 체력바를 배치한다. 크기는 RectTransform의 sizeDelta(캔버스 단위)를 그대로 쓴다.
+    // 예전에는 앵커만 바꾸고 기존 anchoredPosition을 남겨 보스 HP바(y=386)가 화면 위로 밀려났고,
+    // 앵커 폭을 Screen.width로 계산해 해상도에 따라 크기와 위치가 달라졌다.
     private void SetHealthBarToScreen(Vector2 position)
     {
         RectTransform rectTransform = healthBar.GetComponent<RectTransform>();
         rectTransform.anchorMin = position;
-        // 화면 비율에 맞춰 앵커 설정
-        rectTransform.anchorMax = position + new Vector2(healthBar.GetComponent<RectTransform>().sizeDelta.x / Screen.width, healthBar.GetComponent<RectTransform>().sizeDelta.y / Screen.height);
+        rectTransform.anchorMax = position;
         rectTransform.pivot = position;
+        rectTransform.anchoredPosition = Vector2.zero;
     }
 }
