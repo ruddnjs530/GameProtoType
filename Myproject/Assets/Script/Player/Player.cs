@@ -49,6 +49,8 @@ public class Player : MonoBehaviour
     private HealthBar healthBar; // 체력바 스크립트
 
     private bool isDash = false; // 대시 중 여부
+    private float dashEndTime;    // 대시가 끝나는 시각
+    private Vector3 dashDirection; // 현재 대시 방향(수평)
 
     private float lastInputTime;
     private float inputBufferTime = 0.01f;
@@ -120,6 +122,8 @@ public class Player : MonoBehaviour
                 {
                     anim.SetBool("Running", true);
                     playerState = PlayerState.Move;
+                    // 대시 키(Shift 누름)는 한 프레임만 true라서, 여기서 처리하지 않으면 정지 상태에서의 대시가 무시된다.
+                    TryStartDash();
                     break;
                 }
                 else if (InputManager.Instance.IsFire)
@@ -147,13 +151,14 @@ public class Player : MonoBehaviour
 
                 Move();
                 Jump();
-                if (dir.magnitude < 0.5f && (Time.time - lastInputTime > inputBufferTime))
+                TryStartDash();
+                // 입력 없이 대시 중이어도 대시가 끝날 때까지는 Move 상태를 유지한다.
+                if (!isDash && dir.magnitude < 0.5f && (Time.time - lastInputTime > inputBufferTime))
                 {
                     anim.SetBool("Running", false);
                     playerState = PlayerState.Idle;
                     break;
                 }
-                StartCoroutine(Dash());
                 break;
 
             case PlayerState.Attack:
@@ -162,7 +167,7 @@ public class Player : MonoBehaviour
                     anim.SetLayerWeight(1, 0);
                     anim.SetBool("Shooting", false);
 
-                    if (dir.magnitude < 0.5f)
+                    if (!isDash && dir.magnitude < 0.5f)
                     {
                         // 이동하며 쏘다가 멈춘 경우 Running이 켜진 채 남아 이동 애니메이션이 계속 재생됐다.
                         anim.SetBool("Running", false);
@@ -177,7 +182,7 @@ public class Player : MonoBehaviour
                 AttackMovement();
                 Move();
                 Jump();
-                StartCoroutine(Dash());
+                TryStartDash();
                 break;
         }
 
@@ -238,20 +243,31 @@ public class Player : MonoBehaviour
         playerState = PlayerState.Idle;
     }
 
+    // 카메라 기준 수평 이동 방향. 카메라 피치가 섞이지 않도록 수평으로 투영한다.
+    private Vector3 GetCameraRelativeDirection(float x, float z)
+    {
+        Vector3 lookForward = new Vector3(cameraArm.forward.x, 0f, cameraArm.forward.z).normalized;
+        Vector3 lookRight = new Vector3(cameraArm.right.x, 0f, cameraArm.right.z).normalized;
+        return lookForward * z + lookRight * x;
+    }
+
     private void Move()
     {
-        if (isDash) return;
-
         hzInput = InputManager.Instance.Horizontal;
         vInput = InputManager.Instance.Vertical;
 
         dir = new Vector3(hzInput, 0, vInput);
 
+        if (isDash)
+        {
+            DashMove();
+            return;
+        }
+
         if (dir != Vector3.zero)
         {
             Vector3 lookForward = new Vector3(cameraArm.forward.x, 0f, cameraArm.forward.z).normalized;
-            Vector3 lookRight = new Vector3(cameraArm.right.x, 0f, cameraArm.right.z).normalized;
-            Vector3 moveDir = lookForward * dir.z + lookRight * dir.x;
+            Vector3 moveDir = GetCameraRelativeDirection(dir.x, dir.z);
 
             Quaternion targetRotation;
 
@@ -271,28 +287,43 @@ public class Player : MonoBehaviour
         }
     }
 
-    private IEnumerator Dash()
+    // 대시 시작. 이전에는 매 프레임 코루틴을 만들었고(대부분 즉시 종료) 방향을 시작 시점에 고정했다.
+    private void TryStartDash()
     {
-        if (InputManager.Instance.IsDash && !isDash)
+        if (isDash || !InputManager.Instance.IsDash) return;
+
+        Vector3 inputDir = GetCameraRelativeDirection(InputManager.Instance.Horizontal, InputManager.Instance.Vertical);
+        // 방향 입력 없이 대시하면 캐릭터가 보는 방향으로 나간다(이전: 방향이 0이라 제자리에 1초간 묶였음).
+        dashDirection = inputDir.sqrMagnitude > 0.01f ? inputDir.normalized : FlatForward(characterBody.forward);
+
+        isDash = true;
+        dashEndTime = Time.time + rollDuration;
+        anim.SetTrigger("Dash");
+    }
+
+    // 대시 중 이동. 방향 입력이 있으면 그 방향으로 즉시 바꿔 대시가 끝나기 전에도 방향 전환이 반영되게 한다.
+    private void DashMove()
+    {
+        Vector3 inputDir = GetCameraRelativeDirection(dir.x, dir.z);
+        if (inputDir.sqrMagnitude > 0.01f) dashDirection = inputDir.normalized;
+
+        // 사격 중에는 몸을 카메라 방향으로 유지하므로(AttackMovement) 대시 방향으로 돌리지 않는다.
+        if (playerState != PlayerState.Attack && dashDirection != Vector3.zero)
         {
-            isDash = true;
-            anim.SetTrigger("Dash");
-            //StartCoroutine(coolTime.ShowCoolTime());
-
-            Vector3 horizontalMove = cameraArm.right * hzInput;
-            Vector3 verticalMove = cameraArm.forward * vInput;
-            Vector3 moveDirection = (horizontalMove + verticalMove).normalized;
-
-            float rollSpeed = moveSpeed * rollSpeedMultiplier;
-
-            float startTime = Time.time;
-            while (Time.time - startTime < rollDuration)
-            {
-                cc.Move(moveDirection * rollSpeed * Time.deltaTime);
-                yield return null;
-            }
-            isDash = false;
+            Quaternion targetRotation = Quaternion.LookRotation(dashDirection);
+            characterBody.rotation = Quaternion.Slerp(characterBody.rotation, targetRotation, Time.deltaTime * rotationSpeed * 2f);
         }
+
+        cc.Move(dashDirection * moveSpeed * rollSpeedMultiplier * Time.deltaTime);
+        lastInputTime = Time.time;
+
+        if (Time.time >= dashEndTime) isDash = false;
+    }
+
+    private static Vector3 FlatForward(Vector3 v)
+    {
+        v.y = 0f;
+        return v.sqrMagnitude > 0.0001f ? v.normalized : Vector3.forward;
     }
 
     // 수직 이동은 이곳에서만 한다. 예전에는 Jump()도 cc.Move를 호출해 Move/Attack 상태에서 수직 이동이 두 번 적용됐다.
