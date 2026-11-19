@@ -16,19 +16,27 @@ public class SaveData
 }
 public class SaveAndLoad : MonoBehaviour
 {
-    private SaveData saveData = new SaveData();
-    private Player player;
-    private Inventory inventory;
+    // 에디터에서 Assets 폴더에 쓰면 에셋 임포트·Git 변경이 생기고, 빌드에서는 쓰기 권한이 없을 수 있어 persistentDataPath를 쓴다.
+    private static string SavePath => Path.Combine(Application.persistentDataPath, "SaveFile.json");
 
     public void SaveData()
     {
-        player = FindObjectOfType<Player>();
-        inventory = FindObjectOfType<Inventory>();
+        Player player = FindObjectOfType<Player>();
+        Inventory inventory = FindObjectOfType<Inventory>();
+        if (player == null || inventory == null)
+        {
+            Debug.LogWarning("저장 실패: Player 또는 Inventory가 없음");
+            return;
+        }
 
-        saveData.hp = player.GetHP();
-        saveData.maxHp = player.GetMaxHP();
-        saveData.money = GameManager.Instance.money;
-        saveData.droneCount = SpawnManager.Instance.GetDroneCount();
+        // 저장할 때마다 새로 만든다. 필드에 두고 재사용하면 인벤토리 목록이 저장할 때마다 누적된다.
+        SaveData saveData = new SaveData
+        {
+            hp = player.GetHP(),
+            maxHp = player.GetMaxHP(),
+            money = GameManager.Instance.money,
+            droneCount = SpawnManager.Instance.GetDroneCount(),
+        };
 
         Slot[] slots = inventory.GetSlots();
         for (int i = 0; i < slots.Length; i++)
@@ -42,35 +50,40 @@ public class SaveAndLoad : MonoBehaviour
         }
 
         string content = JsonUtility.ToJson(saveData);
+        File.WriteAllText(SavePath, content);
 
-        File.WriteAllText(Application.dataPath + "/SaveFile.json", content);
-
-        Debug.Log("데이터 저장 " + content);
+        Debug.Log("데이터 저장 " + SavePath + "\n" + content);
     }
 
     public void LoadData()
     {
-        if (File.Exists(Application.dataPath + "/SaveFile.json")) 
+        if (!File.Exists(SavePath))
         {
-            string content = File.ReadAllText(Application.dataPath + "/SaveFile.json");
-
-            saveData = JsonUtility.FromJson<SaveData>(content);
-
-            player = FindObjectOfType<Player>();
-            inventory = FindObjectOfType<Inventory>();
-
-            player.SetHP(saveData.hp);
-            player.SetMaxHP(saveData.maxHp);
-            GameManager.Instance.money = saveData.money;
-            UIManager.Instance.UpdateMoneyText(GameManager.Instance.money);
-            SpawnManager.Instance.SetDrone(saveData.droneCount, player);
-
-            for (int i = 0; i < saveData.inventoryItemName.Count; i++)
-            {
-                inventory.LoadToInven(saveData.inventoryArrayNumber[i], saveData.inventoryItemName[i], saveData.inventoryItemNumber[i]);
-            }
+            Debug.Log("데이터가 로드 되지 않음: 세이브 파일 없음");
+            return;
         }
-        else Debug.Log("데이터가 로드 되지 않음");
-        
+
+        SaveData saveData = JsonUtility.FromJson<SaveData>(File.ReadAllText(SavePath));
+        Player player = FindObjectOfType<Player>();
+        Inventory inventory = FindObjectOfType<Inventory>();
+        if (saveData == null || player == null || inventory == null)
+        {
+            Debug.LogWarning("로드 실패: 세이브 데이터 또는 Player/Inventory가 없음");
+            return;
+        }
+
+        // 최대 HP를 먼저 설정해야 현재 HP와 HP바 비율이 올바르게 계산된다.
+        player.SetMaxHP(saveData.maxHp);
+        player.SetHP(saveData.hp);
+        GameManager.Instance.money = saveData.money;
+        UIManager.Instance.UpdateMoneyText(GameManager.Instance.money);
+        SpawnManager.Instance.SetDrone(saveData.droneCount, player);
+
+        // 기존 슬롯을 비운 뒤 채운다. 비우지 않으면 이전 내용과 섞인다.
+        inventory.ClearAllSlots();
+        for (int i = 0; i < saveData.inventoryItemName.Count; i++)
+        {
+            inventory.LoadToInven(saveData.inventoryArrayNumber[i], saveData.inventoryItemName[i], saveData.inventoryItemNumber[i]);
+        }
     }
 }

@@ -38,8 +38,8 @@ public class UIManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject);
-            if (mainCanvas != null) DontDestroyOnLoad(mainCanvas);
+            GameManager.KeepForRun(gameObject);
+            if (mainCanvas != null) GameManager.KeepForRun(mainCanvas.gameObject);
         }
         else if (instance != this)
         {

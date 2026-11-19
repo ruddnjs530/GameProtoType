@@ -54,7 +54,8 @@ public class Weapon : MonoBehaviour
     private bool ShouldFire()
     {
         fireRateTimer += Time.deltaTime;
-        if (!GameManager.Instance.canPlayerMove) return false;
+        // UI 열림뿐 아니라 경직·사망 상태에서도 쏘지 못하게 플레이어의 행동 가능 여부를 따른다.
+        if (!player.CanAct) return false;
         if (fireRateTimer < fireRate) return false;
         if (InputManager.Instance.IsRun) return false;
         if (InputManager.Instance.IsFire)

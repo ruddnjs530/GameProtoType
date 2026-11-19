@@ -65,6 +65,7 @@ public class BossEnemy : MonoBehaviour
     public float CurrentHP => currentHP;
     public float MaxHP => maxHP;
     public float AttackAngle => attackAngle;
+    public float LevitationAttackRange => levitationAttackRange;
     public float AttackDamage => attackDamage;
 
     void Start()
@@ -83,6 +84,9 @@ public class BossEnemy : MonoBehaviour
         agent.updateRotation = false;
 
         projector.enabled = false;
+        // 바닥 경고 표시를 실제 판정 범위(반경 levitationAttackRange, 각도 attackAngle)와 같게 맞춘다.
+        // Projector는 보스의 자식이라 한 번 맞추면 보스를 따라 회전한다.
+        LevitationArea.AlignProjector(projector, transform.position, levitationAttackRange);
 
         isAttacking = false;  
 
@@ -118,8 +122,7 @@ public class BossEnemy : MonoBehaviour
                 break;
 
             case BossState.Die:
-                OnBossDeath?.Invoke();
-                Destroy(this.gameObject, 3f);
+                // 사망 처리는 EnterDie()에서 한 번만 한다. 씬 전환은 GameManager가 연출 시간 뒤에 처리한다.
                 break;
         }
 
@@ -286,24 +289,35 @@ public class BossEnemy : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        if (currentHP <= 0)
-        {
-            bossState = BossState.Die;
-            return;
-        }
+        if (bossState == BossState.Die) return;
 
         currentHP -= damage;
+        CheckDeath();
 
         //anim.SetTrigger("isHit");
     }
 
     private void CheckDeath()
     {
-        if (currentHP <= 0)
-        {
-            anim.SetBool("isDie", true);
-            bossState = BossState.Die;
-        }
+        if (bossState != BossState.Die && currentHP <= 0) EnterDie();
+    }
+
+    // Die 상태에 진입할 때 한 번만 실행한다. 진행 중인 스킬 코루틴을 멈춰 사망 후 공격·경직이 남지 않게 한다.
+    private void EnterDie()
+    {
+        bossState = BossState.Die;
+        currentHP = 0;
+
+        StopAllCoroutines();
+        isAttacking = false;
+        currentBossSkill = null;
+        if (agent != null && agent.isOnNavMesh) agent.isStopped = true;
+        if (laser != null) laser.enabled = false;
+        if (warningLine != null) warningLine.enabled = false;
+        if (projector != null) projector.enabled = false;
+
+        anim.SetBool("isDie", true);
+        OnBossDeath?.Invoke();
     }
 
     public void SetHealthBar(Slider hpBar)

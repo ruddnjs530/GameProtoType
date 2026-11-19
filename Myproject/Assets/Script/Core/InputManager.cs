@@ -52,8 +52,10 @@ public class InputManager : MonoBehaviour
 
     private void Update()
     {
-        Horizontal = Input.GetAxis("Horizontal");
-        Vertical = Input.GetAxis("Vertical");
+        // GetAxis는 키를 떼도 값이 서서히 0이 되어 약 0.3~0.5초 미끄러진다. 이동은 즉시 반응하도록 Raw 값을 쓰고,
+        // 애니메이션의 부드러운 전환은 Player에서 Animator 감쇠로 처리한다.
+        Horizontal = Input.GetAxisRaw("Horizontal");
+        Vertical = Input.GetAxisRaw("Vertical");
         
         MouseX = Input.GetAxis("Mouse X");
         MouseY = Input.GetAxis("Mouse Y");

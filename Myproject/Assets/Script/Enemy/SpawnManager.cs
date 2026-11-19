@@ -39,7 +39,7 @@ public class SpawnManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject);
+            GameManager.KeepForRun(gameObject);
         }
         else if (instance != this)
         {
