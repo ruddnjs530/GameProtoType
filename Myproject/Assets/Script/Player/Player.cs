@@ -33,8 +33,8 @@ public class Player : MonoBehaviour
     [SerializeField] public Transform characterBody; // 캐릭터 모델
     [SerializeField] private Transform cameraArm; // 카메라 암
     public Transform aimPos; // 조준점
-    [SerializeField] private float aimSpeed = 20; // 조준점 이동 속도
-    [SerializeField] private LayerMask aimMask; // 조준 레이어 마스크
+    [SerializeField] private LayerMask aimMask; // 조준 레이가 맞는 레이어(지형·적 피격 콜라이더). 트리거는 무시한다
+    [SerializeField] private float maxAimDistance = 200f; // 레이가 아무것도 맞추지 못했을 때 조준점을 둘 거리
     [SerializeField] private Image coolTimeImage; // 쿨타임 이미지
 
     // State Variables
@@ -419,7 +419,13 @@ public class Player : MonoBehaviour
         Vector2 screenCenter = new Vector2(Screen.width / 2, Screen.height / 2);
         Ray ray = Camera.main.ScreenPointToRay(screenCenter);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, aimMask))
-            aimPos.position = Vector3.Lerp(aimPos.position, hit.point, aimSpeed * Time.deltaTime);
+        // 총알은 총구에서 조준점으로 날아가므로 조준점이 크로스헤어가 가리키는 지점과 정확히 같아야 한다.
+        // - 적 탐지 범위 같은 트리거에 걸리지 않도록 트리거를 무시한다.
+        // - 하늘처럼 맞는 것이 없으면 이전 지점에 남지 않도록 레이 방향의 먼 점을 쓴다.
+        // - 보간(Lerp)을 쓰면 시점을 돌린 직후 몇 발이 이전 위치로 날아가므로 즉시 갱신한다.
+        if (Physics.Raycast(ray, out RaycastHit hit, maxAimDistance, aimMask, QueryTriggerInteraction.Ignore))
+            aimPos.position = hit.point;
+        else
+            aimPos.position = ray.GetPoint(maxAimDistance);
     }
 }

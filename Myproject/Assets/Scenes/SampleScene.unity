@@ -745,8 +745,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   rotationSpeed: 6
+  animDampTime: 0.1
   jumpSpeed: 5
   gravity: -9.8
+  groundStickSpeed: 2
   rollSpeedMultiplier: 2
   rollDuration: 1
   attackRotationSpeed: 1000
@@ -756,10 +758,10 @@ MonoBehaviour:
   characterBody: {fileID: 1379702776}
   cameraArm: {fileID: 1839985888}
   aimPos: {fileID: 1832687947}
-  aimSpeed: 20
   aimMask:
     serializedVersion: 2
-    m_Bits: 65
+    m_Bits: 2113
+  maxAimDistance: 200
   coolTimeImage: {fileID: 1016488664}
   anim: {fileID: 0}
 --- !u!143 &122299318
@@ -13507,6 +13509,7 @@ MonoBehaviour:
   bulletDamage: 10
   hitParticle: {fileID: 5024009746357069192, guid: ec3f674830402cc45bce805cf6493db7, type: 3}
   gameOverDelay: 6
+  clearDelay: 3
 --- !u!4 &1854756347
 Transform:
   m_ObjectHideFlags: 0
