@@ -58,8 +58,8 @@ public class Player : MonoBehaviour
 
     void Awake()
     {
-        DontDestroyOnLoad(gameObject);
-        DontDestroyOnLoad(aimPos.gameObject);
+        GameManager.KeepForRun(gameObject);
+        GameManager.KeepForRun(aimPos.gameObject);
     }
 
     void Start()
@@ -76,16 +76,23 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // 사망은 UI가 열려 있어도 판정해야 하므로 이동 가능 여부보다 먼저 검사한다.
+        if (playerState == PlayerState.Die)
+        {
+            Gravity();
+            return;
+        }
+        if (currentHP <= 0)
+        {
+            EnterDie();
+            return;
+        }
+
         if (!GameManager.Instance.canPlayerMove) return;
         switch (playerState)
         {
             case PlayerState.Idle:
-                if (currentHP <= 0)
-                {
-                    playerState = PlayerState.Die;
-                    break;
-                }
-                else if (InputManager.Instance.IsMoveKey || InputManager.Instance.IsRun)
+                if (InputManager.Instance.IsMoveKey || InputManager.Instance.IsRun)
                 {
                     anim.SetBool("Running", true);
                     playerState = PlayerState.Move;
@@ -108,12 +115,7 @@ public class Player : MonoBehaviour
                 break;
 
             case PlayerState.Move:
-                if (currentHP <= 0)
-                {
-                    playerState = PlayerState.Die;
-                    break;
-                }
-                else if (InputManager.Instance.IsFire)
+                if (InputManager.Instance.IsFire)
                 {
                     anim.SetLayerWeight(1, 1);
                     anim.SetBool("Shooting", true);
@@ -133,12 +135,7 @@ public class Player : MonoBehaviour
                 break;
 
             case PlayerState.Attack:
-                if (currentHP <= 0)
-                {
-                    playerState = PlayerState.Die;
-                    break;
-                }
-                else if (InputManager.Instance.IsFireUp)
+                if (InputManager.Instance.IsFireUp)
                 {
                     anim.SetLayerWeight(1, 0);
                     anim.SetBool("Shooting", false);
@@ -158,12 +155,6 @@ public class Player : MonoBehaviour
                 Jump();
                 StartCoroutine(Dash());
                 break;
-
-            case PlayerState.Die:
-                OnPlayerDeath?.Invoke();
-                Destroy(this.gameObject, 2f);
-                GameManager.Instance.isPlayerAlive = false;
-                break;
         }
 
         //anim.SetLayerWeight(1, Mathf.Lerp(0, 1, Time.deltaTime * 2.0f));
@@ -174,6 +165,22 @@ public class Player : MonoBehaviour
         anim.SetFloat("vertical", vInput);
 
         healthBar.SetHealth(currentHP);
+    }
+
+    // 사망 처리는 Die 상태에 진입할 때 한 번만 한다. 매 프레임 이벤트를 보내면 씬 로드가 중복 요청된다.
+    private void EnterDie()
+    {
+        playerState = PlayerState.Die;
+        StopAllCoroutines();
+        isDash = false;
+
+        anim.SetLayerWeight(1, 0);
+        anim.SetBool("Shooting", false);
+        anim.SetBool("Running", false);
+        anim.SetTrigger("Die");
+        healthBar.SetHealth(0);
+
+        OnPlayerDeath?.Invoke();
     }
 
     private void Move()

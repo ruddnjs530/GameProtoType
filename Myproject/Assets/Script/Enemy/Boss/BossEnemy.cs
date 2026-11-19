@@ -118,8 +118,7 @@ public class BossEnemy : MonoBehaviour
                 break;
 
             case BossState.Die:
-                OnBossDeath?.Invoke();
-                Destroy(this.gameObject, 3f);
+                // 사망 처리는 EnterDie()에서 한 번만 한다. 씬 전환은 GameManager가 연출 시간 뒤에 처리한다.
                 break;
         }
 
@@ -286,24 +285,35 @@ public class BossEnemy : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        if (currentHP <= 0)
-        {
-            bossState = BossState.Die;
-            return;
-        }
+        if (bossState == BossState.Die) return;
 
         currentHP -= damage;
+        CheckDeath();
 
         //anim.SetTrigger("isHit");
     }
 
     private void CheckDeath()
     {
-        if (currentHP <= 0)
-        {
-            anim.SetBool("isDie", true);
-            bossState = BossState.Die;
-        }
+        if (bossState != BossState.Die && currentHP <= 0) EnterDie();
+    }
+
+    // Die 상태에 진입할 때 한 번만 실행한다. 진행 중인 스킬 코루틴을 멈춰 사망 후 공격·경직이 남지 않게 한다.
+    private void EnterDie()
+    {
+        bossState = BossState.Die;
+        currentHP = 0;
+
+        StopAllCoroutines();
+        isAttacking = false;
+        currentBossSkill = null;
+        if (agent != null && agent.isOnNavMesh) agent.isStopped = true;
+        if (laser != null) laser.enabled = false;
+        if (warningLine != null) warningLine.enabled = false;
+        if (projector != null) projector.enabled = false;
+
+        anim.SetBool("isDie", true);
+        OnBossDeath?.Invoke();
     }
 
     public void SetHealthBar(Slider hpBar)

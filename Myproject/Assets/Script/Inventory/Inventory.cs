@@ -17,7 +17,8 @@ public class Inventory : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(this.gameObject);
+        // Inventory는 Canvas의 자식이므로 루트(Canvas)를 유지 대상으로 등록한다.
+        GameManager.KeepForRun(gameObject);
     }
 
     // Start is called before the first frame update

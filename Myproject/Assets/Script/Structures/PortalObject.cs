@@ -32,6 +32,8 @@ public class PortalObject : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (scene.name != "BossScene") return;
+        // 포탈은 씬과 함께 파괴되므로 한 번 처리한 뒤 바로 해제한다. 남겨 두면 재시작 후 보스가 중복 생성된다.
+        SceneManager.sceneLoaded -= OnSceneLoaded;
         Player player = GameObject.Find("Player").GetComponent<Player>();
         Inventory inventory = FindObjectOfType<Inventory>();
         SpawnManager.Instance.InitializeBoss();
