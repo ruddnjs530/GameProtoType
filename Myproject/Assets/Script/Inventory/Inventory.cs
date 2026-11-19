@@ -79,6 +79,11 @@ public class Inventory : MonoBehaviour
         }
     }
 
+    public void ClearAllSlots()
+    {
+        foreach (Slot slot in slots) slot.ClearSlot();
+    }
+
     public void LoadToInven(int arrayNum, string itemName, int itemNum)
     {
         for (int i = 0; i < items.Length; i++)
