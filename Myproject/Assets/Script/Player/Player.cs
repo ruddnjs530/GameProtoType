@@ -13,6 +13,9 @@ public class Player : MonoBehaviour
     [SerializeField] private float rotationSpeed = 6.0f; // 회전 속도
     [SerializeField] private float jumpSpeed = 5; // 점프력
     [SerializeField] private float gravity = -9.8f; // 중력
+    // 접지 중에도 아래로 살짝 눌러 주는 속도. 0으로 두면 한 프레임 이동량이 없어 isGrounded가 false로 깜빡이고,
+    // 그 프레임에는 점프가 무시된다(고프레임에서 Idle 점프가 거의 안 되던 원인).
+    [SerializeField] private float groundStickSpeed = 2f;
     
     [Header("Dash Settings")]
     [SerializeField] private float rollSpeedMultiplier = 2.0f; // 구르기 속도 배율
@@ -73,6 +76,8 @@ public class Player : MonoBehaviour
     void Start()
     {
         cc = GetComponent<CharacterController>();
+        // 기본값 0.001이면 고프레임(dt가 작을 때)의 작은 이동이 무시되어 접지 판정이 끊긴다.
+        cc.minMoveDistance = 0f;
         anim = GetComponent<Animator>();
 
         anim.SetLayerWeight(1, 0);
@@ -116,10 +121,6 @@ public class Player : MonoBehaviour
                     playerState = PlayerState.Move;
                     break;
                 }
-                else if (InputManager.Instance.IsJump)
-                {
-                    playerState = PlayerState.Move;
-                }
                 else if (InputManager.Instance.IsFire)
                 {
                     Vector3 lookForward = new Vector3(cameraArm.forward.x, 0f, cameraArm.forward.z).normalized;
@@ -130,6 +131,8 @@ public class Player : MonoBehaviour
                     playerState = PlayerState.Attack;
                     break;
                 }
+                // 제자리 점프는 Idle에서 바로 처리한다(이전에는 Move로 넘어갔다가 다음 프레임에 점프).
+                Jump();
                 break;
 
             case PlayerState.Move:
@@ -285,23 +288,25 @@ public class Player : MonoBehaviour
         }
     }
 
+    // 수직 이동은 이곳에서만 한다. 예전에는 Jump()도 cc.Move를 호출해 Move/Attack 상태에서 수직 이동이 두 번 적용됐다.
     private void Gravity()
     {
-        if (!cc.isGrounded) velocity.y += gravity * Time.deltaTime;
-        else velocity.y = 0;
+        if (cc.isGrounded && velocity.y < 0f)
+            velocity.y = -groundStickSpeed;
+        else
+            velocity.y += gravity * Time.deltaTime;
 
         cc.Move(velocity * Time.deltaTime);
     }
 
+    // 점프 속도만 설정하고, 실제 이동은 같은 프레임의 Gravity()에서 처리한다.
     private void Jump()
     {
-        if (cc.isGrounded && InputManager.Instance.IsJump)
+        if (cc.isGrounded && velocity.y <= 0f && InputManager.Instance.IsJump)
         {
             anim.SetTrigger("Jump");
             velocity.y = jumpSpeed;
         }
-
-        cc.Move(velocity * Time.deltaTime);
     }
 
     private void AttackMovement()
