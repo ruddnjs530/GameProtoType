@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 5; // 이동 속도
     [SerializeField] private float rotationSpeed = 6.0f; // 회전 속도
+    [SerializeField] private float animDampTime = 0.1f; // 이동 블렌드 파라미터 감쇠 시간
     [SerializeField] private float jumpSpeed = 5; // 점프력
     [SerializeField] private float gravity = -9.8f; // 중력
     // 접지 중에도 아래로 살짝 눌러 주는 속도. 0으로 두면 한 프레임 이동량이 없어 isGrounded가 false로 깜빡이고,
@@ -163,6 +164,8 @@ public class Player : MonoBehaviour
 
                     if (dir.magnitude < 0.5f)
                     {
+                        // 이동하며 쏘다가 멈춘 경우 Running이 켜진 채 남아 이동 애니메이션이 계속 재생됐다.
+                        anim.SetBool("Running", false);
                         playerState = PlayerState.Idle;
                         break;
                     }
@@ -182,10 +185,16 @@ public class Player : MonoBehaviour
         LookAround();
         Gravity();
 
-        anim.SetFloat("horizontal", hzInput);
-        anim.SetFloat("vertical", vInput);
+        UpdateMoveAnimation();
 
         healthBar.SetHealth(currentHP);
+    }
+
+    // 입력은 Raw 값(즉시 0/1)이므로, 블렌드 트리 파라미터만 감쇠를 줘서 애니메이션이 튀지 않게 한다.
+    private void UpdateMoveAnimation()
+    {
+        anim.SetFloat("horizontal", hzInput, animDampTime, Time.deltaTime);
+        anim.SetFloat("vertical", vInput, animDampTime, Time.deltaTime);
     }
 
     // 사망 처리는 Die 상태에 진입할 때 한 번만 한다. 매 프레임 이벤트를 보내면 씬 로드가 중복 요청된다.
@@ -260,8 +269,6 @@ public class Player : MonoBehaviour
 
             lastInputTime = Time.time;
         }
-        anim.SetFloat("horizontal", hzInput);
-        anim.SetFloat("vertical", vInput);
     }
 
     private IEnumerator Dash()
