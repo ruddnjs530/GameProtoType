@@ -365,8 +365,11 @@ public class Player : MonoBehaviour
         if (other.CompareTag("HealthBuff"))
         {
             theInventory.AcquireItem(other.gameObject.transform.GetComponent<ItemManager>().healthBuff, 1);
+            // 최대 HP와 현재 HP를 함께 올리고, HP바의 기준 최대치도 갱신한다.
             maxHP += 20;
             currentHP += 20;
+            healthBar.SetMaxHealth(maxHP);
+            healthBar.SetHealth(currentHP);
             Destroy(other.gameObject);
         }
         if (other.CompareTag("DamageBuff"))
@@ -391,12 +394,19 @@ public class Player : MonoBehaviour
     }
 
     public float GetHP() { return currentHP; }
-    public void SetHP(float hp) { currentHP = hp;
-        healthBar.SetHealth(currentHP);  }
+    public void SetHP(float hp)
+    {
+        currentHP = hp;
+        if (healthBar != null) healthBar.SetHealth(currentHP);
+    }
 
     public float GetMaxHP() { return maxHP; }
 
-    public void SetMaxHP(float hp) { maxHP = hp;  }
+    public void SetMaxHP(float hp)
+    {
+        maxHP = hp;
+        if (healthBar != null) healthBar.SetMaxHealth(maxHP);
+    }
 
 
     private void LookAround()

@@ -24,6 +24,14 @@ public class HealthBar
         }
     }
 
+    // 최대 체력이 바뀌면(체력 버프, 로드) 비율 계산의 기준도 함께 바꾼다.
+    // 바꾸지 않으면 최대 체력이 100을 넘었을 때 HP바가 가득 찬 채 줄지 않다가 100 아래에서야 줄어든다.
+    public void SetMaxHealth(float max)
+    {
+        maxHealth = Mathf.Max(1f, max);
+        SetHealth(currentHealth);
+    }
+
     // 체력 설정 및 UI 업데이트
     public void SetHealth(float health)
     {
