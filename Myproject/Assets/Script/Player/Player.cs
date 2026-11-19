@@ -17,7 +17,17 @@ public class Player : MonoBehaviour
     // 접지 중에도 아래로 살짝 눌러 주는 속도. 0으로 두면 한 프레임 이동량이 없어 isGrounded가 false로 깜빡이고,
     // 그 프레임에는 점프가 무시된다(고프레임에서 Idle 점프가 거의 안 되던 원인).
     [SerializeField] private float groundStickSpeed = 2f;
-    
+
+    [Header("Jump Animation")]
+    // Jump 클립(1.2초)은 제자리 점프라 클립 안에서 스스로 착지한다(정규화 시간 0.70에 발이 땅에 닿음).
+    // 클립을 시간대로 재생하면 실제 착지(물리)와 어긋나 공중에서 다리가 먼저 펴지므로,
+    // Animator의 JumpTime(Motion Time)으로 재생 위치를 물리 상태에 맞춰 직접 정한다.
+    [SerializeField] private float jumpClipLength = 1.2f; // Jump 클립 길이(초)
+    [SerializeField] private float jumpTouchdownTime = 0.70f; // 클립에서 발이 땅에 닿는 시점
+    [SerializeField] private float jumpFallbackHoldTime = 0.60f; // 아래에 땅이 감지되지 않을 때(낭떠러지 등)만 이 자세에서 기다린다
+    [SerializeField] private float jumpMaxPlaySpeed = 2.5f; // 착지 예측이 갑자기 짧아져도(턱 위 착지 등) 클립이 이 배속보다 빨리 넘어가지 않게 한다
+    [SerializeField] private LayerMask groundMask = ~0; // 착지까지 남은 거리를 잴 때 맞출 레이어(Player 레이어는 코드에서 제외)
+
     [Header("Dash Settings")]
     [SerializeField] private float rollSpeedMultiplier = 2.0f; // 구르기 속도 배율
     [SerializeField] private float rollDuration = 1.0f; // 구르기 지속 시간
@@ -51,6 +61,15 @@ public class Player : MonoBehaviour
     private bool isDash = false; // 대시 중 여부
     private float dashEndTime;    // 대시가 끝나는 시각
     private Vector3 dashDirection; // 현재 대시 방향(수평)
+
+    private bool isJumpAnimating; // JumpTime을 코드에서 갱신 중인지
+    private bool hasJumpLanded; // 이번 점프에서 실제로 착지했는지
+    private float jumpAnimTime; // Jump 상태의 정규화 재생 위치(0~1)
+    private float jumpStartTime; // 이번 점프를 시작한 시각
+    // 수직 이동(Gravity의 cc.Move) 결과로 구한 접지 여부. cc.isGrounded는 마지막 Move 호출 결과라서,
+    // 이동 중에는 수평 이동(Move/DashMove) 결과가 되어 평지에서도 false로 깜빡였다(이동 중 점프 무시, 낙하 속도 누적).
+    private bool isGrounded;
+    private static readonly int JumpStateHash = Animator.StringToHash("Base Layer.Jump");
 
     private float lastInputTime;
     private float inputBufferTime = 0.01f;
@@ -111,6 +130,7 @@ public class Player : MonoBehaviour
         {
             LookAround();
             Gravity();
+            UpdateJumpAnimation();
             healthBar.SetHealth(currentHP);
             return;
         }
@@ -189,6 +209,7 @@ public class Player : MonoBehaviour
         //anim.SetLayerWeight(1, Mathf.Lerp(0, 1, Time.deltaTime * 2.0f));
         LookAround();
         Gravity();
+        UpdateJumpAnimation();
 
         UpdateMoveAnimation();
 
@@ -329,22 +350,100 @@ public class Player : MonoBehaviour
     // 수직 이동은 이곳에서만 한다. 예전에는 Jump()도 cc.Move를 호출해 Move/Attack 상태에서 수직 이동이 두 번 적용됐다.
     private void Gravity()
     {
-        if (cc.isGrounded && velocity.y < 0f)
+        if (isGrounded && velocity.y < 0f)
             velocity.y = -groundStickSpeed;
         else
             velocity.y += gravity * Time.deltaTime;
 
-        cc.Move(velocity * Time.deltaTime);
+        CollisionFlags flags = cc.Move(velocity * Time.deltaTime);
+        isGrounded = (flags & CollisionFlags.Below) != 0;
     }
 
     // 점프 속도만 설정하고, 실제 이동은 같은 프레임의 Gravity()에서 처리한다.
     private void Jump()
     {
-        if (cc.isGrounded && velocity.y <= 0f && InputManager.Instance.IsJump)
+        if (isGrounded && velocity.y <= 0f && InputManager.Instance.IsJump)
         {
-            anim.SetTrigger("Jump");
             velocity.y = jumpSpeed;
+            isGrounded = false;
+
+            // 트리거(AnyState → Jump)는 Idle↔WalkFront 전이 중에는 전이가 끝날 때까지 기다려서,
+            // 이동을 시작하자마자 점프하면 애니메이션이 물리보다 늦게 시작됐다. 상태를 직접 재생한다.
+            isJumpAnimating = true;
+            hasJumpLanded = false;
+            jumpAnimTime = 0f;
+            jumpStartTime = Time.time;
+            anim.SetFloat("JumpTime", 0f);
+            anim.Play(JumpStateHash, 0, 0f);
         }
+    }
+
+    // Jump 상태의 재생 위치를 물리 상태에 맞춘다. Gravity() 다음에 호출해야 이번 프레임의 접지 결과를 쓴다.
+    //  - 공중: (지난 시간 / 전체 체공 시간 예측)의 비율로 클립의 0 ~ jumpTouchdownTime을 끊김 없이 재생한다.
+    //          예전에는 다리를 모은 자세에서 멈췄다가 착지 직전에 다시 재생해서 공중에서 멈칫했다.
+    //  - 착지 후: 착지 동작을 시간대로 재생하고, Animator 전이(JumpTime 조건)가 이동/정지 상태로 넘긴다.
+    private void UpdateJumpAnimation()
+    {
+        if (!isJumpAnimating) return;
+
+        // 대시·레비테이션·사망 등으로 Jump 상태를 벗어났으면 더 이상 갱신하지 않는다.
+        bool inJump = anim.GetCurrentAnimatorStateInfo(0).fullPathHash == JumpStateHash
+                   || (anim.IsInTransition(0) && anim.GetNextAnimatorStateInfo(0).fullPathHash == JumpStateHash);
+        if (!inJump && jumpAnimTime > 0f)
+        {
+            isJumpAnimating = false;
+            return;
+        }
+
+        float step = Time.deltaTime / jumpClipLength;
+
+        if (!hasJumpLanded && isGrounded && velocity.y <= 0f)
+        {
+            hasJumpLanded = true;
+            // 예상보다 일찍 착지했으면(턱 위로 점프 등) 착지 시점으로 바로 맞춘다.
+            jumpAnimTime = Mathf.Max(jumpAnimTime, jumpTouchdownTime);
+        }
+
+        if (hasJumpLanded)
+        {
+            jumpAnimTime += step;
+        }
+        else
+        {
+            float elapsed = Time.time - jumpStartTime;
+            float target;
+            if (TryGetTimeToLand(out float timeToLand) && elapsed + timeToLand > 0.0001f)
+                target = jumpTouchdownTime * elapsed / (elapsed + timeToLand);
+            else
+                target = Mathf.Min(elapsed / jumpClipLength, jumpFallbackHoldTime);
+
+            // 뒤로 가지 않고, 예측이 바뀌어도 한 프레임에 너무 많이 넘어가지 않게 한다.
+            float maxNext = jumpAnimTime + step * jumpMaxPlaySpeed;
+            jumpAnimTime = Mathf.Clamp(target, jumpAnimTime, Mathf.Min(maxNext, jumpTouchdownTime));
+        }
+
+        jumpAnimTime = Mathf.Min(jumpAnimTime, 1f);
+        anim.SetFloat("JumpTime", jumpAnimTime);
+
+        if (jumpAnimTime >= 1f) isJumpAnimating = false;
+    }
+
+    // 현재 수직 속도와 중력으로 땅에 닿기까지 남은 시간을 구한다(상승 중에도 유효). 아래에 땅이 없으면 false.
+    private bool TryGetTimeToLand(out float timeToLand)
+    {
+        timeToLand = 0f;
+        Vector3 center = transform.TransformPoint(cc.center);
+        float halfHeight = cc.height * 0.5f * transform.lossyScale.y;
+        int mask = groundMask & ~(1 << gameObject.layer);
+        if (!Physics.Raycast(center, Vector3.down, out RaycastHit hit, 50f, mask, QueryTriggerInteraction.Ignore))
+            return false;
+
+        float distance = Mathf.Max(0f, hit.distance - halfHeight);
+        float fallSpeed = -velocity.y;
+        float g = -gravity;
+        // distance = fallSpeed * t + 0.5 * g * t^2
+        timeToLand = (-fallSpeed + Mathf.Sqrt(fallSpeed * fallSpeed + 2f * g * distance)) / g;
+        return true;
     }
 
     private void AttackMovement()
