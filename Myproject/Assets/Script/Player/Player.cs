@@ -54,6 +54,14 @@ public class Player : MonoBehaviour
 
     public static event System.Action OnPlayerDeath;
 
+    // 경직이 끝나는 시각. GameManager.canPlayerMove는 UI 상태로 매 프레임 다시 계산되므로
+    // 경직을 거기에 쓰면 다음 프레임에 풀린다. 경직은 플레이어가 직접 소유한다.
+    private float stunEndTime = -1f;
+    public bool IsStunned => Time.time < stunEndTime;
+
+    /// <summary>이동·사격·대시가 가능한 상태인지. 무기 등 다른 컴포넌트도 이 값으로 판단한다.</summary>
+    public bool CanAct => playerState != PlayerState.Die && !IsStunned && GameManager.Instance.canPlayerMove;
+
     // Start is called before the first frame update
 
     void Awake()
@@ -89,6 +97,16 @@ public class Player : MonoBehaviour
         }
 
         if (!GameManager.Instance.canPlayerMove) return;
+
+        // 경직 중에는 시점 회전과 중력(넉백 후 낙하)만 처리한다.
+        if (IsStunned)
+        {
+            LookAround();
+            Gravity();
+            healthBar.SetHealth(currentHP);
+            return;
+        }
+
         switch (playerState)
         {
             case PlayerState.Idle:
@@ -181,6 +199,31 @@ public class Player : MonoBehaviour
         healthBar.SetHealth(0);
 
         OnPlayerDeath?.Invoke();
+    }
+
+    /// <summary>
+    /// duration초 동안 이동·사격·대시를 막는다. 진행 중인 대시는 취소하고 사격·달리기 애니메이션을 끈다.
+    /// </summary>
+    public void Stun(float duration)
+    {
+        if (playerState == PlayerState.Die) return;
+
+        stunEndTime = Mathf.Max(stunEndTime, Time.time + duration);
+
+        StopAllCoroutines();
+        isDash = false;
+
+        hzInput = 0f;
+        vInput = 0f;
+        dir = Vector3.zero;
+        anim.SetLayerWeight(1, 0);
+        anim.SetBool("Shooting", false);
+        anim.SetBool("Running", false);
+        anim.SetFloat("horizontal", 0f);
+        anim.SetFloat("vertical", 0f);
+
+        // 경직이 끝나면 Idle에서 현재 입력을 다시 읽어 상태를 정한다.
+        playerState = PlayerState.Idle;
     }
 
     private void Move()

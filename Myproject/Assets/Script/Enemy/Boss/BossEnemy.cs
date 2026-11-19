@@ -65,6 +65,7 @@ public class BossEnemy : MonoBehaviour
     public float CurrentHP => currentHP;
     public float MaxHP => maxHP;
     public float AttackAngle => attackAngle;
+    public float LevitationAttackRange => levitationAttackRange;
     public float AttackDamage => attackDamage;
 
     void Start()
@@ -83,6 +84,9 @@ public class BossEnemy : MonoBehaviour
         agent.updateRotation = false;
 
         projector.enabled = false;
+        // 바닥 경고 표시를 실제 판정 범위(반경 levitationAttackRange, 각도 attackAngle)와 같게 맞춘다.
+        // Projector는 보스의 자식이라 한 번 맞추면 보스를 따라 회전한다.
+        LevitationArea.AlignProjector(projector, transform.position, levitationAttackRange);
 
         isAttacking = false;  
 
