@@ -463,6 +463,10 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        // Player에는 CapsuleCollider와 CharacterController가 함께 있어 같은 아이템에 대해 이 함수가 두 번 불린다.
+        // Destroy는 프레임 끝에 일어나므로, 먼저 처리한 쪽에서 비활성화해 두 번째 호출을 무시한다(L-37).
+        if (!other.gameObject.activeInHierarchy) return;
+
         if (other.CompareTag("HealthBuff"))
         {
             theInventory.AcquireItem(other.gameObject.transform.GetComponent<ItemManager>().healthBuff, 1);
@@ -471,12 +475,14 @@ public class Player : MonoBehaviour
             currentHP += 20;
             healthBar.SetMaxHealth(maxHP);
             healthBar.SetHealth(currentHP);
+            other.gameObject.SetActive(false);
             Destroy(other.gameObject);
         }
         if (other.CompareTag("DamageBuff"))
         {
             theInventory.AcquireItem(other.gameObject.transform.GetComponent<ItemManager>().damageBuff, 1);
             GameManager.Instance.bulletDamage += 2;
+            other.gameObject.SetActive(false);
             Destroy(other.gameObject);
         }
     }
