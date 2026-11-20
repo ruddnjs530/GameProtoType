@@ -89,6 +89,9 @@ public class Player : MonoBehaviour
     /// <summary>이동·사격·대시가 가능한 상태인지. 무기 등 다른 컴포넌트도 이 값으로 판단한다.</summary>
     public bool CanAct => playerState != PlayerState.Die && !IsStunned && GameManager.Instance.canPlayerMove;
 
+    /// <summary>대시 중인지. 대시 중에는 사격하지 않는다.</summary>
+    public bool IsDashing => isDash;
+
     // Start is called before the first frame update
 
     void Awake()
@@ -163,7 +166,8 @@ public class Player : MonoBehaviour
                 break;
 
             case PlayerState.Move:
-                if (InputManager.Instance.IsFire)
+                // 대시 중에는 사격을 시작하지 않는다. 대시가 끝났을 때 사격 버튼을 누르고 있으면 그때 Attack으로 넘어간다.
+                if (InputManager.Instance.IsFire && !isDash)
                 {
                     anim.SetLayerWeight(1, 1);
                     anim.SetBool("Shooting", true);
@@ -205,6 +209,15 @@ public class Player : MonoBehaviour
                 Move();
                 Jump();
                 TryStartDash();
+                if (isDash)
+                {
+                    // 사격 중 대시하면 사격을 멈추고 대시만 한다. 대시 속도(이동의 2배)로 움직이는 동안 걷기 사격 애니메이션이
+                    // 재생되어 다리가 비정상적으로 빨라 보였다.
+                    anim.SetLayerWeight(1, 0);
+                    anim.SetBool("Shooting", false);
+                    anim.SetBool("Running", true);
+                    playerState = PlayerState.Move;
+                }
                 break;
         }
 
