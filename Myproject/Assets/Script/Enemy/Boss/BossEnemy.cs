@@ -113,10 +113,13 @@ public class BossEnemy : MonoBehaviour
             case BossState.Attack:
                 CheckDeath();
 
-                if (isAttacking == false && currentBossSkill != null)
+                // 스킬을 고른 프레임과 실행하는 프레임 사이에 조건이 바뀌면(예: 플레이어가 레이저 트리거를 벗어남)
+                // 스킬이 시작되지 않는다. 이때 Attack 상태에 남으면 빠져나갈 경로가 없으므로 이동 상태로 되돌린다.
+                if (!isAttacking)
                 {
-                    BossAttack(currentBossSkill);
+                    IBossSkill skill = currentBossSkill;
                     currentBossSkill = null;
+                    if (!BossAttack(skill)) ChangeToMoveToPlayerState();
                 }
 
                 break;
@@ -143,13 +146,15 @@ public class BossEnemy : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
 
-    private void BossAttack(IBossSkill skill)
+    // 스킬을 시작했으면 true, 조건이 맞지 않아 시작하지 못했으면 false를 돌려준다.
+    private bool BossAttack(IBossSkill skill)
     {
         if (skill == null || !skill.CanExecute(this) || isAttacking)
-            return;
+            return false;
 
         isAttacking = true;
         StartCoroutine(skill.Execute(this));
+        return true;
     }
 
     public bool CanLevitationAttack()
