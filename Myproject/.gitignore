@@ -79,3 +79,5 @@ crashlytics-build.properties
 /.mcp.json
 # Claude Code 개인 설정
 /.claude/settings.local.json
+
+/.ai-game-dev/
