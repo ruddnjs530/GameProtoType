@@ -45,6 +45,8 @@ public class Player : MonoBehaviour
     public Transform aimPos; // 조준점
     [SerializeField] private LayerMask aimMask; // 조준 레이가 맞는 레이어(지형·적 피격 콜라이더). 트리거는 무시한다
     [SerializeField] private float maxAimDistance = 200f; // 레이가 아무것도 맞추지 못했을 때 조준점을 둘 거리
+    private const float MinPitch = -25f; // 카메라가 위를 볼 수 있는 최대 각도(기존 클램프 335°와 같음)
+    private const float MaxPitch = 70f;  // 카메라가 아래를 볼 수 있는 최대 각도
     [SerializeField] private Image coolTimeImage; // 쿨타임 이미지
 
     // State Variables
@@ -513,17 +515,12 @@ public class Player : MonoBehaviour
         Vector2 mouseDelta = new Vector2(InputManager.Instance.MouseX, InputManager.Instance.MouseY);
         Vector3 camAngle = cameraArm.rotation.eulerAngles;
 
-        float x = camAngle.x - mouseDelta.y;
-        if (x < 180f)
-        {
-            x = Mathf.Clamp(x, -1f, 70f);
-        }
-        else
-        {
-            x = Mathf.Clamp(x, 335f, 361f);
-        }
+        // eulerAngles.x는 0~360이므로 -180~180으로 바꾼 뒤 클램프한다(위로 MinPitch, 아래로 MaxPitch까지).
+        // 예전에는 클램프한 값을 계산만 하고 적용하지 않아 시점이 뒤집힐 수 있었다(L-09).
+        float pitch = Mathf.DeltaAngle(0f, camAngle.x) - mouseDelta.y;
+        pitch = Mathf.Clamp(pitch, MinPitch, MaxPitch);
 
-        cameraArm.rotation = Quaternion.Euler(camAngle.x - mouseDelta.y, camAngle.y + mouseDelta.x, camAngle.z);
+        cameraArm.rotation = Quaternion.Euler(pitch, camAngle.y + mouseDelta.x, camAngle.z);
 
         Vector2 screenCenter = new Vector2(Screen.width / 2, Screen.height / 2);
         Ray ray = Camera.main.ScreenPointToRay(screenCenter);
