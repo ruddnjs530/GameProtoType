@@ -54,6 +54,7 @@ public class Weapon : MonoBehaviour
         fireRateTimer += Time.deltaTime;
         // UI 열림뿐 아니라 경직·사망 상태에서도 쏘지 못하게 플레이어의 행동 가능 여부를 따른다.
         if (!player.CanAct) return false;
+        if (player.IsDashing) return false; // 대시 중에는 쏘지 않는다(Player도 대시 중에는 Attack 상태로 가지 않음)
         if (fireRateTimer < fireRate) return false;
         if (InputManager.Instance.IsRun) return false;
         if (InputManager.Instance.IsFire)

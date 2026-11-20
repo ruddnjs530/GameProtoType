@@ -237,7 +237,18 @@ public class BossEnemy : MonoBehaviour
         agent.isStopped = false;
         //anim.SetBool("isWalking", true);
         bossState = BossState.MoveToPlayer;
+
+        // 공격 애니메이션의 끝을 스킬 코루틴의 끝과 맞춘다. 예전에는 애니메이터의 Exit Time(레이저 약 3.8초)으로만 끝나
+        // 스킬(4.3초)과 어긋났고, 이미 이동 상태로 돌아가 회전하는 동안 레이저 자세가 남았다.
+        if (anim != null)
+        {
+            anim.ResetTrigger("LaserAttack");
+            anim.ResetTrigger("LevitationAttack");
+            anim.CrossFadeInFixedTime("Walk", AttackAnimFade);
+        }
     }
+
+    private const float AttackAnimFade = 0.15f; // 공격 애니메이션 진입·복귀 전환 시간(초)
 
     private void UpdateSkill()
     {
@@ -264,7 +275,11 @@ public class BossEnemy : MonoBehaviour
 
         //anim.SetBool("isWalking", false);
         agent.isStopped = true;
-        anim.SetTrigger(animationName);
+        // 트리거 대신 상태로 바로 전환한다. Walk → 공격 전이가 Exit Time(루프 경계) 기준이라 트리거를 넣어도
+        // 최대 1.3초(Walk 클립 한 바퀴) 늦게 시작됐고, 소비되지 않은 트리거가 다음 공격 애니메이션과 겹쳤다.
+        anim.ResetTrigger("LaserAttack");
+        anim.ResetTrigger("LevitationAttack");
+        anim.CrossFadeInFixedTime(animationName, AttackAnimFade);
         Debug.Log("PrepareForAttack " + anim.GetCurrentAnimatorStateInfo(0).IsName(animationName));
     }
 
