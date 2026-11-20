@@ -749,6 +749,13 @@ MonoBehaviour:
   jumpSpeed: 5
   gravity: -9.8
   groundStickSpeed: 2
+  jumpClipLength: 1.2
+  jumpTouchdownTime: 0.7
+  jumpFallbackHoldTime: 0.6
+  jumpMaxPlaySpeed: 2.5
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   rollSpeedMultiplier: 2
   rollDuration: 1
   attackRotationSpeed: 1000
