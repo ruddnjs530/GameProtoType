@@ -16,8 +16,7 @@ public class Weapon : MonoBehaviour
     [SerializeField] private float fireAlignmentThreshold = 0.95f; // 발사 허용 정렬 임계값 (0~1)
 
     [Header("References")]
-    private Mouse aim; // 마우스 조준 참조
-    private Player player; // 플레이어 참조
+    private Player player; // 플레이어 참조(시점 회전과 조준점은 Player.LookAround가 담당한다)
 
     [Header("Effects")]
     private Light muzzleFlashLight; // 총구 섬광 라이트
@@ -32,7 +31,6 @@ public class Weapon : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        aim = GetComponentInParent<Mouse>();
         fireRateTimer = fireRate;
         muzzleFlashLight = GetComponentInChildren<Light>();
         lightIntensity = muzzleFlashLight.intensity;
@@ -75,7 +73,7 @@ public class Weapon : MonoBehaviour
     private void Fire()
     {
         fireRateTimer = 0;
-        Vector3 aimDirection = (aim.aimPos.position - barrelPos.position).normalized;
+        Vector3 aimDirection = (player.aimPos.position - barrelPos.position).normalized;
 
         MuzzleFlash();
         audioSource.PlayOneShot(fireSound);
