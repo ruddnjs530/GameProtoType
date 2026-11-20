@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class LevitationAttack : DefaultBossSkill
 {
-    private const float TelegraphTime = 2f; // 경고 범위를 보여 주는 시간. 이 시간이 끝나는 순간 한 번 판정한다
+    // 경고 범위를 보여 주는 시간. 이 시간이 끝나는 순간 한 번 판정한다.
+    // LevitationAttack 클립(2.67초)은 0~1.25초에 몸을 숙이고 1.25~2.08초에 머리를 들어올린다.
+    // 머리를 들기 시작할 때 맞도록 1.35초로 맞춘다(예전 2초는 들어올리기가 거의 끝날 때라 늦어 보였다).
+    private const float TelegraphTime = 1.35f;
     private const float StunDuration = 2f;  // 피격 시 플레이어가 이동·사격·대시를 할 수 없는 시간
     private const float RecoveryTime = 2f;  // 판정 후 보스가 다음 행동으로 넘어가기까지의 시간
 
